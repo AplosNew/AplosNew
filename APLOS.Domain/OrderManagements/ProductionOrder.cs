@@ -39,6 +39,9 @@ namespace Library.Model.OrderManagements
         public string UserDefineLotNo { get; set; }
         public bool IsPreDefineLotApplicable { get; set; }
         public bool IsWorkCenterValidateApplicable { get; set; }
+        public bool PlanningType1 { get; set; }
+        public bool PlanningType2 { get; set; }
+        public bool PlanningType3 { get; set; }
 
         //public string ProductionStage { get; set; }
         //public string color { get; set; } = "#ffffff";

@@ -429,6 +429,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         , UsedInPB: false
         , PlanningTypeProcessId: null
         , OrderLevel: null
+        , PlanningType1: true
     };
     $scope.model = Object.assign({}, $scope.model);
 

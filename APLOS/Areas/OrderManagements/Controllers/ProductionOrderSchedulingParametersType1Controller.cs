@@ -618,7 +618,7 @@ from trn.ProductionOrderDetail AS pod JOIN  trn.SalesOrder SO ON pod.SalesOrderI
                         WHERE po.Id NOT IN (SELECT ProductionOrderSchedulingParametersType1.ProductionOrderID
                       FROM ProductionOrderSchedulingParametersType1)
                             AND 
-isnull(S.username,'')<>'" + PlanningStatus.CLOSED.ToString() + @"' AND  po.entityid='" + entityid + @"' AND PO.OrderType = 'PlanningType1' and PO.Id IN (SELECT DISTINCT pops.ProductionOrderId
+isnull(S.username,'')<>'" + PlanningStatus.CLOSED.ToString() + @"' AND  po.entityid='" + entityid + @"' AND PO.PlanningType1 = 1  Or PO.PlanningType2 = 1 and PO.Id IN (SELECT DISTINCT pops.ProductionOrderId
                             FROM trn.ProductionOrderProcessSet AS pops WHERE pops.ProcessId = '" + baseprocessid + @"')) AS TEMP where " + strKey;
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
