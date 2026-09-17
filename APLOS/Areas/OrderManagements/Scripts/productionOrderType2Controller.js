@@ -505,6 +505,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         , UsedInPB: false
         , PlanningTypeProcessId: null
         , WCPreferenceType: 'INCLUDE'
+        , PlanningType2: true
     };
     $scope.model = Object.assign({}, $scope.model);
 
@@ -3018,6 +3019,30 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
             $http({
                 method: 'GET',
                 url: "OrderManagements/productionOrderSchedulingParametersType1/ProductionType2PlanSimulation?entityid=" + $scope.model.EntityId + "&processid=" + $scope.model.PlanningTypeProcessId
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult("Simulated successfully", 'success');
+
+
+                    var args = { "requestType": "filtering" };
+                    $scope.filterComplete(args);
+
+                }
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.SimulateAll = function () {
+        try {
+            
+            $http({
+                method: 'GET',
+                url: "OrderManagements/productionOrderSchedulingParametersType1/SubProductionPlanSimulation"
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
                     ShowResult(response.data.Message, 'failure');
