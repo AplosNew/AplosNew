@@ -119,12 +119,13 @@ function loanController(accountService, bankService, cboService, commonMessage, 
                 $scope.entityList = result;
             });
     });
-
+    $scope.voucherNOIsManually = false;
     $scope.getCboVoucherTypeLoanList = function () {
         accountService.getCboVoucherTypeLoanList(function (result) {
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
+                $scope.voucherNOIsManually = $scope.voucherTypeList[0].IsManually;
                 $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
                 $scope.voucher.DocDate = $scope.voucher.PostingDate;
             }
@@ -339,6 +340,14 @@ function loanController(accountService, bankService, cboService, commonMessage, 
     };
 
     $scope.Save = function () {
+        if ($scope.voucherNOIsManually == true && $scope.voucher.VoucherNo == null) {
+            ShowResult("Please Input Voucher No!", "failure");
+            return true;
+        }
+        if ($scope.Action === "Update" && $scope.voucher.VoucherNo == null) {
+            ShowResult("Please Input Voucher No!", "failure");
+            return true;
+        }
         $scope.$broadcast("show-errors-check-validity");
         $scope.checkDocDate();
         $scope.checkPostingDate();

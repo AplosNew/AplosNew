@@ -481,6 +481,18 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [Authorize, HttpGet]
+        public JsonResult GetPartyAccountGroupGL(GridParameter parameters, string companyId,string partyAccountGroupId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (string.IsNullOrEmpty(companyId))
+                companyId = identity.CompanyId;
+            AccountsGLService _accountsGLService = new AccountsGLService(_sqlRepository);
+
+            return Json(_accountsGLService.GetPartyAccGroupGL(parameters, identity.CompanyGroupId, companyId, ReconcileAccountEnum.Vendor, AccountTypeEnum.Liability, partyAccountGroupId), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [Authorize, HttpGet]
         public JsonResult GetCustomerDownpaymentGLCOAWise(GridParameter parameters, string coaId)
         {
             return Json(_glGeneralInfoService.GetGLListByCOA(parameters, coaId, AccountTypeEnum.Liability, ReconcileAccountEnum.Customer), JsonRequestBehavior.AllowGet);

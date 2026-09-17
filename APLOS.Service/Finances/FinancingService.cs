@@ -107,6 +107,20 @@ namespace Library.Service.Finances
             _investmentDetailRepository.Update(financingDetail);
         }
 
+        public void UpdateFinancingWriteOff(FinancingWriteOff financingWriteOff)
+        {
+            if (string.IsNullOrEmpty(financingWriteOff.AddedBy))
+                AuditService.AddedLog(financingWriteOff);
+            _financingWriteOffRepository.Update(financingWriteOff);
+        }
+
+        public void UpdateFinancingDetailWriteOff(FinancingDetailWriteOff financingDetailWriteOff)
+        {
+            if (string.IsNullOrEmpty(financingDetailWriteOff.AddedBy))
+                AuditService.AddedLog(financingDetailWriteOff);
+            _financingDetailWriteOffRepository.Update(financingDetailWriteOff);
+        }
+
 
 
         public PKGenerator GetMaxNumber()
@@ -218,6 +232,16 @@ namespace Library.Service.Finances
         public FinancingDetail FindFinancingDetail(string financingDetailId)
         {
             return _investmentDetailRepository.Find(financingDetailId);
+        }
+
+        public FinancingWriteOff FindFinancingWriteOff(string financingWriteOffId)
+        {
+            return _financingWriteOffRepository.Find(financingWriteOffId);
+        }
+
+        public FinancingDetailWriteOff FindFinancingDetailWriteOff(string financingDetailWriteOffId)
+        {
+            return _financingDetailWriteOffRepository.Find(financingDetailWriteOffId);
         }
 
         private static void CheckIsPosted(Financing financing)

@@ -29,6 +29,7 @@ function SubsequentInvestmentController(accountService, bankService, cboService,
         PartyType: "Customer",
         CurrencyId: null,
         VoucherNo: null,
+        InvestmentVoucherNo:null,
         VoucherDate: $filter("dateFiltering")(Date.now()),
         PostingDate: null,
         DocDate: null,
@@ -111,11 +112,13 @@ function SubsequentInvestmentController(accountService, bankService, cboService,
                 $scope.entityList = result;
             });
     });
+    $scope.voucherNOIsManually = false;
     $scope.getCboVoucherTypeInvestmentList = function () {
         accountService.getCboVoucherTypeInvestmentList(function (result) {
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
+                $scope.voucherNOIsManually = $scope.voucherTypeList[0].IsManually;
                 $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
                 $scope.voucher.DocDate = $scope.voucher.PostingDate;
             }
@@ -437,6 +440,14 @@ function SubsequentInvestmentController(accountService, bankService, cboService,
         $scope.voucher.SourceType = type;
     };
     $scope.validation = function () {
+        if ($scope.voucherNOIsManually == true && $scope.voucher.VoucherNo == null) {
+            ShowResult("Please Input Voucher No!", "failure");
+            return true;
+        }
+        if ($scope.Action === "Update" && $scope.voucher.VoucherNo == null) {
+            ShowResult("Please Input Voucher No!", "failure");
+            return true;
+        }
         if (new Date($scope.voucher.PostingDate) < new Date($scope.voucher.LoanPostingDate)) {
             ShowResult("Posting date must be below or equal to Loan PostingDate!", "failure");;
             return true;
@@ -598,7 +609,7 @@ function SubsequentInvestmentController(accountService, bankService, cboService,
         $scope.voucher.TransactionType = "LoanTaken";
         $scope.voucher.SourceType = "LoanInterestPayable";
         $scope.currencyExchangeRate = [];
-        $scope.getCboVoucherTypeLoanList();
+        $scope.getCboVoucherTypeInvestmentList();
         $scope.loanRepaymentSchedulelist = [];
         $("#loanDetails").children().remove();
         $scope.isReadOnly = false;
@@ -679,7 +690,7 @@ function SubsequentInvestmentController(accountService, bankService, cboService,
         $scope.voucher.FinancingId = data.FinancingId;
         $scope.voucher.FinancingDetailId = data.FinancingDetailId;
         $scope.voucher.FinancingTypeId = data.FinancingTypeId;
-        $scope.voucher.VoucherNo = data.VoucherNo;
+        $scope.voucher.InvestmentVoucherNo = data.VoucherNo;
         $scope.voucher.PartyName = data.Particulars;
         $scope.voucher.PartyId = data.PartyId;
         $scope.voucher.PartyType = data.PartyType;
@@ -905,4 +916,45 @@ function SubsequentInvestmentController(accountService, bankService, cboService,
         angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
     };
 
+    $scope.confirmUpdate = function (data) {
+        $scope.voucher_Update = data;
+        getJournalList(data.VoucherId);
+        angular.element(document.querySelector('#VoucherUpdatePopUp')).modal('show');
+    };
+    $scope.closeVoucherUpdatePopUp = function () {
+        angular.element(document.querySelector("#VoucherUpdatePopUp")).modal("hide");
+    };
+    $scope.newJVList = [];
+    function getJournalList(voucherId) {
+        $http.get('Accounts/Voucher/GetEditableJournalList?voucherId=' + voucherId)
+            .then(function (response) {
+                $scope.newJVList = [];
+                $scope.newJVList = response.data;
+            });
+    }
+
+    $scope.updateInvoice = function () {
+        $http({
+            method: "POST",
+            url: "accounts/Invoice/UpdateVendorInvoice",
+            data: {
+                "voucherVM": $scope.voucher_Update,
+                "voucherDetailVMList": $scope.newJVList
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.Clear();
+                angular.element(document.querySelector('#VoucherUpdatePopUp')).modal('hide');
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
 }

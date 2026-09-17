@@ -1,0 +1,118 @@
+﻿<style>
+    .modellgModify1 {
+        width: 1100px;
+    }
+</style>
+<div class="modal fade site-modal in" id="VoucherUpdatePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify1">
+        <div class="modal-content">
+            <div class="modal-header"><button type="button" class="close" ng-click="closeVoucherUpdatePopUp();">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Voucher No</label>
+                                <div class="col-sm-9 show-message">
+                                    <input type="text" id="VoucherNo_PaymentTerm" name="VoucherNo_Update" ng-model="voucher_Update.VoucherNo" class="form-control" tabindex="5" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top:40px;">
+                                <label class="col-sm-3 control-label">Currency</label>
+                                <div class="col-sm-3 show-message">
+                                    <input type="text" id="CurrencyCode_PaymentTerm" name="CurrencyCode_Update" ng-model="voucher_Update.CurrencyCode" class="form-control" tabindex="5" autocomplete="off" readonly>
+                                </div>
+                                <label class="col-sm-3 control-label">Rate</label>
+                                <div class="col-sm-3 show-message">
+                                    <input type="text" id="Rate_PaymentTerm" name="Rate_Update" ng-model="voucher_Update.CompanyCurrencyRate" class="form-control" tabindex="5" autocomplete="off" ng-disabled="voucher_Update.CurrencyId==companyCurrencyId" >
+                                </div>
+                            </div>
+                            <div id="div_Narration_PaymentTerm" class="form-group" style="margin-top:80px;">
+                                <label class="col-sm-3 control-label">Narration</label>
+                                <div class="col-sm-9 show-message">
+                                    <textarea rows="3" type="text" name="Narration_Update" tabindex="13" class="form-control" ng-model="voucher_Update.Narration" ></textarea>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Doc Ref</label>
+                                <div class="col-sm-9 show-message">
+                                    <input type="text" id="Doc Ref PaymentTerm" name="Doc Ref Update" ng-model="voucher_Update.DocRefNo" class="form-control" tabindex="5" autocomplete="off" >
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top:40px;">
+                                <label class="col-sm-3 control-label">Amount</label>
+                                <div class="col-sm-9 show-message">
+                                    <input type="text" n-decimals="2" id="Amount_Update" name="Amount_Update" ng-model="voucher_Update.Amount" class="form-control" tabindex="5" autocomplete="off">
+                                </div>
+                            </div>
+                            <div id="div_entity_PaymentTerm" class="form-group" style="margin-top:80px;">
+                                <label class="col-sm-3 control-label">Entity<sup>*</sup></label>
+                                <div class="col-sm-9 show-message">
+                                    <div class="select-style">
+                                        <select id="entityId_PaymentTerm" class="form-control" name="entity_Update" ng-model="voucher_Update.EntityId" tabindex="6" ng-readonly>
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br />
+               
+                <div class="clearfix"></div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>GL</th>
+                                <th>Budget</th>
+                                <th>Activity</th>
+                                <th>Dr</th>
+                                <th>Cr</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in newJVList">
+                                <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
+                                <td>{{x.BudgetName}}</td>
+                                <td>{{x.ActivityName}}</td>
+                                <td>
+                                    <div class="show-message">
+                                        <input type="text" n-decimals="4" class="form-control text-right" ng-model="x.DrAmount">
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="show-message">
+                                        <input type="text" n-decimals="4" class="form-control text-right" ng-model="x.CrAmount">
+                                    </div>
+                                </td>
+                                <td class="text-right">
+                                    <button ng-click="popUpGL($index)" data-toggle="modal" class="btn btn-action tooltip-here" data-placement="top" title="popUp">
+                                        <i class="glyphicon glyphicon-info-sign"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"></td>
+                                <td class="text-right"><strong>{{newJVList | sumByKey : 'DrAmount' | number| setDecimal:4}}</strong></td>
+                                <td class="text-right"><strong>{{newJVList | sumByKey : 'CrAmount' | number| setDecimal:4}}</strong></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <br />
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closeVoucherUpdatePopUp();" class="btn"> Close</button></li>
+                    <li><button ng-click="updateInvoice();" class="btn"> Update</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

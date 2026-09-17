@@ -378,12 +378,13 @@ function bankJournalController(bankService, accountService, cboService, commonMe
         $scope.advanceChargesList = [];
         $scope.voucherDetailList = [];
     };
-
+    $scope.voucherNOIsManually = false;
     $scope.getCboVoucherTypeBankJournalList = function () {
         accountService.getCboVoucherTypeBankJournalList(function (result) {
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
+                $scope.voucherNOIsManually = $scope.voucherTypeList[0].IsManually;
                 $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
                 $scope.voucher.DocDate = $scope.voucher.PostingDate;
                 $scope.GetCurrencyExchangeRateList();
@@ -401,6 +402,14 @@ function bankJournalController(bankService, accountService, cboService, commonMe
         $scope.voucher.DocDate = $scope.voucher.PostingDate;
     };
     $scope.validation = function () {
+        if ($scope.voucherNOIsManually == true && $scope.voucher.VoucherNo == null) {
+            ShowResult("Please Input Voucher No!", "failure");
+            return true;
+        }
+        if ($scope.Action === "Update" && $scope.voucher.VoucherNo == null) {
+            ShowResult("Please Input Voucher No!", "failure");
+            return true;
+        }
         if ($scope.approvedByList.length > 0 && $scope.voucher.ApprovedById == null) {
             ShowResult("Please select Approved By!", "failure");
             return true;

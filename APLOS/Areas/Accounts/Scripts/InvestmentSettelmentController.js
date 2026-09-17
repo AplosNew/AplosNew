@@ -27,6 +27,7 @@ function InvestmentSettelmentController(accountService, bankService, cboService,
         PartyType: "Customer",
         CurrencyId: null,
         VoucherNo: null,
+        InvestmentVoucherNo: null,
         VoucherDate: $filter("dateFiltering")(Date.now()),
         PostingDate: null,
         DocDate: null,
@@ -133,12 +134,13 @@ function InvestmentSettelmentController(accountService, bankService, cboService,
                 $scope.entityList = result;
             });
     });
-
+    $scope.voucherNOIsManually = false;
     $scope.getCboVoucherTypeInvestmentSetOffList = function () {
         accountService.getCboVoucherTypeInvestmentSetOffList(function (result) {
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
+                $scope.voucherNOIsManually = $scope.voucherTypeList[0].IsManually;
                 $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
                 $scope.voucher.DocDate = $scope.voucher.PostingDate;
             }
@@ -407,6 +409,14 @@ function InvestmentSettelmentController(accountService, bankService, cboService,
             ShowResult("Payment Amount can't more than Loan Balance Amount", "failure");;
             return true;
         }
+        if ($scope.voucherNOIsManually == true && $scope.voucher.VoucherNo == null) {
+            ShowResult("Please Input Voucher No!", "failure");
+            return true;
+        }
+        if ($scope.Action === "Update" && $scope.voucher.VoucherNo == null) {
+            ShowResult("Please Input Voucher No!", "failure");
+            return true;
+        }
         return false;
         
     };
@@ -638,7 +648,7 @@ function InvestmentSettelmentController(accountService, bankService, cboService,
         $scope.voucher.FinancingId = data.FinancingId;
         $scope.voucher.FinancingDetailId = data.FinancingDetailId;
         $scope.voucher.FinancingTypeId = data.FinancingTypeId;
-        $scope.voucher.VoucherNo = data.VoucherNo;
+        $scope.voucher.InvestmentVoucherNo = data.VoucherNo;
         $scope.voucher.PartyName = data.Particulars;
         $scope.voucher.PartyId = data.PartyId;
         $scope.voucher.PartyType = data.PartyType;

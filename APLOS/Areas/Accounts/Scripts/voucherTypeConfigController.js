@@ -21,7 +21,8 @@ function voucherTypeConfigController(cboService, commonMessage, $scope, $rootSco
         Prefix: null,
         PadLeftWidth: null,
         PadLeftChar: null,
-        IsBackDatePostingAllow: false
+        IsBackDatePostingAllow: false,
+        IsManually: false
     };
 
     $scope.companyGroupList = [];

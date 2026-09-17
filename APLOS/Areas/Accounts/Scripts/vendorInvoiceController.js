@@ -398,6 +398,14 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
                 ShowResult("Please select Approved By!", "failure");
                 return true;
             }
+            if ($scope.voucherNOIsManually == true && $scope.voucher.VoucherNo == null) {
+                ShowResult("Please Input Voucher No!", "failure");
+                return true;
+            }
+            if ($scope.Action === "Update" && $scope.voucher.VoucherNo == null) {
+                ShowResult("Please Input Voucher No!", "failure");
+                return true;
+            }
             if ($scope.voucher.PaymentSource === "GL") {
                 var vdetailDr = $filter("filter")($scope.voucherDetailList, { TrnType: "Dr" });
                 if (vdetailDr.length === 0) {
@@ -700,12 +708,13 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
     function clearVoucherDetail() {
         $scope.voucherDetail = {};
     }
-
+    $scope.voucherNOIsManually = false;
     $scope.getCboVoucherTypeAccountPayableList = function () {
         cboService.getCboVoucherTypeAccountPayableList(function (result) {
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
+                $scope.voucherNOIsManually = $scope.voucherTypeList[0].IsManually;
                 $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
                 $scope.voucher.DocDate = $scope.voucher.PostingDate;
                 $scope.getTaxCodeByTaxYear($scope.voucher.PostingDate);

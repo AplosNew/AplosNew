@@ -751,6 +751,37 @@ AND BMA.Active=1";
             }
         }
 
+        public GridModel GetPartyAccGroupGL(GridParameter parameters, string companyGroupId, string companyId, ReconcileAccountEnum reconcileAccount, AccountTypeEnum accountType ,string partyAccGroupId)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT GLGI.COAId, C.UserName AS COAName, GLGI.AccountGroupId, AG.UserName AS AccountGroupName, GLGI.Id AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                                        , BM.Id AS BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName, A.Id AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
+                                        FROM HKP.PartyAccountGroupGL paggl 
+										left join HKP.PartyAccountGroup pag on pag.Id=paggl.PartyAccountGroupId
+										LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=paggl.GLGeneralInfoId
+                                        JOIN [HKP].[GLCompanyInfo] AS GLCI ON GLCI.GLGeneralInfoId=GLGI.Id
+                                        JOIN [HKP].[GLCompanyGroup] AS GLCG ON GLCG.GLGeneralInfoId=GLGI.Id
+                                        LEFT JOIN [HKP].[AccountGroup] AS AG ON AG.Id=GLGI.AccountGroupId
+                                        LEFT JOIN [HKP].[AccountType] AS ACT ON ACT.Id=AG.AccountTypeId
+                                        LEFT JOIN [HKP].[GLAccountType] AS GLAT ON GLAT.GLGeneralInfoId=GLGI.Id
+                                        LEFT JOIN [HKP].[COA] AS C ON C.Id=GLGI.COAId
+                                        LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=paggl.BudgetMasterId
+                                        LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                        LEFT JOIN [MST].[BudgetMasterActivity] AS BMA ON BMA.BudgetMasterId=paggl.BudgetMasterId
+                                        LEFT JOIN [HKP].[Activity] AS A ON A.Id=BMA.ActivityId
+                                        WHERE GLGI.Active=1 AND GLGI.Archive=0 AND GLCG.CompanyGroupId='" + companyGroupId + "' AND GLCI.CompanyId='" + companyId + @"' 
+                                        AND ACT.Id='" + accountType + "' AND pag.AccountType='" + reconcileAccount + "' And pag.Id='"+partyAccGroupId+"'";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
         public GridModel GetReconeGLPartyAccountGroup(GridParameter parameters, string coaId, AccountTypeEnum accountType, ReconcileAccountEnum glAccountType)
         {
             try
@@ -781,7 +812,28 @@ AND BMA.Active=1";
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
-
+        public List<Dictionary<string, object>> GetJournalVoucherDetailList(string voucherId)
+        {
+            try
+            {
+                var cmdText = @"SELECT VD.Id, VD.DrAmount, VD.CrAmount, VD.CrAmount AS Amount, VD.GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                                , VD.BudgetMasterId, B.UserName AS BudgetName, VD.ActivityId, A.UserName AS ActivityName, P.Code AS PartyCode, P.UserName AS PartyName, VD.PartyType,VD.EntityId
+                                FROM [TRN].[VoucherDetail] AS VD
+                                LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
+                                LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=VD.BudgetMasterId
+                                LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
+                                LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
+								WHERE  VD.VoucherId='" + voucherId + "'";
+                return _sqlRepository.GetDataCollection(cmdText);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
         public List<Dictionary<string, object>> GetExpensesBookingCbo(string companyGroupId, string companyId)
         {
             try

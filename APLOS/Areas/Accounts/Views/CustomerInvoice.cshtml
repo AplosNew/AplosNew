@@ -123,6 +123,12 @@
                        autocomplete="off" type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right">
             </div>
         </div>
+        <div class="form-group" ng-show="Action=='Update'||voucherNOIsManually==true">
+            <label class="col-sm-4 control-label">VoucherNo<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" maxlength="15" name="VoucherNo" tabindex="8" class="form-control" ng-model="voucher.VoucherNo">
+            </div>
+        </div>
     </div>
     <div class="col-xs-12 col-sm-8 col-md-8">
         <div class="form-group" show-errors>

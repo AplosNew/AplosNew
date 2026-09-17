@@ -65,6 +65,12 @@
                 <input type="text" maxlength="50" name="Doc Ref" ng-model="voucher.DocRefNo" class="form-control" tabindex="3" required autocomplete="off" capitalize>
             </div>
         </div>
+        <div class="form-group" ng-show="Action=='Update'||voucherNOIsManually==true">
+            <label class="col-sm-3 control-label">VoucherNo<sup>*</sup></label>
+            <div class="col-sm-9 show-message">
+                <input type="text" id="VoucherNo" name="VoucherNo" ng-model="voucher.VoucherNo" class="form-control text-right" tabindex="5" autocomplete="off">
+            </div>
+        </div>
     </div>
     <div class="col-xs-8 col-sm-8 col-md-8">
         <div class="form-group" show-errors>
@@ -160,7 +166,7 @@
 
                 <label class="col-sm-2 control-label">Voucher No<sup>*</sup></label>
                 <div class="col-sm-4" show-errors>
-                    <input type="text" maxlength="50" id="Balance" name="Balance" ng-model="voucher.VoucherNo" class="form-control text-right" tabindex="6" autocomplete="off" n-decimals="4" readonly>
+                    <input type="text" maxlength="50" id="InvestmentVoucherNo" name="InvestmentVoucherNo" ng-model="voucher.InvestmentVoucherNo" class="form-control text-right" tabindex="6" autocomplete="off" n-decimals="4" readonly>
                 </div>
             </div>
         </fieldset>
@@ -446,6 +452,7 @@
                             @*<li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>*@
                             <li><a class="btn btn-action" href="Accounts/Investment/InvestmentInterestReceivableReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}&sourceType={{x.SourceType}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
                             <li><a class="btn btn-action" href="Accounts/Investment/InvestmentInterestReceivableReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}&sourceType={{x.SourceType}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
+                            @*<li><a ng-click="confirmUpdate(x);" href="" class="btn btn-action tooltip-here">Update</a></li>*@
                         </ul>
                     </td>
                 </tr>

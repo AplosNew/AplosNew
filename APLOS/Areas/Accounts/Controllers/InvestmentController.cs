@@ -104,6 +104,22 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
+        public ActionResult UpdateInvestment(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.IsPark = true;
+            if (voucherVM.CompanyCurrencyRate == 0)
+                throw new CustomException("Rate can not Empty!");
+          
+            if (voucherVM.PaymentSource == PaymentSource.Cash.ToString() && voucherVM.CashMasterId == null)
+                throw new CustomException(Resources.SelectCash);
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _investmentService.UpdateInvestment(voucherVM, voucherDetailVMList)) });
+        }
+
+        [HttpPost]
         public JsonResult PostInvestment(string financingId)
         {
             _financingService.Post(financingId);
