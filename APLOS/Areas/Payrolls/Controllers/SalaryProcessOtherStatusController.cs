@@ -256,7 +256,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 catch (Exception ex)
                 {
                     _lock.UnlockProcess();
-                    return Json(new { Error = true, Message = ex.Message });
+                    return Json(new { Error = true, Message = ex.Message + " | " + ex.StackTrace });
                 }
             });
         }

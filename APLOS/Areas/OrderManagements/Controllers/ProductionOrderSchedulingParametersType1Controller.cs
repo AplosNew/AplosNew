@@ -618,7 +618,7 @@ from trn.ProductionOrderDetail AS pod JOIN  trn.SalesOrder SO ON pod.SalesOrderI
                         WHERE po.Id NOT IN (SELECT ProductionOrderSchedulingParametersType1.ProductionOrderID
                       FROM ProductionOrderSchedulingParametersType1)
                             AND 
-isnull(S.username,'')<>'" + PlanningStatus.CLOSED.ToString() + @"' AND  po.entityid='" + entityid + @"' AND PO.OrderType = 'PlanningType1' and PO.Id IN (SELECT DISTINCT pops.ProductionOrderId
+isnull(S.username,'')<>'" + PlanningStatus.CLOSED.ToString() + @"' AND  po.entityid='" + entityid + @"' AND PO.PlanningType1 = 1  Or PO.PlanningType2 = 1 and PO.Id IN (SELECT DISTINCT pops.ProductionOrderId
                             FROM trn.ProductionOrderProcessSet AS pops WHERE pops.ProcessId = '" + baseprocessid + @"')) AS TEMP where " + strKey;
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -1304,7 +1304,7 @@ SELECT ept.EntityId FROM hkp.EntityProcessTag AS ept WHERE ept.ProcessId IN (SEL
 
                 sql = @"SELECT e.* FROM PlanningTypes AS pt 
 INNER JOIN [ORG].[Entity] E on E.id=pt.EntityId
-WHERE PT.PlanningType='PlanningType1' AND pt.CompanyGroupId='"+identity.CompanyGroupId+"'  AND pt.PlantId='"+identity.PlantId+"' And pt.BaseProcessId='"+processId+"'";
+WHERE PT.PlanningType='PlanningType1' AND pt.CompanyGroupId='" + identity.CompanyGroupId + "'  AND pt.PlantId='" + identity.PlantId + "' And pt.BaseProcessId='" + processId + "'";
 
 
 
@@ -3493,7 +3493,7 @@ INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId) AS K ON k.Pro
             return dtWorkCenter;
         }
 
-        
+
         private DataTable dtType2AllAvailableWrokcenters(string entityid, string processid)
         {
 
@@ -4029,6 +4029,22 @@ isnull(po.ProductionStatusId,'') IN (" + parameters["ProductionStatusId"] + @")
         public JsonResult GetNewScheduleData(string entityid, string processid, int year, int month, int day)
         {
             //CONVERT(INT, pt.WorkCenterMasterId)
+
+            string _sql = @"Select * from dbo.PlanningTypes Where PlanningType='PlanningType2'";
+
+            DataTable dt = _sqlRepository.GetDataTable(_sql);
+            if (dt.Rows.Count > 0)
+            {
+                if (string.IsNullOrEmpty(processid)|| processid=="null")
+                {
+                    processid = dt.Rows[0]["BaseProcessId"].ToString(); 
+                }
+                if (string.IsNullOrEmpty(entityid) || entityid == "null")
+                {
+                    entityid = dt.Rows[0]["EntityId"].ToString(); 
+                }
+            }
+
             month = month + 1;
 
             DateTime startDate = new DateTime(year, month, day);
@@ -6190,7 +6206,16 @@ isnull(S.username,'')<>'" + PlanningStatus.CLOSED.ToString() + @"' AND  po.entit
         {
 
             Library.Planning.PlanningType1.PlanningType1Scheduler sch = new Library.Planning.PlanningType1.PlanningType1Scheduler();
+            string _sql = @"Select * from dbo.PlanningTypes Where PlanningType='PlanningType2'";
 
+            DataTable dt = _sqlRepository.GetDataTable(_sql);
+            if (dt.Rows.Count > 0)
+            {
+                if (string.IsNullOrEmpty(EntityId)|| EntityId=="null")
+                {
+                    EntityId = dt.Rows[0]["EntityId"].ToString();
+                }
+            }
             return Json(_sqlRepository.GetDataCollection(sch.GetAllWorkcenterWisePlanningType2Summary(EntityId), null), JsonRequestBehavior.AllowGet);
         }
 
@@ -6410,6 +6435,49 @@ isnull(S.username,'')<>'" + PlanningStatus.CLOSED.ToString() + @"' AND  po.entit
 									GROUP BY tm.RequiredStdTarget,tm.PlannedHoursPerDay, tm.MaxNoOfWS";
 
             return Json(new { MainData = _sqlRepository.GetDataCollection(sql), BulletinData = _sqlRepository.GetDataCollection(sqlBulletinData) }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public async Task<ActionResult> SubProductionPlanSimulation()
+        {
+            string entityid = null; string processid = null;
+            return await Task.Factory.StartNew(() =>
+            {
+                try
+                {
+
+                    string EntityIds = "";
+                    string _sql = @"Select * from dbo.PlanningTypes Where PlanningType='PlanningType2'";
+
+                    DataTable dt = _sqlRepository.GetDataTable(_sql);
+                    if (dt.Rows.Count > 0)
+                    {
+                        processid = dt.Rows[0]["BaseProcessId"].ToString();
+                        entityid = dt.Rows[0]["EntityId"].ToString();
+                        EntityIds = "" + entityid + "";
+                    }
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+
+                        EntityIds += ",'" + dt.Rows[i]["EntityId"].ToString() + "'";
+                    }
+                    ProductionPlanType2SimulationAlgorithm(entityid, EntityIds, processid);
+                }
+                catch (Exception ex)
+                {
+                    return Json(new
+                    {
+                        Error = true,
+                        Message = ex.Message
+                    }, JsonRequestBehavior.AllowGet);
+                }
+                finally
+                {
+
+                }
+
+                return Json(new { Error = false, Message = "Success" }, JsonRequestBehavior.AllowGet);
+            });
         }
 
         [Authorize, HttpGet]

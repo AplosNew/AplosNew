@@ -69,18 +69,19 @@ function SalaryProcessOtherStatusController(addressService, fileReader, cboServi
         }
     }
 
-    $scope.CreateToDate = function () {
-        var date = new Date($scope.FromDate_sep);
-        var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-        var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-        $scope.lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-        $scope.lastDay = $filter('dateFiltering')(new Date(lastDay), 'dd-MM-yyyy');
-        $scope.ToDate_sep = $scope.lastDay;
-        //alert(lastDay);
-        // console.log($scope.lastDay);
-    }
+    //$scope.CreateToDate = function () {
+    //    var date = new Date($scope.FromDate_sep);
+    //    var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+    //    var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    //    $scope.lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    //    $scope.lastDay = $filter('dateFiltering')(new Date(lastDay), 'dd-MM-yyyy');
+    //    $scope.ToDate_sep = $scope.lastDay;
+    //    //alert(lastDay);
+    //    // console.log($scope.lastDay);
+    //}
 
-
+    $scope.FromDate_sep = null;
+    $scope.ToDate_sep = null;
 
 
 
