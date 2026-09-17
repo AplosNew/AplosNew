@@ -87,6 +87,26 @@ function generalLedgerReportController($scope, $rootScope, $filter, bankService,
             $window.open(url, "_blank");
         }
     };
+    $scope.getAllLedgerReport = function () {
+         if (baseService.isUndefinedOrNull($scope.report.FromDate)) {
+            manualValidation("div_FromDate", true, "From Date is required.");
+        }
+        else if (baseService.isUndefinedOrNull($scope.report.ToDate)) {
+            manualValidation("div_ToDate", true, "To Date is required.");
+        }
+        else if (new Date($scope.report.FromDate) > new Date($scope.report.ToDate)) {
+            manualValidation("div_FromDate", true, "From date must be below or equal to To Date");
+        }
+        else if (new Date($scope.report.ToDate) < new Date($scope.report.FromDate)) {
+            manualValidation("div_ToDate", true, "To date must be above or equal to From Date.");
+        }
+        else {
+            var url = "";
+             url = "Accounts/Voucher/GetAllGeneralLedgerReport?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate;
+            
+            $window.open(url, "_blank");
+        }
+    };
     //$scope.getReportWithDocRef = function () {
     //    if (baseService.isUndefinedOrNull($scope.report.GLGeneralInfoId)) {
     //        manualValidation("div_GL", true, "GL is required.");

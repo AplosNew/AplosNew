@@ -768,6 +768,32 @@ namespace Aplos.Areas.Accounts.Controllers
             
         }
         //General ledger report
+
+        [HttpGet, Authorize]
+        public ActionResult GetAllGeneralLedgerReport(ReportFormat reportFormat, string budgetMasterId, string fromDate, string toDate, string bankMasterId, string cashMasterId, string partyId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string fiscalYearId = null;
+            IWorkbook workbook = _accountVoucherReportService.GetAllGeneralLedgerReportWithDocRef(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName,  budgetMasterId, fromDate, toDate, bankMasterId, cashMasterId, partyId, fiscalYearId);
+                var reportFileName = DateTime.Now.ToString("yyMMdd") + " General Ledger";
+                switch (reportFormat)
+                {
+                    case ReportFormat.Pdf:
+                        return RenderReportAsPdf(workbook, reportFileName);
+
+                    case ReportFormat.Excel:
+                        return RenderReportAsExcel(workbook, reportFileName);
+
+                    default:
+                        return RenderReportAsExcel(workbook, reportFileName);
+                }
+            
+            
+        }
+        //General ledger report
+        //General LC report
+
+
         //General LC report
         [HttpGet, Authorize]
         public ActionResult GetLCLedgerReport(ReportFormat reportFormat, string fromDate, string toDate, string lCRef)
