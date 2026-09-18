@@ -11607,7 +11607,7 @@ AND VD.GLGeneralInfoId='" + glId + "' " + budgetFilter + " " + bankCashPartyFilt
 
                 // Every GL that has either an opening balance or transactions gets its own sheet
                 var glIds = ledgerData.AsEnumerable().Select(r => r.Field<string>("ActivityId"))
-                    //.Union(obData.AsEnumerable().Select(r => r.Field<string>("ActivityId")))
+                    .Union(obData.AsEnumerable().Select(r => r.Field<string>("ActivityId")))
                     .Where(ActivityId => !string.IsNullOrEmpty(ActivityId))
                     .Distinct()
                     .ToList();
@@ -11623,8 +11623,8 @@ AND VD.GLGeneralInfoId='" + glId + "' " + budgetFilter + " " + bankCashPartyFilt
                     var glRows = ledgerData.Select("ActivityId = '" + glId + "'");
 
                     //string glCode = glRows.Length > 0 ? glRows[0]["GLCode"].ToString() : "";
-                    //string glName = glRows.Length > 0 ? glRows[0]["ActivityName"].ToString() : "";
-                    string glName = glRows.Length > 0 ? glRows[0]["ActivityId"].ToString() : "";
+                    string glName = glRows.Length > 0 ? glRows[0]["ActivityName"].ToString() : "";
+                    string glCode = glRows.Length > 0 ? glRows[0]["GLCode"].ToString() : "";
 
                     IWorksheet sheet;
                     if (firstSheet)
@@ -11636,7 +11636,7 @@ AND VD.GLGeneralInfoId='" + glId + "' " + budgetFilter + " " + bankCashPartyFilt
                     {
                         sheet = workbook.Worksheets.Create();
                     }
-                    sheet.Name = SanitizeSheetName(string.IsNullOrEmpty(glName) ? glName :  glName);
+                    sheet.Name = SanitizeSheetName(string.IsNullOrEmpty(glName) ? glCode+'-'+glName : glCode + '-' + glName);
 
                     BuildLedgerSheet(sheet, reportUtility, glName, plantName, companyId,
                         fromDate, toDate, obData, glId, glRows);
