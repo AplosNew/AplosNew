@@ -316,7 +316,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
             ShowResult(e, 'failure', 'recipeMaterialPopUp');
         }
     };
-  
+
     $scope.message_DiffArticleconfirmation = null;
     $scope.message_DiffArticle1confirmation = null;
 
@@ -567,7 +567,25 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     }
 
     $scope.calculate = function (obj) {
-        obj.data.NoOfPack = Math.ceil(obj.data.NoOfUnit / obj.data.UnitPerPack);
+        if (baseService.isUndefinedOrNull(obj.data.Id)) {
+            obj.data.NoOfPack = Math.ceil(obj.data.NoOfUnit / obj.data.UnitPerPack);
+        } else {
+            obj.data.NoOfPack = Math.ceil(obj.data.NoOfUnit / obj.data.UnitPerPack);
+            $http({
+                method: 'POST',
+                url: 'OrderManagements/ProductionOrder/DeleteCarton?id=' + obj.data.Id
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+            }, function () {
+                ShowResult(commonMessage.NetworkError, 'failure');
+            }).finally(function () {
+            });
+        }
     };
 
     $scope.calculateNoOfPack = function (row) {
@@ -994,7 +1012,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         });
 
     };
-   
+
     $scope.AllComboReportExcel = function () {
         $http({
             method: 'POST',
@@ -1029,7 +1047,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     $scope.pdfdownloadgriddataUrl = 'GridReports/DownloadPdf';
     $scope.FN = null;
     $scope.QRCodeGenerateModel = { LineItemReference: null, SKUColor: null, Qty: null };
-   
+
     $scope.generateQRCode = function (obj) {
         try {
             $scope.QRCodeGenerateModel.LineItemReference = obj.data.LineItemReference;
@@ -1094,7 +1112,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
 
 
-  
+
 
 
 }

@@ -4261,6 +4261,31 @@ ORDER BY P.SortOrder";
             }
         }
 
+        [HttpPost, Authorize]
+        public ActionResult DeleteCarton(string id)
+        {
+
+            try
+            {
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from dbo.CartonGeneration where PacketRegistrationId='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+
         private List<QRCodeItem> qrCodeItems = new List<QRCodeItem>();
         private int currentQRCodeIndex = 0;
 

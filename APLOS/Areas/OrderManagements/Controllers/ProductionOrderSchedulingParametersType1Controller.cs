@@ -153,7 +153,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                                 so.SODesc,So.MasterOrderId,
                                 so.Customer,so.article,PRODPR.ProductionQtyAtPR 
                                    ,ISNULL(CASE WHEN ISNULL(T1.Qty,0)>0 THEN T1.Qty ELSE PO.PlannedQty END,0)-(ISNULL(PRODPR.ProductionQtyAtPR,0)-ISNULL(PRDQ.ProductionBookedQty,0)) AS ToBePlanQty
-                                  			
+                                  ,PlanningType2LSD = (SELECT TOP 1 FORMAT(DATEADD(DAY, T2.LSDLagDays, T2.LSD), 'dd-MMM-yyyy') FROM ProductionOrderSchedulingParametersType2 AS T2 WHERE T2.ProductionOrderID = PO.Id ORDER BY T2.LSD ASC)			
   
                             FROM [TRN].[ProductionOrder] AS PO
                             JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
@@ -2125,11 +2125,11 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
 
                 Dictionary<string, DataTable> dicCalendar = dtProductionCalendar(System.DateTime.Now, 1500, processid, ProcessingEntities);
                 DataTable dtCalendar = new DataTable("Temp");
-                productionOrders = dtProductionParameters(ProcessingEntities);
+                productionOrders = dtProductionParameters(ProcessingEntities, processid);
                 for (int i = 0; i < productionOrders.Rows.Count; i++)
                 {
                     var poid = productionOrders.Rows[i]["ProductionOrderID"].ToString();
-                    if (poid == "2519")
+                    if (poid == "26577")
                     {
 
                     }
@@ -3609,7 +3609,7 @@ INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId) AS K ON k.Pro
             return dtWorkCenter;
         }
 
-        private DataTable dtProductionParameters(string entityid)
+        private DataTable dtProductionParameters(string entityid, string processid)
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -3671,7 +3671,7 @@ INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId
 											FROM  trn.ProductionSummary S 
 											WHERE  CONVERT(DATETIME, format(s.ProductionDate,'dd-MMM-yyyy'))<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'
 											GROUP BY  s.ProductionOrderId,s.ProcessId
-							) AS PRODPR ON  PRODPR.ProductionOrderId=po.id AND PRODPR.ProcessId=(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID=po.Id)
+							) AS PRODPR ON  PRODPR.ProductionOrderId=po.id AND PRODPR.ProcessId=(select ProcessId from trn.ProductionOrderProcessSet where ProcessId='"+processid+@"' and ProductionOrderID=po.Id)
 							
                             left outer join (SELECT pod.ProductionOrderId,
                                 sum(isnull(so.ProductionBookedQty,0)) ProductionBookedQty
@@ -3683,7 +3683,7 @@ INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId
 							
 
                             WHERE 
-                       po.EntityId IN(" + entityid + @")  AND ps.UserName IN ('" + PlanningStatus.ACTIVE.ToString() + @"','" + PlanningStatus.RUNNING.ToString() + @"')
+                       po.EntityId IN(" + entityid + @") AND ps.UserName IN ('" + PlanningStatus.ACTIVE.ToString() + @"','" + PlanningStatus.RUNNING.ToString() + @"')
                             ORDER BY ps.UserName DESC, t1.ProductionPriority ASC";
             DataTable _dtProductionParameters = _sqlRepository.GetDataTable(sql);
 

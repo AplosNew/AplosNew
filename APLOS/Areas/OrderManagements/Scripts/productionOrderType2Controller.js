@@ -2345,6 +2345,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                         response.data[i].PlanWorkingHoursPerDay = $scope.ModelNewSPO.PlanHour;
                         response.data[i].FirstDayOutPut = $scope.ModelNewSPO.FirstDayOutPut;
                         response.data[i].DayToReachTheTarget = 0;
+                        response.data[i].LSDLagDays = $scope.ModelNewSPO.LSDLagDays;
                         response.data[i].LSD = $scope.ModelNewSPO.LSD;
                         response.data[i].CommitmentDate = $scope.ModelNewSPO.CommitmentDate;
                         response.data[i].MainRawMaterialInhouseDate = $scope.ModelNewSPO.MainRawMaterialInhouseDate;
