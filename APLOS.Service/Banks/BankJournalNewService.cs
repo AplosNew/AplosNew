@@ -166,6 +166,7 @@ namespace Library.Service.Banks
                     VoucherDate = voucherVM.VoucherDate,
                     PostingDate = bankJournal.PostingDate,
                     DocDate = bankJournal.DocDate,
+                    VoucherNo = voucherVM.VoucherNo,
                     DocRefNo = bankJournal.DocRefNo,
                     Narration = bankJournal.Narration,
                     SourceType = bankJournal.SourceType,
