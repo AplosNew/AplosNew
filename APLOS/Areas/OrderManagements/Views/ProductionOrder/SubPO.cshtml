@@ -171,12 +171,13 @@
                     <div e-column e-type="string" e-template="#Workstations" e-headertext="Workstations" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#RequiredMachineDays" e-headertext="RequiredMachineDays" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#MinWorkCenterDays" e-headertext="MinWorkCenterDays" e-width="80" style="height: 20px;"></div>
-                    <div e-column e-type="string" e-template="#MaximumAllowedWorkCenter" e-headertext="MaximumAllowedWorkCenter" e-width="80" style="height: 20px;"></div>
+                    <div e-column e-type="string" e-template="#MaximumAllowedWorkCenter" e-headertext="MaxAllowedWC" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#AllotedWorkCenter" e-headertext="AllotedWorkCenter" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#DayToReachTheTarget" e-headertext="DayToReachTheTarget" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#IncrementValue" e-headertext="IncrementValue" e-width="80" style="height: 20px;"></div>
 
                     <div e-column e-type="string" e-template="#LSDLagDays" e-headertext="LSD Lag Days" e-width="80" style="height: 20px;"></div>
+                    <div e-column e-type="string" e-template="#PPriority" e-headertext="Priority" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#LSD" e-headertext="LSD" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#CommitmentDate" e-headertext="CommitmentDate" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#MainRawMaterialInhouseDate" e-headertext="MainRawMaterialInhouseDate" e-width="80" style="height: 20px;"></div>
@@ -226,6 +227,11 @@
                     <div class="col-sm-10" style="padding:0px; width:70px;">
                         @*<input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.PlanWorkingHoursPerDay" e-change="$parent.calculate" e-width="80" />*@
                         <input type="text" ng-model="data.PlanWorkingHoursPerDay" only-numbers ng-blur="$parent.calculate(this);" style="color:black;" class="form-control" />
+                    </div>
+                </script>
+                <script type="text/template" id="PPriority">
+                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                        <input type="text" ng-model="data.ProductionPriority" only-numbers style="color:black;" class="form-control" />
                     </div>
                 </script>
                 <script type="text/template" id="AdjustableQty">
