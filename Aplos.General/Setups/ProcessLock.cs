@@ -11,7 +11,7 @@ namespace Library.General.Setups
     //tarek talukder
     public enum ProcessLockId
     {
-        SalaryProcess, ArrearProcess,RosterProcess,DOJProcess, AttendanceProcess, PlanningType1, TNA, TODOScheduler
+        SalaryProcess, ArrearProcess,RosterProcess,DOJProcess, AttendanceProcess, PlanningType1,PlanningType2, TNA, TODOScheduler
     }
     public class ProcessLock
     {

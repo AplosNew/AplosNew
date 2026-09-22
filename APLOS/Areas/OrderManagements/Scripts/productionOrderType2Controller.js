@@ -2345,6 +2345,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                         response.data[i].PlanWorkingHoursPerDay = $scope.ModelNewSPO.PlanHour;
                         response.data[i].FirstDayOutPut = $scope.ModelNewSPO.FirstDayOutPut;
                         response.data[i].DayToReachTheTarget = 0;
+                        response.data[i].LSDLagDays = $scope.ModelNewSPO.LSDLagDays;
                         response.data[i].LSD = $scope.ModelNewSPO.LSD;
                         response.data[i].CommitmentDate = $scope.ModelNewSPO.CommitmentDate;
                         response.data[i].MainRawMaterialInhouseDate = $scope.ModelNewSPO.MainRawMaterialInhouseDate;
@@ -2394,6 +2395,10 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
 
 
                                 response.data[i].RequiredLineDays = (response.data[i].Qty / response.data[i].TargetPerDay).toFixed(2);
+                                response.data[i].MaximumAllowedWorkCenter = Math.floor(Number(response.data[i].RequiredLineDays)) / response.data[i].MinimumLineDays;
+                                if (response.data[i].MaximumAllowedWorkCenter < 1) {
+                                    response.data[i].MaximumAllowedWorkCenter = 1;
+                                }
                             }
 
                             if (response.data[i].MinimumLineDays > 0) {
@@ -2478,6 +2483,10 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
 
 
                 $scope.sku1sku2.RequiredLineDays = Number(($scope.sku1sku2.Qty / $scope.sku1sku2.TargetPerDay).toFixed(2));
+                $scope.sku1sku2.MaximumAllowedWorkCenter = Math.floor(Number($scope.sku1sku2.RequiredLineDays)) / $scope.sku1sku2.MinimumLineDays;
+                if ($scope.sku1sku2.MaximumAllowedWorkCenter < 1) {
+                    $scope.sku1sku2.MaximumAllowedWorkCenter = 1;
+                }
             }
 
             if ($scope.sku1sku2.MinimumLineDays > 0) {
@@ -2530,8 +2539,8 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
 
     $scope.CheckMaxWCValue = function (obj) {
         try {
-            if (obj.data.AllocatedLines > obj.data.NoOfWorkStation) {
-                // throw "Alloted Work Center can't greater than Maximum Allowed Work Center.";
+            if (obj.data.AllocatedLines > obj.data.MaximumAllowedWorkCenter) {
+                 throw "Alloted Work Center can't greater than Maximum Allowed Work Center.";
             }
 
         } catch (e) {

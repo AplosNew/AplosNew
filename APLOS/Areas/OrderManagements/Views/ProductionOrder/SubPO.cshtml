@@ -103,9 +103,9 @@
                     </div>
                 </div>
                 <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">LSD<sup>*</sup></label>
+                    <label class="col-sm-4 control-label">LSD Lag Days<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="LSD" ng-model="ModelNewSPO.LSD" datepicker class="form-control" required />
+                        <input type="text" name="LSD Lag Days" only-numbers ng-model="ModelNewSPO.LSDLagDays" class="form-control" required />
                     </div>
                 </div>
                 <div class="form-group" show-errors>
@@ -129,19 +129,27 @@
                         <input type="number" ng-disabled="SPTEfficiencySlab.length>0" inputmode="numeric" class="form-control" rows="2" ng-model="ModelNewSPO.FirstDayOutPut" maxlength="250" />
                     </div>
                 </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">LSD<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="LSD" ng-model="ModelNewSPO.LSD" datepicker class="form-control" required />
+                    </div>
+                </div>
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Priority<sup>*</sup></label>
                     <div class="col-sm-8">
                         <input type="number" inputmode="numeric" class="form-control" rows="2" ng-model="ModelNewSPO.ProductionPriority" maxlength="250" />
                     </div>
                 </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-left">
-                        <li> <button ng-click="GetSKUData();" ng-disabled="disableinput" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> Go </button></li>
-                        <li> <button ng-click="SaveSPO();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-save"></i> Save </button></li>
-                        <li> <button ng-click="Simulate();" ng-disabled="sku1sku2List.length==0" class="btn small" style="height: 28px; width: 100px; padding: 0px; margin: 0px;"><i class="glyphicon glyphicon-play"></i>Simulate</button></li>
-                    </ul>
-                </div>
+
+            </div>
+
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="GetSKUData();" ng-disabled="disableinput" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> Go </button></li>
+                    <li> <button ng-click="SaveSPO();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-save"></i> Save </button></li>
+                    <li> <button ng-click="Simulate();" ng-disabled="sku1sku2List.length==0" class="btn small" style="height: 28px; width: 100px; padding: 0px; margin: 0px;"><i class="glyphicon glyphicon-play"></i>Simulate</button></li>
+                </ul>
             </div>
         </div>
         <div class="col-xs-12">
@@ -163,11 +171,13 @@
                     <div e-column e-type="string" e-template="#Workstations" e-headertext="Workstations" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#RequiredMachineDays" e-headertext="RequiredMachineDays" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#MinWorkCenterDays" e-headertext="MinWorkCenterDays" e-width="80" style="height: 20px;"></div>
-                    <div e-column e-type="string" e-template="#MaximumAllowedWorkCenter" e-headertext="MaximumAllowedWorkCenter" e-width="80" style="height: 20px;"></div>
+                    <div e-column e-type="string" e-template="#MaximumAllowedWorkCenter" e-headertext="MaxAllowedWC" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#AllotedWorkCenter" e-headertext="AllotedWorkCenter" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#DayToReachTheTarget" e-headertext="DayToReachTheTarget" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#IncrementValue" e-headertext="IncrementValue" e-width="80" style="height: 20px;"></div>
 
+                    <div e-column e-type="string" e-template="#LSDLagDays" e-headertext="LSD Lag Days" e-width="80" style="height: 20px;"></div>
+                    <div e-column e-type="string" e-template="#PPriority" e-headertext="Priority" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#LSD" e-headertext="LSD" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#CommitmentDate" e-headertext="CommitmentDate" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#MainRawMaterialInhouseDate" e-headertext="MainRawMaterialInhouseDate" e-width="80" style="height: 20px;"></div>
@@ -185,6 +195,11 @@
                 <script type="text/template" id="LSD">
                     <div class="col-sm-10" style="padding:0px; width:70px;">
                         <input type="text" name="LSD" ng-model="data.LSD" datepicker class="form-control" required />
+                    </div>
+                </script>
+                <script type="text/template" id="LSDLagDays">
+                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                        <input type="text" name="LSD Lag Days" only-numbers ng-model="data.LSDLagDays" class="form-control" required />
                     </div>
                 </script>
                 <script type="text/template" id="CommitmentDate">
@@ -214,6 +229,11 @@
                         <input type="text" ng-model="data.PlanWorkingHoursPerDay" only-numbers ng-blur="$parent.calculate(this);" style="color:black;" class="form-control" />
                     </div>
                 </script>
+                <script type="text/template" id="PPriority">
+                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                        <input type="text" ng-model="data.ProductionPriority" only-numbers style="color:black;" class="form-control" />
+                    </div>
+                </script>
                 <script type="text/template" id="AdjustableQty">
                     <div class="col-sm-10" style="padding:0px; width:70px;">
                         @*<input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.AdjustableQty" e-change="$parent.calculate" e-width="80" />*@
@@ -227,10 +247,10 @@
                     </div>
                 </script>
                 @*<script type="text/template" id="FirstDayOutPut">
-                        <div class="col-sm-10" style="padding:0px; width:70px;">
-                            <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.FirstDayOutPut"e-change="$parent.calculate"  e-width="80" />
-                        </div>
-                    </script>*@
+            <div class="col-sm-10" style="padding:0px; width:70px;">
+                <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.FirstDayOutPut"e-change="$parent.calculate"  e-width="80" />
+            </div>
+        </script>*@
                 <script type="text/template" id="RequiredMachineDays">
                     <div class="col-sm-10" style="padding:0px; width:70px;">
                         <input type="text" name="RequiredLineDays" only-numbers ng-disabled="true" ng-model="data.RequiredLineDays" class="form-control" />
@@ -306,7 +326,7 @@
                 </script>
                 <script type="text/template" id="RunningWorkCenter">
                     <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
-                        <button ng-click="$parent.GetRunningWorkCenter(this,'Running');"  class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        <button ng-click="$parent.GetRunningWorkCenter(this,'Running');" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                     </div>
                 </script>
             </div>

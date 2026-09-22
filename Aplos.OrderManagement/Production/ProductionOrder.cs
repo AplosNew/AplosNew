@@ -1075,7 +1075,7 @@ Group By  D.ProductionOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueI
                     {
                         sql = @"SELECT D.ID,D.ProductionOrderID,D.NoOfWorkStation,D.Efficiency,D.SPT,D.PlanWorkingHoursPerDay,D.FirstDayOutPut,D.PlanTargetPerHour,D.IncrementValue,D.IncrementType,D.DayToReachTheTarget
 ,FORMAT(D.LSD,'dd-MMM-yyyy')LSD,FORMAT(D.CommitmentDate,'dd-MMM-yyyy')CommitmentDate,D.ProductionPriority,D.TargetPerHour,D.TargetPerDay,D.MinimumLineDays,D.RequiredLineDays
-,D.RequiredNoOfLines,D.AllocatedLines,D.Color,D.Qty,D.Qty PlanQty,FORMAT(D.MainRawMaterialInhouseDate,'dd-MMM-yyyy')MainRawMaterialInhouseDate
+,D.RequiredNoOfLines,D.AllocatedLines,D.Color,D.Qty,D.Qty PlanQty,FORMAT(D.MainRawMaterialInhouseDate,'dd-MMM-yyyy')MainRawMaterialInhouseDate,D.LSDLagDays
 ,FORMAT(D.OtherRawMaterialInhouseDate,'dd-MMM-yyyy')OtherRawMaterialInhouseDate,D.WCPreferenceType,D.PlanningStatus,D.RunningOrderBlockSize,D.ConsiderHourFromWorkCenter,D.ConsiderWorkStationsFromWorkCenter,D.WorkCenterGroupId
 ,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,D.AdjustableQty,D.SKU1,D.SKU2,D.Both,D.SKU1Id,D.SKU2Id,CV.UserName SKUColor, WG.UserName WorkCenterGroup,D.MaximumAllowedWorkCenter,D.PlanPercentage,D.ProductionStatusId
                      FROM dbo.ProductionOrderSchedulingParametersType2  D
@@ -1087,7 +1087,7 @@ Group By  D.ProductionOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueI
                     {
                         sql = @"Select D.ID,D.ProductionOrderID,D.NoOfWorkStation,D.Efficiency,D.SPT,D.PlanWorkingHoursPerDay,D.FirstDayOutPut,D.PlanTargetPerHour,D.IncrementValue,D.IncrementType,D.DayToReachTheTarget
 ,FORMAT(D.LSD,'dd-MMM-yyyy')LSD,FORMAT(D.CommitmentDate,'dd-MMM-yyyy')CommitmentDate,D.ProductionPriority,D.TargetPerHour,D.TargetPerDay,D.MinimumLineDays,D.RequiredLineDays
-,D.RequiredNoOfLines,D.AllocatedLines,D.Color,D.Qty,D.Qty PlanQty,FORMAT(D.MainRawMaterialInhouseDate,'dd-MMM-yyyy')MainRawMaterialInhouseDate
+,D.RequiredNoOfLines,D.AllocatedLines,D.Color,D.Qty,D.Qty PlanQty,FORMAT(D.MainRawMaterialInhouseDate,'dd-MMM-yyyy')MainRawMaterialInhouseDate,D.LSDLagDays
 ,FORMAT(D.OtherRawMaterialInhouseDate,'dd-MMM-yyyy')OtherRawMaterialInhouseDate,D.WCPreferenceType,D.PlanningStatus,D.RunningOrderBlockSize,D.ConsiderHourFromWorkCenter,D.ConsiderWorkStationsFromWorkCenter,D.WorkCenterGroupId
 ,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,D.AdjustableQty,D.SKU1,D.SKU2,D.Both,D.SKU1Id,D.SKU2Id, CV.UserName SKUSize, WG.UserName WorkCenterGroup,D.MaximumAllowedWorkCenter,D.PlanPercentage,D.ProductionStatusId
                      FROM dbo.ProductionOrderSchedulingParametersType2  D
@@ -1099,7 +1099,7 @@ Group By  D.ProductionOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueI
                     {
                         sql = @"SELECT D.ID,D.ProductionOrderID,D.NoOfWorkStation,D.Efficiency,D.SPT,D.PlanWorkingHoursPerDay,D.FirstDayOutPut,D.PlanTargetPerHour,D.IncrementValue,D.IncrementType,D.DayToReachTheTarget
 ,FORMAT(D.LSD,'dd-MMM-yyyy')LSD,FORMAT(D.CommitmentDate,'dd-MMM-yyyy')CommitmentDate,D.ProductionPriority,D.TargetPerHour,D.TargetPerDay,D.MinimumLineDays,D.RequiredLineDays
-,D.RequiredNoOfLines,D.AllocatedLines,D.Color,D.Qty,D.Qty PlanQty,FORMAT(D.MainRawMaterialInhouseDate,'dd-MMM-yyyy')MainRawMaterialInhouseDate
+,D.RequiredNoOfLines,D.AllocatedLines,D.Color,D.Qty,D.Qty PlanQty,FORMAT(D.MainRawMaterialInhouseDate,'dd-MMM-yyyy')MainRawMaterialInhouseDate,D.LSDLagDays
 ,FORMAT(D.OtherRawMaterialInhouseDate,'dd-MMM-yyyy')OtherRawMaterialInhouseDate,D.WCPreferenceType,D.PlanningStatus,D.RunningOrderBlockSize,D.ConsiderHourFromWorkCenter,D.ConsiderWorkStationsFromWorkCenter,D.WorkCenterGroupId
 ,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,D.AdjustableQty,D.SKU1,D.SKU2,D.Both,D.SKU1Id,D.SKU2Id, WG.UserName WorkCenterGroup,FCV.UserName SKUColor, SCV.UserName SKUSize,D.MaximumAllowedWorkCenter,D.PlanPercentage,D.ProductionStatusId
                      FROM dbo.ProductionOrderSchedulingParametersType2  D

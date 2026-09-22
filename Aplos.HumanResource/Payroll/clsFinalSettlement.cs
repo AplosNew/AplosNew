@@ -248,63 +248,6 @@ namespace OTSBD
                         }
                     }
 
-
-                    //if (years > 0)
-                    //{
-                    //    dvSeparationTypeDetails.RowFilter = "Yearno='" + years + "'";
-                    //    if (dvSeparationTypeDetails.Count > 0)
-                    //    {
-                    //        if (Convert.ToBoolean(dvSeparationTypeDetails[0]["RoundUp"]) == true)
-                    //        {
-
-                    //            if (month > 6)
-                    //            {
-                    //                NumberOfYears = years + 1;
-                    //            }
-                    //            else if (month == 6 && days > 0)
-                    //            {
-                    //                NumberOfYears = years + 1;
-                    //            }
-                    //            else
-                    //            {
-                    //                NumberOfYears = years;
-                    //            }
-                    //            dvSeparationTypeDetails.RowFilter = null;
-                    //            dvSeparationTypeDetails.RowFilter = "Yearno='" + NumberOfYears + "'";
-                    //            if (dvSeparationTypeDetails.Count > 0)
-                    //            {
-                    //                NumberOfDays = Convert.ToInt32(dvSeparationTypeDetails[0]["DayNo"]);
-                    //            }
-                    //            else
-                    //            {
-                    //                throw new Exception("Policy  was not defined for this year.");
-                    //            }
-
-                    //        }
-                    //        //else
-                    //        //{
-                    //        //    int NOY = years;
-                    //        //    int MonthNo =int.Parse(obj.TenureMonthNo.ToString());
-                    //        //    decimal tenure = NOY + (MonthNo / 12m);
-                    //        //    NumberOfYears = years;
-                    //        //    if (tenure > 9)
-                    //        //    {
-                    //        //        NumberOfDays = 30;
-                    //        //    }
-                    //        //    else
-                    //        //    {
-
-                    //        //        NumberOfDays = Convert.ToInt32(dvSeparationTypeDetails[0]["DayNo"]);
-                    //        //    }
-
-                    //        //}
-                    //    }
-                    //    else
-                    //    {
-                    //        //throw new Exception("Policy  was not defined for this year.");
-                    //        sFormulaResult = "0";
-                    //    }
-                    //}
                     // calculate total
                     var totaldays = (NumberOfDays * NumberOfYears) + ExtraDays;
                     //sTotalAmount = (Convert.ToDecimal(string.Format("{0:F2}", sFormulaResult))) * NumberOfDays * NumberOfYears;
@@ -1229,22 +1172,6 @@ namespace OTSBD
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = @"SELECT COUNT(A.EmpSystemID)PD,PresentDays=
-									CASE WHEN DATEDIFF(Year,E.DOJ,E.DOS)<9.9 THEN
-									(CASE 
-									WHEN COUNT(A.EmpSystemID) between 120 AND 240 THEN 7.5 
-									WHEN COUNT(A.EmpSystemID)>240 THEN 7 
-									ELSE 0 END) 
-									ELSE 
-									(CASE 
-									WHEN COUNT(A.EmpSystemID) between 120 AND 240 THEN 15 
-									WHEN COUNT(A.EmpSystemID)>240 THEN 30 
-									ELSE 0 END) END
-									from dbo.AttdnProcessData A
-									LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=A.EmpSystemID
-									Where A.EmpSystemID=" + EmployeeId + @" AND A.DayStatus !='A' 
-									AND A.WorkDate between '" + fromDate + @"' AND '" + toDate + @"'
-									GROUP BY E.DOJ,E.DOS";
 
                 strSQL = @";WITH AttendanceCTE AS (
     SELECT 
@@ -1275,6 +1202,7 @@ SELECT
     ISNULL(AC.PresentDays, 0) AS PresentDays,
     S.ServiceYears,
      CASE 
+ WHEN S.ServiceYears <= 3 THEN 0
  WHEN S.ServiceYears >= 10 THEN 30
  WHEN S.ServiceYears >= 4 AND AC.PresentDays >= 240 THEN 15
  WHEN S.ServiceYears >= 4 AND AC.PresentDays >= 120 THEN 7.5

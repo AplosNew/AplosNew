@@ -203,8 +203,8 @@
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Material</a></li>
             <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Process Set</a></li>
             @*<li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" data-toggle="tab">Work Center</a></li>
-            <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" data-toggle="tab">First Process Work Center</a></li>
-            <li ng-show="model.IsPreDefineLotApplicable==true" role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6)" href="" data-toggle="tab">Lot Control</a></li>*@
+                <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" data-toggle="tab">First Process Work Center</a></li>
+                <li ng-show="model.IsPreDefineLotApplicable==true" role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6)" href="" data-toggle="tab">Lot Control</a></li>*@
         </ul>
     </div>
     <div class="tab-content">
@@ -544,15 +544,15 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="common-btn">
-            <ul class="list-inline text-right small">
-                <li>
-                    <button ng-click="SimulateAll();" class="btn small" style="height: 28px; width: 100px; padding: 0px; margin: 0px;">
-                        <i class="glyphicon glyphicon-play"></i>Simulate
-                    </button>
-                </li>
-            </ul>
+            <div class="common-btn">
+                <ul class="list-inline text-right small">
+                    <li>
+                        <button ng-click="SimulateAll();" class="btn small" style="height: 28px; width: 100px; padding: 0px; margin: 0px;">
+                            <i class="glyphicon glyphicon-play"></i>Simulate
+                        </button>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -562,6 +562,7 @@
          e-allowselection="true" e-filtersettings-filterType="excel">
         <div e-columns>
             <div e-column e-template="#showPRPlanList" e-headertext="" e-width="28"></div>
+            <div e-column e-type="string" e-field="EntityName" e-headertext="Entity" e-width="90"></div>
             <div e-column e-type="string" e-field="Id" e-headertext="ID" e-width="80"></div>
             <div e-column e-type="string" e-field="ProductCategory" e-headertext="Product Cat." e-width="130"></div>
             <div e-column e-type="string" e-field="buyer" e-headertext="Buyer" e-width="100"></div>
@@ -580,7 +581,6 @@
             <div e-column e-type="string" e-field="StyleNo" e-headertext="Customer Item#" e-width="80"></div>
             <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Item#" e-width="80"></div>
 
-            <div e-column e-type="string" e-field="EntityName" e-headertext="Entity" e-width="90"></div>
             <div e-column e-type="string" e-field="ProductionRemarks" e-headertext="Remarks" e-width="150"></div>
             <div e-column e-type="string" e-field="PlanningType1" e-headertext="PlanningType1" e-width="150"></div>
             <div e-column e-type="string" e-field="PlanningType2" e-headertext="PlanningType2" e-width="150"></div>

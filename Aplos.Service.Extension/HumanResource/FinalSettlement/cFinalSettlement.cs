@@ -176,6 +176,7 @@ LEFT JOIN (
     SELECT 
         S.SystemId,
         CASE 
+            WHEN S.ServiceYears <= 3 THEN 0
             WHEN S.ServiceYears >= 10 THEN 30
             WHEN S.ServiceYears >= 4 AND AC.PresentDays >= 240 THEN 15
             WHEN S.ServiceYears >= 4 AND AC.PresentDays >= 120 THEN 7.5
