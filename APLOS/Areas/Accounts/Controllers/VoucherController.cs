@@ -704,8 +704,6 @@ namespace Aplos.Areas.Accounts.Controllers
         public ActionResult GetGeneralLedgerReport(ReportFormat reportFormat, string glId, string budgetMasterId, string activityId, string fromDate, string toDate,bool active,bool IsGroupBy, string bankMasterId, string cashMasterId, string partyId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-
             if (active)
             {
 

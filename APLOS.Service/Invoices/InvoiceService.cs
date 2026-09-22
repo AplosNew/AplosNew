@@ -4838,6 +4838,7 @@ namespace Library.Service.Invoices
                             invoiceDetail.BudgetMasterId = voucherDetailVM.BudgetMasterId;
                             invoiceDetail.ActivityId = voucherDetailVM.ActivityId;
                             invoiceDetail.Amount = voucherDetailVM.CrAmount;
+                            invoiceDetail.NetAmount = invoiceDetail.TaxAmount>0? voucherDetailVM.CrAmount- invoiceDetail.TaxAmount: voucherDetailVM.CrAmount;
                             _invoiceDetailRepository.Update(invoiceDetail);
                         }
                         

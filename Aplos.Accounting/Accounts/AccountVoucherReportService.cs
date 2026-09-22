@@ -11514,45 +11514,40 @@ AND VD.GLGeneralInfoId='" + glId + "' " + budgetFilter + " " + bankCashPartyFilt
     string budgetMasterId, string fromDate,
     string bankMasterId, string cashMasterId, string partyId)
         {
-            var bankCashPartyFilter = string.Empty;
-            if (!string.IsNullOrEmpty(bankMasterId))
-                bankCashPartyFilter = " AND VD.BankMasterId='" + bankMasterId + "' ";
-            if (!string.IsNullOrEmpty(cashMasterId))
-                bankCashPartyFilter = " AND VD.CashMasterId='" + cashMasterId + "' ";
-            if (!string.IsNullOrEmpty(partyId))
-                bankCashPartyFilter = " AND VD.PartyId='" + partyId + "' ";
-
             var cmdText = @"
-        SELECT VD.ActivityId,VD.BudgetMasterId,VD.GLGeneralInfoId,
+        SELECT VD.ActivityId,VD.BudgetMasterId,VD.GLGeneralInfoId,A.UserName ActivityName,
                SUM(ISNULL(VD.DrAmount,0) - ISNULL(VD.CrAmount,0)) AS OpeningBalance
         FROM [TRN].[VoucherDetail] AS VD
         LEFT JOIN [TRN].[Voucher] V ON V.Id = VD.VoucherId
+		LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
         WHERE V.Archive=0 AND V.IsPark=0
-          AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + "' " + bankCashPartyFilter + @"
+          AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"' 
           AND VD.GLGeneralInfoId IS NOT NULL  AND VD.BudgetMasterId IS NOT NULL AND VD.ActivityId IS NOT NULL
-          --AND V.SourceType = 'OpeningBalance'
-          AND V.PostingDate <'" + fromDate.ToDbDate() + "' ";
+          --AND V.SourceType <> 'OpeningBalance'
+          AND V.PostingDate <'" + fromDate.ToDbDate() + @"' 
+        GROUP BY VD.ActivityId,VD.BudgetMasterId,VD.GLGeneralInfoId  ,A.UserName
+        UNION ALL
 
-            if (!string.IsNullOrEmpty(budgetMasterId))
-                cmdText += " AND VD.BudgetMasterId='" + budgetMasterId + "' ";
+    SELECT VD.ActivityId,VD.BudgetMasterId,VD.GLGeneralInfoId,A.UserName ActivityName,
+               SUM(ISNULL(VD.DrAmount,0) - ISNULL(VD.CrAmount,0)) AS OpeningBalance
+        FROM [TRN].[VoucherDetail] AS VD
+        LEFT JOIN [TRN].[Voucher] V ON V.Id = VD.VoucherId
+		LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
+        WHERE V.Archive=0 AND V.IsPark=0
+          AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"' 
+          AND VD.GLGeneralInfoId IS NOT NULL  AND VD.BudgetMasterId IS NOT NULL AND VD.ActivityId IS NOT NULL
+          AND V.SourceType = 'OpeningBalance'
+          AND V.PostingDate <='" + fromDate.ToDbDate() + @"' 
+        GROUP BY VD.ActivityId,VD.BudgetMasterId,VD.GLGeneralInfoId ,A.UserName";
 
-            cmdText += " GROUP BY VD.ActivityId,VD.BudgetMasterId,VD.GLGeneralInfoId";
-
-            return _sqlRepository.GetDataTable(cmdText);
+         return _sqlRepository.GetDataTable(cmdText);
         }
 
         public DataTable GetAllGeneralLedgerData(string companyGroupId, string companyId, string plantId,
             string budgetMasterId, string fromDate, string toDate,
             string bankMasterId, string cashMasterId, string partyId)
         {
-            var bankCashPartyFilter = string.Empty;
-            if (!string.IsNullOrEmpty(bankMasterId))
-                bankCashPartyFilter = " AND VD.BankMasterId='" + bankMasterId + "' ";
-            if (!string.IsNullOrEmpty(cashMasterId))
-                bankCashPartyFilter = " AND VD.CashMasterId='" + cashMasterId + "' ";
-            if (!string.IsNullOrEmpty(partyId))
-                bankCashPartyFilter = " AND VD.PartyId='" + partyId + "' ";
-
+             
             var cmdText = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
                     SELECT VD.GLGeneralInfoId, GLGI.AccountCode AS GLCode, GLGI.UserName AS GLName,
                            REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
@@ -11574,11 +11569,7 @@ AND VD.GLGeneralInfoId='" + glId + "' " + budgetFilter + " " + bankCashPartyFilt
 	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                         ) AS CC ON CC.VoucherDetailId=VD.Id
                         WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"' 
-" + bankCashPartyFilter + @"
                         AND VD.GLGeneralInfoId IS NOT NULL ";
-
-            if (!string.IsNullOrEmpty(budgetMasterId))
-                cmdText += " AND VD.BudgetMasterId='" + budgetMasterId + "' ";
 
             cmdText += " AND V.SourceType!='OpeningBalance' AND CONVERT(VARCHAR, V.PostingDate, 23) BETWEEN '" + fromDate.ToDbDate() + "' AND '" + toDate.ToDbDate() + "' ";
             cmdText += " ORDER BY GLGI.AccountCode ASC, V.PostingDate ASC, V.VoucherNo ASC";
@@ -11616,14 +11607,15 @@ AND VD.GLGeneralInfoId='" + glId + "' " + budgetFilter + " " + bankCashPartyFilt
                 foreach (var glId in glIds)
                 {
                     countno++;
-                    if (countno == 20)
+                    if (countno == 10)
                     {
 
                     }
                     var glRows = ledgerData.Select("ActivityId = '" + glId + "'");
+                    var glOBRows = obData.Select("ActivityId = '" + glId + "'");
 
                     //string glCode = glRows.Length > 0 ? glRows[0]["GLCode"].ToString() : "";
-                    string glName = glRows.Length > 0 ? glRows[0]["ActivityName"].ToString() : "";
+                    string glName = glRows.Length > 0 ? glRows[0]["ActivityName"].ToString() : glOBRows[0]["ActivityName"].ToString();
                     string glCode = glRows.Length > 0 ? glRows[0]["GLCode"].ToString() : "";
 
                     IWorksheet sheet;
@@ -11636,7 +11628,7 @@ AND VD.GLGeneralInfoId='" + glId + "' " + budgetFilter + " " + bankCashPartyFilt
                     {
                         sheet = workbook.Worksheets.Create();
                     }
-                    sheet.Name = SanitizeSheetName(string.IsNullOrEmpty(glName) ? glCode+'-'+glName : glCode + '-' + glName);
+                    sheet.Name = countno + "." + glName;// SanitizeSheetName(string.IsNullOrEmpty(glName) ? glName+ countno : glName+ countno);
 
                     BuildLedgerSheet(sheet, reportUtility, glName, plantName, companyId,
                         fromDate, toDate, obData, glId, glRows);

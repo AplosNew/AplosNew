@@ -823,7 +823,10 @@ namespace Library.Service.Invoices
                     invoiceDetail.WrittenOffAmount += voucherDetailVM.Amount;
 
                     if (invoiceDetail.NetAmount + invoiceDetail.AdditionalAmount < invoiceDetail.WrittenOffAmount)
+                    {
+
                         throw new CustomException("Received amount can not cross balance amount.");
+                    }
 
                     invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount + invoiceDetail.AdditionalAmount == invoiceDetail.WrittenOffAmount;
                     invoiceDetail.UpdatedBy = invoiceWriteOff.AddedBy;

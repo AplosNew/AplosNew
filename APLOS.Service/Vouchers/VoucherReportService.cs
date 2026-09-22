@@ -227,7 +227,7 @@ namespace Library.Service.Vouchers
 
           
             reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Voucher Date");
-            reportUtility.SetText(ref sheet, row, 5, dsLocal.Rows[0]["VoucherDate"].ToString());
+            reportUtility.SetText(ref sheet, row, 5, dsLocal.Rows[0]["PostingDate"].ToString());
             if (curCode != trnCur)
             {
                 sheet[reportUtility.GetColumnNameForXls(5) + 8 + ":" + reportUtility.GetColumnNameForXls(6) + 8].Merge();
@@ -246,8 +246,8 @@ namespace Library.Service.Vouchers
             }
 
             row++;
-            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Posting Date");
-            reportUtility.SetText(ref sheet, row, 2, dsLocal.Rows[0]["PostingDate"].ToString());
+            //reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Posting Date");
+            //reportUtility.SetText(ref sheet, row, 2, dsLocal.Rows[0]["PostingDate"].ToString());
             //sheet[reportUtility.GetColumnNameForXls(4) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
 
             reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Fiscal Year");

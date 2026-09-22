@@ -3669,7 +3669,8 @@ INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId
 							LEFT OUTER JOIN (
 												SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR,MIN(s.ProductionDate) AS ProductionStartDateAtPR
 											FROM  trn.ProductionSummary S 
-											WHERE  CONVERT(DATETIME, format(s.ProductionDate,'dd-MMM-yyyy'))<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'
+											--WHERE  CONVERT(DATETIME, format(s.ProductionDate,'dd-MMM-yyyy'))<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'
+                                            WHERE  CONVERT(DATE, s.ProductionDate) < '" + System.DateTime.Now.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) + @"'
 											GROUP BY  s.ProductionOrderId,s.ProcessId
 							) AS PRODPR ON  PRODPR.ProductionOrderId=po.id AND PRODPR.ProcessId=(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID=po.Id)
 							
@@ -3732,9 +3733,10 @@ AS rnk,ppc.*
 dense_rank() OVER (PARTITION BY ppc.EntityID ORDER BY EntityID,ppc.WorkingDate)
 AS rnk,ppc.*
                                      FROM ProductionPlanningType2Calendar AS ppc 
-                            WHERE ppc.WorkingDate>='" + startDate.ToString("dd-MMM-yyyy") + @"' AND ppc.WorkingHours>0 
+                            --WHERE ppc.WorkingDate>='" + startDate.ToString("dd-MMM-yyyy") + @"' AND ppc.WorkingHours>0 
+                            WHERE ppc.WorkingDate>='" + startDate.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) + @"' AND ppc.WorkingHours>0 
                             AND ppc.ProcessID='" + processid + @"' AND ppc.EntityID IN(" + entityid + @")) as ppc WHERE rnk<=" + noOfWorkingDays + @"
-                            ORDER BY  ppc.EntityID, ppc.WorkingDate ASC";
+                            ORDER BY  ppc.EntityID, ppc.WorkingDate ASC ";
             DataTable _dtProductionParameters = _sqlRepository.GetDataTable(sql);
             if (_dtProductionParameters.Rows.Count == 0)
                 throw new Exception("No calendar was defined for selected entity");
@@ -6797,7 +6799,9 @@ INNER JOIN trn.ProductionOrder AS po ON po.Id=spo.ProductionOrderId
                                 {
                                     dtCalendar = dicCalendar[BestLine["EntityId"].ToString()];
 
-                                    dtCalendar.DefaultView.RowFilter = "WorkingDate>#" + Convert.ToDateTime(BestLine["LastProductionDate"].ToString()).ToString("dd-MMM-yyyy") + "#";
+                                    //dtCalendar.DefaultView.RowFilter = "WorkingDate>#" + Convert.ToDateTime(BestLine["LastProductionDate"].ToString()).ToString("dd-MMM-yyyy") + "#";
+                                    dtCalendar.DefaultView.RowFilter = "WorkingDate>#" + Convert.ToDateTime(BestLine["LastProductionDate"].ToString()).ToString("dd-MMM-yyyy", System.Globalization.CultureInfo.InvariantCulture);
+
                                     if (dtCalendar.DefaultView.Count == 0)
                                     {
                                         throw new Exception("Production calendar does not support date after " + Convert.ToDateTime(BestLine["LastProductionDate"].ToString()).ToString("dd-MMM-yyyy"));
