@@ -6545,7 +6545,7 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
         public void ProductionPlanType2SimulationAlgorithm(string entityid, string ProcessingEntities, string processid)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            Library.General.Setups.ProcessLock _lock = new Library.General.Setups.ProcessLock(identity.Name, Library.General.Setups.ProcessLockId.PlanningType1, entityid);
+            Library.General.Setups.ProcessLock _lock = new Library.General.Setups.ProcessLock(identity.Name, Library.General.Setups.ProcessLockId.PlanningType2, entityid);
             _lock.LockProcess();
             try
             {
