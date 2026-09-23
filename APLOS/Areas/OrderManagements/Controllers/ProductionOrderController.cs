@@ -36,7 +36,8 @@ using System.Globalization;
 using System.Web.Hosting;
 using Syncfusion.Pdf;
 using Syncfusion.Pdf.Graphics;
-
+using System.Threading.Tasks;
+using Library.Service.TaskScheduler;
 
 namespace Aplos.Areas.OrderManagements.Controllers
 {
@@ -74,10 +75,40 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             return View();
         }
-        public ActionResult Type2()
+      
+
+        public async Task<ActionResult> Type2()
         {
-            return View();
+            return await Task.Factory.StartNew(() =>
+            {
+
+                SendNotification("Ready to Simulate");
+                return View();
+            });
+
         }
+        private void SendNotification(string Message, int Current = 0, int Total = 0)
+        {
+            try
+            {
+                var _identitySignal = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                if (Current == 0)
+                    clsMobileNotification.SendMessage(_identitySignal.CompanyGroupId, _identitySignal.PlantId, _identitySignal.UserId, Message);
+                else
+                {
+                    Message += string.Format("  [{0}/{1}]", Current, Total);
+
+                    clsMobileNotification.SendMessage(_identitySignal.CompanyGroupId, _identitySignal.PlantId, _identitySignal.UserId, Message);
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+        }
+
         [Authorize]
         public ActionResult PO()
         {

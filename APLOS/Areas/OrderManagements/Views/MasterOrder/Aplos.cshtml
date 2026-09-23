@@ -16,7 +16,7 @@
                     <label class="col-sm-4 control-label">Company<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="select-style">
-                            <select name="Company" class="form-control" ng-model="fileNew.CompanyId" ng-change="getPlantCbo();getData();GetProcessByCompany();" ng-options="item.Value as item.Text for item in companyList" required>
+                            <select name="Company" class="form-control" ng-model="fileNew.CompanyId" disabled ng-change="getPlantCbo();getData();GetProcessByCompany();" ng-options="item.Value as item.Text for item in companyList" required>
                                 <option value="">--Select--</option>
                             </select>
                         </div>

@@ -54,27 +54,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         { 'name': 'Buyer Orde/Ref No', 'value': 'BuyerReferenceNo' },
         { 'name': 'Own Order/Ref No', 'value': 'OwnReferenceNo' }
     ];
-    $scope.files = [];
-    $scope.getData = function () {
-        $scope.files = [];
-        if (!baseService.isUndefinedOrNull($scope.fileNew.CompanyId)) {
-            $http({
-                method: 'POST',
-                data: {
-                    'companyId': $scope.fileNew.CompanyId, 'column': $scope.SearchColumn, 'value': $scope.SearchValue
-                },
-                url: $scope.getListUrl
-            }).then(function successCallback(response) {
-                $scope.files = response.data;
-            });
-        }
-    };
-
-    $scope.IsBillDiscountingDays = false;
 
     $scope.file = {
         Id: null
-        , CompanyId: null
+        , CompanyId: $window.companyId
         , PlantId: null
         , EntityId: null
         , CommitmentId: null
@@ -125,6 +108,30 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     };
     $scope.fileNew = Object.assign({}, $scope.file);
     $scope.isBuyerApplicable = false;
+
+
+    $scope.files = [];
+    $scope.getData = function () {
+        $scope.files = [];
+        if (baseService.isUndefinedOrNull($scope.fileNew.CompanyId)) {
+            $scope.fileNew.CompanyId = $window.companyId;
+        }
+        if (!baseService.isUndefinedOrNull($scope.fileNew.CompanyId)) {
+            $http({
+                method: 'POST',
+                data: {
+                    'companyId': $scope.fileNew.CompanyId, 'column': $scope.SearchColumn, 'value': $scope.SearchValue
+                },
+                url: $scope.getListUrl
+            }).then(function successCallback(response) {
+                $scope.files = response.data;
+            });
+        }
+    };
+    $scope.getData();
+    $scope.IsBillDiscountingDays = false;
+
+
 
     // #region Ddl
     $scope.typeList = [
@@ -265,6 +272,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             $scope.plantList = response;
         });
     };
+    $scope.getPlantCbo();
 
     $scope.specialTaxList = [];
     $scope.getSpecialTaxByPlantCbo = function () {
@@ -289,6 +297,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             $scope.ProcessList = response;
         });
     }
+    $scope.GetProcessByCompany();
 
     $scope.GetSubProcessByProcess = function () {
         cboService.loadSubprocessCbo($scope.fileNew.ExceptionalProcessId, function (response) {

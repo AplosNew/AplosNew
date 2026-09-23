@@ -676,46 +676,58 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 clsGenID genid = new clsGenID();
                                 genid.GenID(TableName, out string _Id);
 
-
-                                if (item.InOutParam == "In")
+                                if (string.IsNullOrWhiteSpace(item.EntityId) ||
+                string.IsNullOrWhiteSpace(item.SupervisorId) ||
+                string.IsNullOrWhiteSpace(item.Lineno) ||
+                string.IsNullOrWhiteSpace(item.ShiftId))
                                 {
-                                    dr["Id"] = "PHY" + _Id;
-                                    dr["EmpSystemID"] = item.EmpSystemID;
-                                    dr["WorkDate"] = item.WorkDate;
-                                    dr["InTime"] = DateTime.Now;
-                                    dr["BudgetCode"] = clsWebLib.RetValidLen(item.BudgetCode);
-                                    dr["AddedBy"] = item.AddedBy;
-                                    dr["AddedDate"] = DateTime.Now;
-                                    dr["ShiftId"] = item.ShiftId;
-                                    dr["Lineno"] = item.Lineno;
-                                    dr["SupervisorId"] = item.SupervisorId;
-                                    dr["EntityId"] = item.EntityId;
-
-                                    dr["AddedFromIP"] = item.AddedFromIP;
-                                    i++;
+                                    return $"Error: EntityId, SupervisorId, Lineno, and ShiftId are required and cannot be empty";
                                 }
+
                                 else
                                 {
-                                    dr["Id"] = "PHY" + _Id;
-                                    dr["EmpSystemID"] = item.EmpSystemID;
-                                    dr["WorkDate"] = item.WorkDate;
-                                    dr["OutTime"] = DateTime.Now;
-                                    if (clsWebLib.RetValidLen(item.ManualOt).ToString() != "")
+                                    if (item.InOutParam == "In")
                                     {
-                                        dr["OThour"] = item.ManualOt;
-                                    }
-                                    dr["AddedBy"] = item.AddedBy;
-                                    dr["AddedDate"] = DateTime.Now;
-                                    dr["AddedFromIP"] = item.AddedFromIP;
-                                    dr["ShiftId"] = item.ShiftId;
-                                    dr["Lineno"] = item.Lineno;
-                                    dr["SupervisorId"] = item.SupervisorId;
-                                    dr["EntityId"] = item.EntityId;
+                                        dr["Id"] = "PHY" + _Id;
+                                        dr["EmpSystemID"] = item.EmpSystemID;
+                                        dr["WorkDate"] = item.WorkDate;
+                                        dr["InTime"] = DateTime.Now;
+                                        dr["BudgetCode"] = clsWebLib.RetValidLen(item.BudgetCode);
+                                        dr["AddedBy"] = item.AddedBy;
+                                        dr["AddedDate"] = DateTime.Now;
+                                        dr["ShiftId"] = item.ShiftId;
+                                        dr["Lineno"] = item.Lineno;
+                                        dr["SupervisorId"] = item.SupervisorId;
+                                        dr["EntityId"] = item.EntityId;
 
-                                    i++;
+                                        dr["AddedFromIP"] = item.AddedFromIP;
+                                        i++;
+                                    }
+                                    else
+                                    {
+                                        dr["Id"] = "PHY" + _Id;
+                                        dr["EmpSystemID"] = item.EmpSystemID;
+                                        dr["WorkDate"] = item.WorkDate;
+                                        dr["OutTime"] = DateTime.Now;
+                                        if (clsWebLib.RetValidLen(item.ManualOt).ToString() != "")
+                                        {
+                                            dr["OThour"] = item.ManualOt;
+                                        }
+                                        dr["AddedBy"] = item.AddedBy;
+                                        dr["AddedDate"] = DateTime.Now;
+                                        dr["AddedFromIP"] = item.AddedFromIP;
+                                        dr["ShiftId"] = item.ShiftId;
+                                        dr["Lineno"] = item.Lineno;
+                                        dr["SupervisorId"] = item.SupervisorId;
+                                        dr["EntityId"] = item.EntityId;
+
+                                        i++;
+                                    }
+
+                                    dsref.Tables[0].Rows.Add(dr);
                                 }
 
-                                dsref.Tables[0].Rows.Add(dr);
+                               
 
                             }
                             else
