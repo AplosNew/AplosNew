@@ -54,34 +54,9 @@ function masterOrderCheckByController(accountService, $window, cboService, commo
         { 'name': 'Buyer Orde/Ref No', 'value': 'BuyerReferenceNo' },
         { 'name': 'Own Order/Ref No', 'value': 'OwnReferenceNo' }
     ];
-    $scope.files = [];
-    $scope.getData = function () {
-        try {
-            $scope.files = [];
-            if (!baseService.isUndefinedOrNull($scope.fileNew.CompanyId)) {
-                $http({
-                    method: 'POST',
-                    data: {
-                        'companyId': $scope.fileNew.CompanyId, 'column': $scope.SearchColumn, 'value': $scope.SearchValue
-                    },
-                    url: $scope.getListUrl
-                }).then(function successCallback(response) {
-                    if (response.data.Error == true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        $scope.files = response.data;
-                    }
-                });
-            }
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    };
-
-    $scope.file = {
+  $scope.file = {
         Id: null
-        , CompanyId: null
+        , CompanyId: $window.companyId
         , PlantId: null
         , EntityId: null
         , CommitmentId: null
@@ -100,6 +75,7 @@ function masterOrderCheckByController(accountService, $window, cboService, commo
         , CurrencyId: null
         , OrderType: 'ExternalOrder'
         , TotalQty: null
+        , CSPT: null
         , NoOfLineItem: null
         , ResponsiblePersonId: null
         , ResponsiblePersonName: null
@@ -126,10 +102,33 @@ function masterOrderCheckByController(accountService, $window, cboService, commo
         , ExceptionalProcessId: null
         , ExceptionalSubProcessId: null
         , DefaultPaymentTermId: null
-        ,IsPaymentTermChangeable: false
+        , IsPaymentTermChangeable: false
+        , AddedDate: $filter("dateFiltering")(Date.now())
     };
     $scope.fileNew = Object.assign({}, $scope.file);
     $scope.isBuyerApplicable = false;
+
+
+    $scope.files = [];
+    $scope.getData = function () {
+        $scope.files = [];
+        if (baseService.isUndefinedOrNull($scope.fileNew.CompanyId)) {
+            $scope.fileNew.CompanyId = $window.companyId;
+        }
+        if (!baseService.isUndefinedOrNull($scope.fileNew.CompanyId)) {
+            $http({
+                method: 'POST',
+                data: {
+                    'companyId': $scope.fileNew.CompanyId, 'column': $scope.SearchColumn, 'value': $scope.SearchValue
+                },
+                url: $scope.getListUrl
+            }).then(function successCallback(response) {
+                $scope.files = response.data;
+            });
+        }
+    };
+    $scope.getData();
+    $scope.IsBillDiscountingDays = false;
 
     // #region Ddl
     $scope.typeList = [
@@ -283,7 +282,7 @@ function masterOrderCheckByController(accountService, $window, cboService, commo
             $scope.plantList = response;
         });
     };
-
+    $scope.getPlantCbo();
     $scope.specialTaxList = [];
     $scope.getSpecialTaxByPlantCbo = function () {
         cboService.getCboSpecialTaxByPlant($scope.fileNew.PlantId, function (response) {
@@ -307,6 +306,7 @@ function masterOrderCheckByController(accountService, $window, cboService, commo
             $scope.ProcessList = response;
         });
     }
+    $scope.GetProcessByCompany();
 
     $scope.GetSubProcessByProcess = function () {
         cboService.loadSubprocessCbo($scope.fileNew.ExceptionalProcessId, function (response) {
