@@ -570,6 +570,8 @@ ORDER BY min(ppt.ProductionDate) ASC";
         {
             try
             {
+
+
 				var str = @"Select po.Id as ProductionId, pt.ProductionPriority , ps.StandardName as Status
 							from ProductionOrderSchedulingParametersType1 AS pt
 							left join trn.ProductionOrder po on po.Id = pt.ProductionOrderID
@@ -583,6 +585,36 @@ ORDER BY min(ppt.ProductionDate) ASC";
 				throw e;
             }
         }
+
+		public DataTable getType2CurrentPriority(string Entity)
+		{
+			try
+			{
+				string _sql = @"Select * from dbo.PlanningTypes Where PlanningType='PlanningType2'";
+
+				DataTable dt = _sqlRepository.GetDataTable(_sql);
+				if (dt.Rows.Count > 0)
+				{
+					if (string.IsNullOrEmpty(Entity)|| Entity == "null")
+					{
+						Entity = dt.Rows[0]["EntityId"].ToString();
+					}
+				}
+
+				var str = @"Select pt.Id as ProductionId, pt.ProductionPriority , ps.StandardName as Status
+							from ProductionOrderSchedulingParametersType2 AS pt
+							left join trn.ProductionOrder po on po.Id = pt.ProductionOrderID
+							left join hkp.ProductionStatus ps on ps.Id = po.ProductionStatusId
+							where ps.StandardName in ('Active','Running') and po.EntityId = '" + Entity + @"'
+							";
+				return _sqlRepository.GetDataTable(str);
+			}
+			catch (Exception e)
+			{
+				throw e;
+			}
+		}
+
 
 		public void SaveFileList(List<Dictionary<string, object>> data)
 		{

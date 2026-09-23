@@ -5921,6 +5921,155 @@ LEFT OUTER JOIN (SELECT p.ProductionOrderID,FORMAT(MIN(p.ProductionDate),'dd-MMM
         #endregion PriorityUpdate
 
         #region Type2
+
+        [HttpPost, Authorize]
+        public ActionResult SaveType2FileList(List<Dictionary<string, object>> data)
+        {
+            try
+            {
+                Library.Planning.PlanningType1.PlanningType1Scheduler sch = new Library.Planning.PlanningType1.PlanningType1Scheduler();
+
+                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                var sqlx = "Select * From ProductionOrderSchedulingParametersType2";
+                objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    dsRef.Tables[0].DefaultView.RowFilter = @"ID='" + data[i]["ProductionId"].ToString() + "'";
+                    DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                    if (dr["ProductionPriority"].ToString() != data[i]["ProductionPriority"].ToString())
+                    {
+                        dr.BeginEdit();
+                        dr["ProductionPriority"] = clsStaticInfo.dbl(data[i]["ProductionPriority"].ToString());
+                        dr["UpdatedDate"] = Convert.ToDateTime(DateTime.Now);
+                        dr.EndEdit();
+                    }
+
+                }
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsRef);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+      
+        [HttpGet, Authorize]
+        public ActionResult GetType2SampleReports(ReportFormat reportFormat, string Entity)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string date = DateTime.Now.Date.ToString("dd-MMM");//.Substring(0, DateTime.Now.Date.ToString().Length - 12);
+            var reportFileName = "ProrityReport-" + date;
+            var workbook = GetType2PriorityReport(Entity);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+
+        private IWorkbook GetType2PriorityReport(string Entity)
+        {
+
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 3);
+            workbook.Version = ExcelVersion.Excel2016;
+
+            var sheet = workbook.Worksheets[0];
+
+            var sheet2 = workbook.Worksheets[1];
+            Library.Planning.PlanningType1.PlanningType1Scheduler sch = new Library.Planning.PlanningType1.PlanningType1Scheduler();
+            /// Sheet 1 
+            DataTable data = sch.getType2CurrentPriority(Entity);
+
+            sheet.Name = "Current-Priority";
+
+
+
+            int ROW = 1;
+            int endCol = 1;
+            int COL = 1;
+
+            #region Headers
+
+            report.SetHeaderText(ref sheet, ROW, COL, "ProductionId", 8, ExcelHAlign.HAlignLeft);
+            int ColProdId = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Status", 8, ExcelHAlign.HAlignLeft);
+            int ColStat = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "ProductionPriority", 8, ExcelHAlign.HAlignLeft);
+            int ColPr = COL;
+            COL++;
+
+            endCol = COL;
+            #endregion Headers
+            ROW++;
+            var startRow = 0;
+            var endRow = 0;
+            int RowIndex = ROW;
+            startRow = ROW;
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+                //sheet[ROW, ColEmpSystemId].Text = data.Rows[i]["EmpSystemId"].ToString();
+                sheet[ROW, ColProdId].Text = data.Rows[i]["ProductionId"].ToString();
+                sheet[ROW, ColStat].Text = data.Rows[i]["Status"].ToString();
+                sheet[ROW, ColPr].Text = data.Rows[i]["ProductionPriority"].ToString();
+
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+            }
+            endRow = ROW - 1;
+
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+
+            report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+            report.PageSetup(ref sheet2, 5, ExcelPageOrientation.Landscape);
+            return workbook;
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult ImportType2Data()
+        {
+            string path;
+
+            try
+            {
+                var file = Request.Files["file"];
+                //string plantId = Request.Files["plantId"].ToString();
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                SaveFile(out path);
+                var data = ReadData(path);
+
+                var json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
         [Authorize]
         public ActionResult GetType2List(string baseprocessid, string entityid, string column, string value)
         {

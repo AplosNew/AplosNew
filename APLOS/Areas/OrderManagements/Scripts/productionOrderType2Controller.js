@@ -3253,13 +3253,9 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     $scope.GetSample = function () {
         var reportFormat = "Excel";
 
-        if (angular.isUndefinedOrNull($scope.EntityId)) {
-            ShowResult("Please First Select the Entity!");
-            throw ("Invalid");
-        }
 
         try {
-            window.open('OrderManagements/productionOrderSchedulingParametersType1/GetSampleReports?reportFormat=' + reportFormat + '&Entity=' + $scope.EntityId, '_blank');
+            window.open('OrderManagements/productionOrderSchedulingParametersType1/GetType2SampleReports?reportFormat=' + reportFormat + '&Entity=' + $scope.EntityId, '_blank');
 
         } catch (e) {
 
@@ -3295,7 +3291,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
 
             $http({
                 method: 'POST',
-                url: 'OrderManagements/productionOrderSchedulingParametersType1/ImportData',
+                url: 'OrderManagements/productionOrderSchedulingParametersType1/ImportType2Data',
                 headers: { 'Content-Type': undefined },
                 transformRequest: function (data) {
                     fileData.append("modelNew", angular.toJson(data.modelNew));
@@ -3340,7 +3336,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
 
         $http({
             method: 'POST',
-            url: 'OrderManagements/productionOrderSchedulingParametersType1/SaveFileList',
+            url: 'OrderManagements/productionOrderSchedulingParametersType1/SaveType2FileList',
             data: { 'data': $scope.ExcelUploadData }
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -4047,24 +4043,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         $scope.GetProductionPlanningParametersData('dialogProductionOrderParameters', 'entrypop');
     }
 
-    // The functions for the priority Update
-    $scope.fileData = [];
-    $scope.GetSample = function () {
-        var reportFormat = "Excel";
-
-        if (angular.isUndefinedOrNull($scope.EntityId)) {
-            ShowResult("Please First Select the Entity!");
-            throw ("Invalid");
-        }
-
-        try {
-            window.open('OrderManagements/productionOrderSchedulingParametersType1/GetSampleReports?reportFormat=' + reportFormat + '&Entity=' + $scope.EntityId, '_blank');
-
-        } catch (e) {
-
-        }
-    }
-
+   
 
 
 
