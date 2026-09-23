@@ -387,7 +387,7 @@ function bankJournalController(bankService, accountService, cboService, commonMe
                 $scope.voucherNOIsManually = $scope.voucherTypeList[0].IsManually;
                 $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
                 $scope.voucher.DocDate = $scope.voucher.PostingDate;
-                $scope.GetCurrencyExchangeRateList();
+                //$scope.GetCurrencyExchangeRateList();
             }
         });
     };

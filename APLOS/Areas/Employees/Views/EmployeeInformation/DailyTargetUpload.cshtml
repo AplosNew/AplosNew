@@ -98,11 +98,12 @@
                          e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                          e-allowscrolling="true"
                          e-pagesettings-pagesize="25"
-                         e-filtersettings-filterType="excel" >
+                         e-filtersettings-filterType="excel">
                         <div e-columns>
                             <div e-column e-field="WorkCenter" e-headertext="WorkCenter" e-width="100"></div>
                             <div e-column e-headertext="PO" e-template="#po" e-textalign="center" e-width="100"></div>
-                            <div e-column e-headertext="TargetQty" e-template="#tQty" e-textalign="center" e-width="100"></div>
+                            <div e-column e-headertext="Style" e-template="#style" e-textalign="center" e-width="100"></div>
+                            <div e-column e-headertext="Qty Per Hour" e-template="#tQty" e-textalign="center" e-width="100"></div>
                             <div e-column e-field="SPT" e-headertext="SPT" e-width="100"></div>
                             <div e-column e-field="Operator" e-headertext="Operator" e-width="80"></div>
                             <div e-column e-field="Helper" e-headertext="Helper" e-width="80"></div>
@@ -115,7 +116,10 @@
                         <input type="text" class="form-control" ng-model="data.SalesOrderId" style="color:black; text-align:center" />
                     </script>
                     <script type="text/template" id="tQty">
-                        <input type="text" class="form-control" ng-model="data.TargetQty" style="color:black; text-align:center" />
+                        <input type="text" class="form-control" ng-model="data.QtyPerHour" style="color:black; text-align:center" />
+                    </script>
+                    <script type="text/template" id="style">
+                        <input type="text" class="form-control" ng-model="data.StyleNo" style="color:black; text-align:center" />
                     </script>
                 </div>
                 <div class="col-xs-12 col-sm-12 col-md-12 ">

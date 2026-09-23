@@ -2138,8 +2138,10 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
                     sbLog = new StringBuilder();
                     SendNotification("Simulating production order#" + productionOrders.Rows[i]["ProductionOrderID"].ToString(), i, productionOrders.Rows.Count);
                     sbLog.AppendLine("Starting simulation for production order#" + productionOrders.Rows[i]["ProductionOrderID"].ToString());
-                    DateTime startDate = Convert.ToDateTime(Convert.ToDateTime(productionOrders.Rows[i]["LSD"].ToString()).ToString("dd-MMM-yyyy"));
-                    DateTime LSD = Convert.ToDateTime(Convert.ToDateTime(productionOrders.Rows[i]["LSD"].ToString()).ToString("dd-MMM-yyyy"));
+                   // DateTime startDate = Convert.ToDateTime(Convert.ToDateTime(productionOrders.Rows[i]["LSD"].ToString()).ToString("dd-MMM-yyyy"));
+                   // DateTime LSD = Convert.ToDateTime(Convert.ToDateTime(productionOrders.Rows[i]["LSD"].ToString()).ToString("dd-MMM-yyyy"));
+                    DateTime startDate = Convert.ToDateTime(productionOrders.Rows[i]["LSD"].ToString()).Date;
+                    DateTime LSD = Convert.ToDateTime(productionOrders.Rows[i]["LSD"].ToString()).Date;
                     double DaysToReachTheTarget = clsStaticInfo.dbl(productionOrders.Rows[i]["DayToReachTheTarget"].ToString());
                     DaysToBeAddedForLineChange = (int)DaysToReachTheTarget - 1;
 
@@ -2295,10 +2297,11 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
                                 {
                                     dtCalendar = dicCalendar[BestLine["EntityId"].ToString()];
 
-                                    dtCalendar.DefaultView.RowFilter = "WorkingDate>#" + Convert.ToDateTime(BestLine["LastProductionDate"].ToString()).ToString("dd-MMM-yyyy") + "#";
+                                    //dtCalendar.DefaultView.RowFilter = "WorkingDate>#" + Convert.ToDateTime(BestLine["LastProductionDate"].ToString()).ToString("dd-MMM-yyyy") + "#";
+                                    dtCalendar.DefaultView.RowFilter = "WorkingDate>#" + Convert.ToDateTime(BestLine["LastProductionDate"].ToString()).ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) + "#";
                                     if (dtCalendar.DefaultView.Count == 0)
                                     {
-                                        throw new Exception("Production calendar does not support date after " + Convert.ToDateTime(BestLine["LastProductionDate"].ToString()).ToString("dd-MMM-yyyy"));
+                                        throw new Exception("Production calendar does not support date after " + Convert.ToDateTime(BestLine["LastProductionDate"].ToString()).ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture));
                                     }
 
                                 }
@@ -2308,7 +2311,7 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
                                     {
                                         dtCalendar = dicCalendar[dvDistinctEntity.Rows[ENT]["EntityId"].ToString()];
 
-                                        dtCalendar.DefaultView.RowFilter = "WorkingDate>#" + startDate + "#";
+                                        dtCalendar.DefaultView.RowFilter = "WorkingDate>#" + startDate.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) + "#";
                                         if (dtCalendar.DefaultView.Count == 0)
                                         {
                                             throw new Exception("Production calendar does not support date after " + startDate);
@@ -2316,7 +2319,8 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
                                     }
                                     BestLine = drBestLine(tempdate, productionOrders.Rows[i]["MaterialMasterId"].ToString(), dtWorkCenter, LastProductionLineID);
                                     dtCalendar = dicCalendar[BestLine["EntityId"].ToString()];
-                                    dtCalendar.DefaultView.RowFilter = "WorkingDate>#" + startDate + "#";
+                                    dtCalendar.DefaultView.RowFilter = "WorkingDate>#" + startDate.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) + "#";
+                                    
                                 }
 
                                 double tempQty = TotalOrderQuantity;
@@ -2384,8 +2388,8 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
 
 
                             // DateTime LSDForLine = startDate;
-                            dtCalendar.DefaultView.RowFilter = "WorkingDate>=#" + startDate.ToString("dd-MMM-yyyy") + "#";
-
+                            //dtCalendar.DefaultView.RowFilter = "WorkingDate>=#" + startDate.ToString("dd-MMM-yyyy") + "#";
+                            dtCalendar.DefaultView.RowFilter = "WorkingDate>=#" + startDate.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)+ "#";
 
                             if (productionOrders.Rows[i]["MaterialMasterId"].ToString() != BestLine["MaterialMasterId"].ToString())
                             {
@@ -2402,14 +2406,16 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
 
                         try
                         {
-                            LSDForLine = Convert.ToDateTime(dtCalendar.DefaultView[Index]["WorkingDate"].ToString());//there is no relationship but index number
+                            //LSDForLine = Convert.ToDateTime(dtCalendar.DefaultView[Index]["WorkingDate"].ToString());//there is no relationship but index number
+                            LSDForLine = (DateTime)dtCalendar.DefaultView[Index]["WorkingDate"];
 
                         }
                         catch (Exception ex)
                         {
                             string Error = string.Format("System cannot render calendar after {0} for production order#{1}",
-                               LSDForLine.ToString("dd-MMM-yyyy"),
-                                productionOrders.Rows[i]["ProductionOrderID"].ToString()).ToString();
+                               //LSDForLine.ToString("dd-MMM-yyyy"),
+                               LSDForLine.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+                            productionOrders.Rows[i]["ProductionOrderID"].ToString()).ToString();
                             throw new Exception(Error);
                         }
 
@@ -2459,11 +2465,12 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
                         _ProductionBlock.Add(entry);
 
 
-                        BestLine["LastProductionDate"] = LSDForLine.ToString("dd-MMM-yyyy");
+                        //BestLine["LastProductionDate"] = LSDForLine.ToString("dd-MMM-yyyy");
+                        BestLine["LastProductionDate"] = LSDForLine.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
                         DataRow[] drSameLine = dtWorkCenter.Select("WorkCenterMasterId='" + BestLine["WorkCenterMasterId"].ToString() + "'");
                         foreach (DataRow drTempSameLine in drSameLine)
                         {
-                            drTempSameLine["LastProductionDate"] = LSDForLine.ToString("dd-MMM-yyyy");
+                            drTempSameLine["LastProductionDate"] = LSDForLine.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
                         }
 
                         TotalOrderQuantity = TotalOrderQuantity - entry.Quantity;
@@ -2550,7 +2557,7 @@ WHERE WCM.EntityId IN(" + entityid + @") AND ps.UserName NOT IN ('" + PlanningSt
             {
                 SendNotification(ex.ToString());
                 _lock.UnlockProcess();
-                string x = ex.Message;
+                string x = ex.Message + ex.StackTrace;
                 throw (ex);
             }
             finally
@@ -3698,7 +3705,8 @@ INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId
 dense_rank() OVER (PARTITION BY ppc.EntityID ORDER BY EntityID,ppc.WorkingDate)
 AS rnk,ppc.*
                                      FROM ProductionPlanningCalendar AS ppc 
-                            WHERE ppc.WorkingDate>='" + startDate.ToString("dd-MMM-yyyy") + @"' AND ppc.WorkingHours>0 
+                           -- WHERE ppc.WorkingDate>='" + startDate.ToString("dd-MMM-yyyy") + @"' AND ppc.WorkingHours>0 
+                            WHERE ppc.WorkingDate>='" + startDate.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) + @"' AND ppc.WorkingHours>0 
                             AND ppc.ProcessID='" + processid + @"' AND ppc.EntityID IN(" + entityid + @")) as ppc WHERE rnk<=" + noOfWorkingDays + @"
                             ORDER BY  ppc.EntityID, ppc.WorkingDate ASC";
             DataTable _dtProductionParameters = _sqlRepository.GetDataTable(sql);
