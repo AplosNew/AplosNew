@@ -3073,9 +3073,9 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     $scope.ModelFilter = null;
     $scope.filtergridonload = function () {
         try {
-            $("#GridPlanFilter").children('.e-pager.e-js.e-pager').hide();
-            $("#GridPlanFilter").children('.e-gridcontent.e-droppable.e-js').hide();
-            $("#GridPlanFilter").children('.e-gridcontent').hide();
+            $("#GridPlanFilterT2").children('.e-pager.e-js.e-pager').hide();
+            $("#GridPlanFilterT2").children('.e-gridcontent.e-droppable.e-js').hide();
+            $("#GridPlanFilterT2").children('.e-gridcontent').hide();
         } catch (e) {
 
         }

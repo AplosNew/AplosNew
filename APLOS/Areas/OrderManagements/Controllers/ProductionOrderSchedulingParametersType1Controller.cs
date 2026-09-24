@@ -6439,7 +6439,7 @@ isnull(S.username,'')<>'" + PlanningStatus.CLOSED.ToString() + @"' AND  po.entit
                                         isnull(ps.Id,'') AS ProductionStatusId, isnull(ps.UserName,'') AS ProductionStatus
                                         from trn.ProductionOrder PO
 				                                inner join ProductionOrderSchedulingParametersType2 T1 on t1.ProductionOrderID=po.Id
-				                                INNER join ProductionPlanningType2 p1 on p1.ProductionOrderID=t1.ProductionOrderID and ProcessID=(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID=po.Id)
+				                                INNER join ProductionPlanningType2 p1 on p1.ProductionOrderID=t1.ID and ProcessID=(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID=po.Id)
 	
 				                                left outer join scs.WorkCenterMaster WC on wc.id=p1.WorkCenterMasterId
 				                                LEFT OUTER JOIN EmployeeInformation AS ACCI ON ACCI.SystemId=wc.AccountInCharge
