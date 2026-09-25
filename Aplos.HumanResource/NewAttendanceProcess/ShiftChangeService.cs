@@ -676,17 +676,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 clsGenID genid = new clsGenID();
                                 genid.GenID(TableName, out string _Id);
 
-                                if (string.IsNullOrWhiteSpace(item.EntityId) ||
-                string.IsNullOrWhiteSpace(item.SupervisorId) ||
-                string.IsNullOrWhiteSpace(item.Lineno) ||
-                string.IsNullOrWhiteSpace(item.ShiftId))
-                                {
-                                    return $"Error: EntityId, SupervisorId, Lineno, and ShiftId are required and cannot be empty";
-                                }
-
-                                else
-                                {
-                                    if (item.InOutParam == "In")
+                               if (item.InOutParam == "In")
                                     {
                                         dr["Id"] = "PHY" + _Id;
                                         dr["EmpSystemID"] = item.EmpSystemID;
@@ -700,7 +690,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                         dr["SupervisorId"] = item.SupervisorId;
                                         dr["EntityId"] = item.EntityId;
 
-                                        dr["AddedFromIP"] = item.AddedFromIP;
+                                    dr["AddedFromIP"] = item.AddedFromIP;
                                         i++;
                                     }
                                     else
@@ -725,7 +715,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     }
 
                                     dsref.Tables[0].Rows.Add(dr);
-                                }
 
                                
 
