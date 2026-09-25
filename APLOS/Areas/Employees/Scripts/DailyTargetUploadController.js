@@ -230,7 +230,7 @@ function DailyTargetUploadController(cboService, commonMessage, $scope, $rootSco
                 method: 'POST',
                 url: $scope.path + 'SaveDailyTargetEmployeeData',
                 data: {
-                    'data': $scope.DailyTargetEmployeeData
+                    'data': $scope.DailyTargetEmployeeData, 'entityId': $scope.EntityId
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -251,6 +251,11 @@ function DailyTargetUploadController(cboService, commonMessage, $scope, $rootSco
 
         }
     };
+    $scope.ClearDailyTargetEmployee = function () {
+        $scope.DailyTargetEmployeeData = {};
+        $scope.Action = "Save";
+
+    }
     $scope.GetEmployee = function (obj) {
         $scope.DailyTargetEmployeeData = obj.data;
         $scope.EntityId = obj.data.EntityId;
