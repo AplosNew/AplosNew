@@ -184,21 +184,22 @@ function DailyTargetUploadController(cboService, commonMessage, $scope, $rootSco
         $scope.employee = [];
         $http({
             method: 'GET',
-            url: 'Costings/QuickCostingMaster/getemployeelist'
+            url: 'employees/EmployeeInformation/GetEmployeeListByPlant'
         }).then(function successCallback(response) {
-            $scope.employee = response.data;
+            $scope.employee = response.data.Rows;
         });
     }
     $scope.getPopUpData();
 
     $scope.setEmpData = function (obj) {
-        $scope.DailyTargetEmployeeData.EmployeeId = obj.data.SystemID;
-        $scope.EmployeeName = obj.data.EmployeeName;
+        $scope.DailyTargetEmployeeData.EmployeeId = obj.data.SystemId;
+        $scope.DailyTargetEmployeeData.EmployeeName = obj.data.EmployeeName;
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     };
+
     $scope.setReportingOfficerData = function (obj) {
-        $scope.DailyTargetEmployeeData.ReportingOfficerId = obj.data.SystemID;
-        $scope.ReportingOfficerName = obj.data.EmployeeName;
+        $scope.DailyTargetEmployeeData.ReportingOfficerId = obj.data.SystemId;
+        $scope.DailyTargetEmployeeData.ReportingOfficerName = obj.data.EmployeeName;
         angular.element(document.querySelector('#ReportingOfficerPopUp')).modal('hide');
     }
     $scope.WorkGroupList = [];
