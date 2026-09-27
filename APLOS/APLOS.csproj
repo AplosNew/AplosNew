@@ -2020,6 +2020,7 @@
     <Content Include="Areas\MIS\Scripts\misConfig.js" />
     <Content Include="Areas\OrderManagements\Scripts\CartonUpdateController.js" />
     <Content Include="Areas\OrderManagements\Scripts\DispatchController.js" />
+    <Content Include="Areas\OrderManagements\Scripts\SKUUploadController.js" />
     <Content Include="Areas\OrderManagements\Scripts\PackerCategoryController.js" />
     <Content Include="Areas\OrderManagements\Scripts\PackingBookingController.js" />
     <Content Include="Areas\OrderManagements\Scripts\DispatchPlanController.js" />
@@ -5155,6 +5156,7 @@
     <Content Include="Areas\OrderManagements\Views\ProductionOrder\Dispatch.cshtml" />
     <Content Include="Areas\OrderManagements\Views\ProductionOrder\CartonUpdate.cshtml" />
     <Content Include="Areas\Accounts\Views\_VoucherUpdatePopUp.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\MasterOrder\SKUUpload.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

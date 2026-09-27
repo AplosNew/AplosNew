@@ -1075,37 +1075,54 @@ Group By  D.ProductionOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueI
                     {
                         sql = @"SELECT D.ID,D.ProductionOrderID,D.NoOfWorkStation,D.Efficiency,D.SPT,D.PlanWorkingHoursPerDay,D.FirstDayOutPut,D.PlanTargetPerHour,D.IncrementValue,D.IncrementType,D.DayToReachTheTarget
 ,FORMAT(D.LSD,'dd-MMM-yyyy')LSD,FORMAT(D.CommitmentDate,'dd-MMM-yyyy')CommitmentDate,D.ProductionPriority,D.TargetPerHour,D.TargetPerDay,D.MinimumLineDays,D.RequiredLineDays
-,D.RequiredNoOfLines,D.AllocatedLines,D.Color,D.Qty,D.Qty PlanQty,FORMAT(D.MainRawMaterialInhouseDate,'dd-MMM-yyyy')MainRawMaterialInhouseDate,D.LSDLagDays
+,D.RequiredNoOfLines,D.AllocatedLines,D.Color,S.Qty,D.Qty PlanQty,FORMAT(D.MainRawMaterialInhouseDate,'dd-MMM-yyyy')MainRawMaterialInhouseDate,D.LSDLagDays
 ,FORMAT(D.OtherRawMaterialInhouseDate,'dd-MMM-yyyy')OtherRawMaterialInhouseDate,D.WCPreferenceType,D.PlanningStatus,D.RunningOrderBlockSize,D.ConsiderHourFromWorkCenter,D.ConsiderWorkStationsFromWorkCenter,D.WorkCenterGroupId
-,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,D.AdjustableQty,D.SKU1,D.SKU2,D.Both,D.SKU1Id,D.SKU2Id,CV.UserName SKUColor, WG.UserName WorkCenterGroup,D.MaximumAllowedWorkCenter,D.PlanPercentage,D.ProductionStatusId
+,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,D.AdjustableQty,D.SKU1,D.SKU2,D.Both,D.SKU1Id,D.SKU2Id,CV.UserName SKUColor, WG.UserName WorkCenterGroup,D.MaximumAllowedWorkCenter,D.PlanPercentage,D.ProductionStatusId,D.ComboRefNo
                      FROM dbo.ProductionOrderSchedulingParametersType2  D
                      LEFT JOIN HKP.CharacteristicsValue CV ON CV.Id = D.SKU1Id
                      LEFT JOIN HKP.WorkCenterGroup WG ON WG.Id=D.WorkCenterGroupId
+
+                     LEFT JOIN (Select SUM(SC.Qty) Qty,SC.CharacteristicsValueId SKU1Id,D.ProductionOrderId From [TRN].[FirstCharacteristics] SC
+LEFT JOIN TRN.SalesOrder S ON S.Id=SC.SalesOrderId
+LEFT JOIN TRN.ProductionOrderDetail D ON D.SalesOrderId=S.Id
+Where D.ProductionOrderId='" + poId + @"'' Group By SC.CharacteristicsValueId,D.ProductionOrderId) S ON S.ProductionOrderId=D.ProductionOrderID AND S.SKU1Id=D.SKU1Id
                      WHERE D.ProductionOrderId = '" + poId + @"'";
                     }
                     else if (Convert.ToBoolean(savedCount.Rows[0]["SKU2"].ToString()) && !Convert.ToBoolean(savedCount.Rows[0]["SKU1"].ToString()) && !Convert.ToBoolean(savedCount.Rows[0]["Both"].ToString()))
                     {
                         sql = @"Select D.ID,D.ProductionOrderID,D.NoOfWorkStation,D.Efficiency,D.SPT,D.PlanWorkingHoursPerDay,D.FirstDayOutPut,D.PlanTargetPerHour,D.IncrementValue,D.IncrementType,D.DayToReachTheTarget
 ,FORMAT(D.LSD,'dd-MMM-yyyy')LSD,FORMAT(D.CommitmentDate,'dd-MMM-yyyy')CommitmentDate,D.ProductionPriority,D.TargetPerHour,D.TargetPerDay,D.MinimumLineDays,D.RequiredLineDays
-,D.RequiredNoOfLines,D.AllocatedLines,D.Color,D.Qty,D.Qty PlanQty,FORMAT(D.MainRawMaterialInhouseDate,'dd-MMM-yyyy')MainRawMaterialInhouseDate,D.LSDLagDays
+,D.RequiredNoOfLines,D.AllocatedLines,D.Color,S.Qty,D.Qty PlanQty,FORMAT(D.MainRawMaterialInhouseDate,'dd-MMM-yyyy')MainRawMaterialInhouseDate,D.LSDLagDays
 ,FORMAT(D.OtherRawMaterialInhouseDate,'dd-MMM-yyyy')OtherRawMaterialInhouseDate,D.WCPreferenceType,D.PlanningStatus,D.RunningOrderBlockSize,D.ConsiderHourFromWorkCenter,D.ConsiderWorkStationsFromWorkCenter,D.WorkCenterGroupId
-,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,D.AdjustableQty,D.SKU1,D.SKU2,D.Both,D.SKU1Id,D.SKU2Id, CV.UserName SKUSize, WG.UserName WorkCenterGroup,D.MaximumAllowedWorkCenter,D.PlanPercentage,D.ProductionStatusId
-                     FROM dbo.ProductionOrderSchedulingParametersType2  D
-                     LEFT JOIN HKP.CharacteristicsValue CV ON CV.Id = D.SKU2Id
-                     LEFT JOIN HKP.WorkCenterGroup WG ON WG.Id=D.WorkCenterGroupId
-                     WHERE D.ProductionOrderId = '" + poId + @"'";
+,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,D.AdjustableQty,D.SKU1,D.SKU2,D.Both,D.SKU1Id,D.SKU2Id, CV.UserName SKUSize, WG.UserName WorkCenterGroup,D.MaximumAllowedWorkCenter,D.PlanPercentage,D.ProductionStatusId,D.ComboRefNo
+FROM dbo.ProductionOrderSchedulingParametersType2  D
+LEFT JOIN HKP.CharacteristicsValue CV ON CV.Id = D.SKU2Id
+
+LEFT JOIN (Select SUM(SC.Qty) Qty,SC.CharacteristicsValueId SKU2Id,D.ProductionOrderId From TRN.[SecondCharacteristics] SC
+LEFT JOIN TRN.SalesOrder S ON S.Id=SC.SalesOrderId
+LEFT JOIN TRN.ProductionOrderDetail D ON D.SalesOrderId=S.Id
+Where D.ProductionOrderId='" + poId + @"'' Group By SC.CharacteristicsValueId,D.ProductionOrderId) S ON S.ProductionOrderId=D.ProductionOrderID AND S.SKU2Id=D.SKU2Id
+LEFT JOIN HKP.WorkCenterGroup WG ON WG.Id=D.WorkCenterGroupId
+WHERE D.ProductionOrderId = '" + poId + @"'";
                     }
                     else
                     {
                         sql = @"SELECT D.ID,D.ProductionOrderID,D.NoOfWorkStation,D.Efficiency,D.SPT,D.PlanWorkingHoursPerDay,D.FirstDayOutPut,D.PlanTargetPerHour,D.IncrementValue,D.IncrementType,D.DayToReachTheTarget
 ,FORMAT(D.LSD,'dd-MMM-yyyy')LSD,FORMAT(D.CommitmentDate,'dd-MMM-yyyy')CommitmentDate,D.ProductionPriority,D.TargetPerHour,D.TargetPerDay,D.MinimumLineDays,D.RequiredLineDays
-,D.RequiredNoOfLines,D.AllocatedLines,D.Color,D.Qty,D.Qty PlanQty,FORMAT(D.MainRawMaterialInhouseDate,'dd-MMM-yyyy')MainRawMaterialInhouseDate,D.LSDLagDays
+,D.RequiredNoOfLines,D.AllocatedLines,D.Color,S.Qty,D.Qty PlanQty,FORMAT(D.MainRawMaterialInhouseDate,'dd-MMM-yyyy')MainRawMaterialInhouseDate,D.LSDLagDays
 ,FORMAT(D.OtherRawMaterialInhouseDate,'dd-MMM-yyyy')OtherRawMaterialInhouseDate,D.WCPreferenceType,D.PlanningStatus,D.RunningOrderBlockSize,D.ConsiderHourFromWorkCenter,D.ConsiderWorkStationsFromWorkCenter,D.WorkCenterGroupId
-,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,D.AdjustableQty,D.SKU1,D.SKU2,D.Both,D.SKU1Id,D.SKU2Id, WG.UserName WorkCenterGroup,FCV.UserName SKUColor, SCV.UserName SKUSize,D.MaximumAllowedWorkCenter,D.PlanPercentage,D.ProductionStatusId
-                     FROM dbo.ProductionOrderSchedulingParametersType2  D
-                     LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = D.SKU1Id
-                     LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = D.SKU2Id
-                     LEFT JOIN HKP.WorkCenterGroup WG ON WG.Id=D.WorkCenterGroupId
+,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,D.AdjustableQty,D.SKU1,D.SKU2,D.Both,D.SKU1Id,D.SKU2Id, WG.UserName WorkCenterGroup,FCV.UserName SKUColor, SCV.UserName SKUSize,D.MaximumAllowedWorkCenter,D.PlanPercentage,D.ProductionStatusId,D.ComboRefNo
+                     
+FROM dbo.ProductionOrderSchedulingParametersType2  D
+LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = D.SKU1Id
+LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = D.SKU2Id
+LEFT JOIN HKP.WorkCenterGroup WG ON WG.Id=D.WorkCenterGroupId
+LEFT JOIN (Select SUM(SC.Qty) Qty,FC.CharacteristicsValueId SKU1Id,SC.CharacteristicsValueId SKU2Id,D.ProductionOrderId From TRN.[SecondCharacteristics] SC 
+LEFT JOIN [TRN].[FirstCharacteristics] FC ON FC.Id=SC.FirstCharacteristicsId
+LEFT JOIN TRN.SalesOrder S ON S.Id=SC.SalesOrderId
+LEFT JOIN TRN.ProductionOrderDetail D ON D.SalesOrderId=S.Id
+Where D.ProductionOrderId='" + poId + @"' Group By FC.CharacteristicsValueId,SC.CharacteristicsValueId,D.ProductionOrderId) S ON S.ProductionOrderId=D.ProductionOrderID
+AND S.SKU1Id=D.SKU1Id AND S.SKU2Id=D.SKU2Id
                      WHERE D.ProductionOrderId = '" + poId + @"'";
                     }
                 }

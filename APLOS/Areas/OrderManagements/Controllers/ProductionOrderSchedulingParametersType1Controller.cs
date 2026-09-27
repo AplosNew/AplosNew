@@ -5931,6 +5931,153 @@ LEFT OUTER JOIN (SELECT p.ProductionOrderID,FORMAT(MIN(p.ProductionDate),'dd-MMM
         #region Type2
 
         [HttpPost, Authorize]
+        public JsonResult GetType2ProductionPlanningData(string planrowid, string ProductionOrderId, string processid)
+        {
+            string SelectedProductionOrder = ProductionOrderId;
+            //CONVERT(INT, pt.WorkCenterMasterId)
+            if (string.IsNullOrEmpty(planrowid) == false)
+            {
+                DataTable dt = _sqlRepository.GetDataTable("select top 1 ProductionOrderID from ProductionPlanningType2  where id = '" + planrowid + @"'");
+                if (dt.Rows.Count > 0)
+                    ProductionOrderId = dt.Rows[0]["ProductionOrderID"].ToString();
+            }
+
+            string sqlWCDATA = @"SELECT  WC.Sequence, t1.ProductionOrderID, t1.WorkCenterMasterId, wc.UserName AS WorkCenter,e.username as Entity,
+							FORMAT(po.Lsd,'dd-MMM-yyyy') AS LSD,
+                            FORMAT(po.CommitmentDate,'dd-MMM-yyyy') AS CommitmentDate,
+							DATEDIFF(DAY,po.LSD,MIN(t1.ProductionDate)) AS DIFF,
+							case when DATEDIFF(DAY,po.CommitmentDate,MAX(t1.ProductionDate))>0 THEN  DATEDIFF(DAY,po.CommitmentDate,MAX(t1.ProductionDate)) ELSE NULL END AS DelayedProductionDaysOnCommitmentDate,
+                            FORMAT(MIN(t1.ProductionDate),'dd-MMM-yyyy') AS FromDate,
+                            FORMAT(MAX(t1.ProductionDate),'dd-MMM-yyyy') AS ToDate,
+                            SUM(t1.Quantity) AS PlannedQuantity
+
+                            FROM ProductionPlanningType2 T1
+                            LEFT OUTER JOIN ProductionOrderSchedulingParametersType2 AS po ON po.ID = t1.ProductionOrderID
+                            LEFT OUTER JOIN  [SCS].[WorkCenterMaster] WC ON t1.WorkCenterMasterId=wc.Id
+                            left join org.entity e on e.id=wc.entityid
+                            WHERE t1.ProductionOrderID='" + ProductionOrderId + @"' --AND ProductionDate>=GETDATE()
+                            GROUP BY  WC.Sequence,e.username,t1.ProductionOrderID, po.Lsd,po.CommitmentDate, t1.WorkCenterMasterId, wc.UserName
+                            order by WC.Sequence
+                            ";
+
+
+            string sqlPRODDATA = @"SELECT  WC.Sequence,t1.SubProductionOrderId ProductionOrderID,t1.WorkCenterMasterId, wc.UserName AS WorkCenter,e.username as Entity,
+                            FORMAT(MIN(t1.ProductionDate),'dd-MMM-yyyy') AS FromDate,
+                            FORMAT(MAX(t1.ProductionDate),'dd-MMM-yyyy') AS ToDate,
+                            SUM(t1.Quantity) AS ProductionQuantity
+
+                            FROM 
+                            trn.ProductionSummary T1
+                            LEFT OUTER JOIN  [SCS].[WorkCenterMaster] WC ON t1.WorkCenterMasterId=wc.Id
+                            left join org.entity e on e.id=wc.entityid
+                            WHERE t1.SubProductionOrderId='" + ProductionOrderId + @"' AND WC.ProcessId='" + processid + @"' 
+                            GROUP BY e.username, WC.Sequence,t1.SubProductionOrderId,t1.WorkCenterMasterId, wc.UserName
+                            order by WC.Sequence
+                            ";
+
+            string sqlRowData = @"select WC.Sequence,T1.Id, mm.UserName AS Material,t1.WorkCenterMasterId,T1.ProductionOrderId,WC.entityid,wc.UserName AS WorkCenter,
+                                PM.UserName AS ProductName,PD.ProductMasterId,T1.Quantity,T1.ProductionHours,e.username as Entity,
+                                FORMAT(t1.ProductionDate,'dd-MMM-yyyy') AS ProductionDate,SO.Qty AS TotalQuantity,mm.[Image] AS MaterialImage
+                            FROM ProductionPlanningType1 T1
+                            LEFT OUTER JOIN  [SCS].[WorkCenterMaster] WC ON t1.WorkCenterMasterId=wc.Id
+                            left join org.entity e on e.id=wc.entityid
+                            LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=t1.MaterialMasterId
+                            LEFT OUTER JOIN [TRN].[ProductDefinition] PD ON mm.Id=pd.MaterialMasterId
+                            LEFT OUTER JOIN [MST].[ProductMaster] PM on pm.ID=PD.ProductMasterId
+                            LEFT OUTER  JOIN (SELECT pod.ProductionOrderId,SUM(so.Qty) AS Qty
+                                                FROM trn.SalesOrder AS so
+                            INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id GROUP BY pod.ProductionOrderId) 
+                            AS SO ON so.ProductionOrderId=T1.ProductionOrderId
+                            WHERE t1.ID='" + planrowid + @"' 
+                            order by WC.Sequence";
+
+
+
+            string sqlPRDATA = @"select T1.*,upper(ps.username) AS PlanningStatus,PO.PicFileName from ProductionOrderSchedulingParametersType1 T1
+                                inner join trn.productionorder po on po.id=t1.productionorderID
+                                 LEFT OUTER JOIN hkp.ProductionStatus AS ps ON ps.Id=po.ProductionStatusId
+                            where ProductionOrderID = '" + ProductionOrderId + @"'";
+
+            string sqlSTYLEDATA = @"SELECT distinct moi.BuyerReferenceNo
+                                      FROM trn.ProductionOrderDetail AS pod
+                                    LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=pod.SalesOrderId
+                                    LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
+                                    WHERE isnull(moi.BuyerReferenceNo,'')<>''
+                                    AND pod.ProductionOrderId='" + ProductionOrderId + @"'";
+
+            Library.Planning.PlanningType1.PlanningType1Scheduler scheduler = new Library.Planning.PlanningType1.PlanningType1Scheduler();
+            string SameDayPlanningData = scheduler.GetSameDayPlanningSummary(planrowid, SelectedProductionOrder);
+
+            return Json(new
+            {
+                WCDATA = _sqlRepository.GetDataCollection(sqlWCDATA),
+                WPRODDATA = _sqlRepository.GetDataCollection(sqlPRODDATA),
+                WSTYLEDATA = _sqlRepository.GetDataCollection(sqlSTYLEDATA),
+                SAMEDAYDATA = _sqlRepository.GetDataCollection(SameDayPlanningData),
+
+                ROWDATA = _sqlRepository.GetDataCollection(sqlRowData),
+                PRDATA = _sqlRepository.GetDataCollection(sqlPRDATA)
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult getType2ProductMasterParametersDisplay(string productionOrderID, string entityid)
+        {
+
+
+            string sql = @"SELECT pm.Id,pm.UserName AS ProductName,pc.UserName AS ProductCategory,puc.UserName AS ProductSubCategory, 
+                            pme.NoOfWorkStation, pme.EfficencyPercentage AS Efficiency,pme.StandardWorkingHours PlanWorkingHoursPerDay, pme.SPT,
+                            MLD.[Value] AS MinimumLineDays,
+                            PM.FirstdayOutPut AS FirstDayOutPut,PM.IncrementValue,PM.DaysToReachTheTarget AS DayToReachTheTarget,
+                                CASE WHEN ISNULL(PD.IsFixed,'')='FIXED' THEN 'FIXED' ELSE 'PERCENTAGE' END AS IncrementType
+                                    FROM [TRN].[ProductDefinition] PD
+                                LEFT OUTER JOIN [MST].[ProductMaster] PM ON pm.Id=pd.ProductMasterId
+                                LEFT OUTER JOIN [HKP].[ProductCategory] PC ON pc.Id=pm.ProductCategoryId
+                                    LEFT OUTER JOIN [HKP].[ProductSubCategory] PUC ON PUC.Id=pm.ProductSubCategoryId
+                                LEFT OUTER JOIN [TRN].[ProductMasterEfficency] PME ON pme.ProductMasterId=pm.Id AND pme.EfficencyName='Planning'
+                                LEFT OUTER JOIN dbo.EntityConfig con ON 1=1 and con.EntityId='" + entityid + @"' AND con.StandardName='" + EntityConfigParameter.StandardWorkingHoursPerDay + @"'
+                                   LEFT OUTER JOIN dbo.EntityConfig MLD ON 1=1 and MLD.EntityId='" + entityid + @"' AND MLD.StandardName='" + EntityConfigParameter.MinimumLineDays + @"'
+                         WHERE PD.MaterialMasterId IN (SELECT DISTINCT moi.MaterialMasterId FROM [dbo].[ProductionOrderSchedulingParametersType2] T2
+INNER JOIN [TRN].[ProductionOrder] PD ON PD.Id=T2.ProductionOrderID
+INNER JOIN [TRN].[ProductionOrderDetail] D ON D.ProductionOrderId=PD.Id
+INNER JOIN trn.SalesOrder AS so ON so.Id=d.SalesOrderId
+INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
+WHERE T2.Id='" + productionOrderID + @"'
+                                    )";
+
+            string sqlProduction = @"SELECT t1.*,t2.FirstInputDate,so.Qty AS SOQuantity
+  FROM [ProductionOrderSchedulingParametersType1] T1
+LEFT OUTER  JOIN (SELECT pod.ProductionOrderId,SUM(so.Qty) AS Qty
+                                                FROM trn.SalesOrder AS so
+                            INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id GROUP BY pod.ProductionOrderId) AS SO ON so.ProductionOrderId=T1.ProductionOrderID
+LEFT OUTER JOIN (SELECT p.ProductionOrderID,FORMAT(MIN(p.ProductionDate),'dd-MMM-yyyy') AS FirstInputDate
+                   FROM trn.ProductionSummary AS p GROUP BY p.ProductionOrderID) AS T2 ON t1.ProductionOrderID=t2.ProductionOrderID  where t1.ProductionOrderID='" + productionOrderID + "'";
+
+            string sqlPRODUCTPARAMSWorkCenterList = @"SELECT wc.* FROM   [SCS].[WorkCenterMasterProductPriority] PP
+                                INNER JOIN scs.WorkCenterMaster AS WC ON wc.id=pp.WorkCenterMasterId
+                                WHERE pp.ProductMasterId IN (
+	
+                                    SELECT DISTINCT pd.ProductMasterId FROM [TRN].[ProductionOrderDetail] D
+                                    INNER JOIN trn.SalesOrder AS so ON so.Id=d.SalesOrderId
+                                    INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
+                                    INNER JOIN [TRN].[ProductDefinition] PD ON moi.MaterialMasterId=pd.MaterialMasterId
+                                    WHERE d.ProductionOrderId='" + productionOrderID + @"'
+                                    ) AND WC.EntityId='" + entityid + @"'
+                                ORDER BY pp.[Priority]";
+
+            string sqlPRODUCTIONPARAMSWorkCenterList = @"SELECT ws.* FROM [TRN].[ProductionOrderWorkCenter] W
+                        INNER JOIN [SCS].[WorkCenterMaster] WS ON ws.Id=w.WorkCenterMasterId WHERE W.ProductionOrderId='" + productionOrderID + "'";
+
+            return Json(new
+            {
+                PRODUCTPARAMS = _sqlRepository.GetDataCollection(sql),
+                PRODUCTIONPARAMS = _sqlRepository.GetDataCollection(sqlProduction),
+                PRODUCTPARAMSWorkCenterList = _sqlRepository.GetDataCollection(sqlPRODUCTPARAMSWorkCenterList),
+                PRODUCTIONPARAMSWorkCenterList = _sqlRepository.GetDataCollection(sqlPRODUCTIONPARAMSWorkCenterList)
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
         public ActionResult SaveType2FileList(List<Dictionary<string, object>> data)
         {
             try

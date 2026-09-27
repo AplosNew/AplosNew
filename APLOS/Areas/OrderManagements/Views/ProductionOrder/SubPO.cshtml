@@ -138,7 +138,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Priority<sup>*</sup></label>
                     <div class="col-sm-8">
-                        <input type="number" inputmode="numeric" class="form-control" rows="2" ng-model="ModelNewSPO.ProductionPriority" maxlength="250" />
+                        <input type="text" n-decimals="2" class="form-control" rows="2" ng-model="ModelNewSPO.ProductionPriority" maxlength="250" />
                     </div>
                 </div>
 
@@ -187,6 +187,7 @@
                     <div e-column e-type="string" e-template="#TargetPerDay" e-headertext="TargetPerDay" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#ProductionDisplayColor" e-headertext="ProductionDisplayColor" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#ProdStatus" e-headertext="ProductionStatus" e-width="80" style="height: 20px;"></div>
+                    <div e-column e-type="string" e-template="#ComboRefNo" e-headertext="ComboRefNo" e-width="80" style="height: 20px;"></div>
 
                     <div e-column e-type="string" e-template="#PrefenceWorkCenter" e-headertext="PrefenceWorkCenter" e-width="80" style="height: 20px;"></div>
                     <div e-column e-type="string" e-template="#RunningWorkCenter" e-headertext="RunningWorkCenter" e-width="80" style="height: 20px;"></div>
@@ -194,27 +195,32 @@
 
                 <script type="text/template" id="LSD">
                     <div class="col-sm-10" style="padding:0px; width:70px;">
-                        <input type="text" name="LSD" ng-model="data.LSD" datepicker class="form-control" required />
+                        <input type="text" name="LSD" ng-model="data.LSD" datepicker class="form-control" />
                     </div>
                 </script>
                 <script type="text/template" id="LSDLagDays">
                     <div class="col-sm-10" style="padding:0px; width:70px;">
-                        <input type="text" name="LSD Lag Days" only-numbers ng-model="data.LSDLagDays" class="form-control" required />
+                        <input type="text" name="LSD Lag Days" only-numbers ng-model="data.LSDLagDays" class="form-control" />
+                    </div>
+                </script>
+                <script type="text/template" id="ComboRefNo">
+                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                        <input type="text" name="ComboRefNo" ng-model="data.ComboRefNo" class="form-control" />
                     </div>
                 </script>
                 <script type="text/template" id="CommitmentDate">
                     <div class="col-sm-10" style="padding:0px; width:70px;">
-                        <input type="text" name="CommitmentDate" ng-model="data.CommitmentDate" datepicker class="form-control" required />
+                        <input type="text" name="CommitmentDate" ng-model="data.CommitmentDate" datepicker class="form-control" />
                     </div>
                 </script>
                 <script type="text/template" id="MainRawMaterialInhouseDate">
                     <div class="col-sm-10" style="padding:0px; width:70px;">
-                        <input type="text" name="MainRawMaterialInhouseDate" ng-model="data.MainRawMaterialInhouseDate" datepicker class="form-control" required />
+                        <input type="text" name="MainRawMaterialInhouseDate" ng-model="data.MainRawMaterialInhouseDate" datepicker class="form-control" />
                     </div>
                 </script>
                 <script type="text/template" id="OtherRawMaterialInhouseDate">
                     <div class="col-sm-10" style="padding:0px; width:70px;">
-                        <input type="text" name="OtherRawMaterialInhouseDate" ng-model="data.OtherRawMaterialInhouseDate" datepicker class="form-control" required />
+                        <input type="text" name="OtherRawMaterialInhouseDate" ng-model="data.OtherRawMaterialInhouseDate" datepicker class="form-control" />
                     </div>
                 </script>
                 <script type="text/template" id="SPT">
@@ -231,7 +237,7 @@
                 </script>
                 <script type="text/template" id="PPriority">
                     <div class="col-sm-10" style="padding:0px; width:70px;">
-                        <input type="text" ng-model="data.ProductionPriority" only-numbers style="color:black;" class="form-control" />
+                        <input type="text" n-decimals="2" ng-model="data.ProductionPriority" style="color:black;" class="form-control" />
                     </div>
                 </script>
                 <script type="text/template" id="AdjustableQty">

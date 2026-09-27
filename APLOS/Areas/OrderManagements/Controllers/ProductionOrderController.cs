@@ -75,7 +75,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             return View();
         }
-      
+
 
         public async Task<ActionResult> Type2()
         {
@@ -4094,6 +4094,20 @@ ORDER BY P.SortOrder";
             }
         }
 
+        public DataTable GetComboUsedData(string id)
+        {
+            try
+            {
+                string sql = @"Select * from ItemScanChild Where RefNo IN(Select Id from dbo.CartonGeneration Where PackingComboReferenceId='" + id + "')";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
         [HttpPost, Authorize]
         public ActionResult DeleteCombo(string id)
         {
@@ -4101,6 +4115,12 @@ ORDER BY P.SortOrder";
             {
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
+
+                var useddata = GetComboUsedData(id);
+                if (useddata.Rows.Count > 0)
+                {
+                    throw new Exception("This Carton No already scanned, delete not allowed.");
+                }
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
@@ -4210,7 +4230,7 @@ ORDER BY P.SortOrder";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dspackCat, false, "1");
 
-                int totalCartons = Convert.ToInt32(data["NoOfPack"])+1;
+                int totalCartons = Convert.ToInt32(data["NoOfPack"]) + 1;
                 int existingCartons = dspackCat.Tables[0].AsEnumerable().Count(r => r["PacketRegistrationId"].ToString() == data["PacketRegistrationId"].ToString());
 
                 if (existingCartons < totalCartons)
@@ -4257,7 +4277,7 @@ ORDER BY P.SortOrder";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dspackCat, false, "1");
 
-                int totalCartons = Convert.ToInt32(data["NoOfPack"])+1;
+                int totalCartons = Convert.ToInt32(data["NoOfPack"]) + 1;
                 int existingCartons = dspackCat.Tables[0].AsEnumerable().Count(r => r["PackingComboReferenceId"].ToString() == data["PackingComboReferenceId"].ToString());
 
                 if (existingCartons < totalCartons)
@@ -4292,12 +4312,30 @@ ORDER BY P.SortOrder";
             }
         }
 
+        public DataTable GetPRUsedData(string id)
+        {
+            try
+            {
+                string sql = @"Select * from ItemScanChild Where RefNo IN(Select Id from dbo.CartonGeneration Where PacketRegistrationId='"+id+"')";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         [HttpPost, Authorize]
         public ActionResult DeleteCarton(string id)
         {
 
             try
             {
+                var useddata = GetPRUsedData(id);
+                if (useddata.Rows.Count > 0)
+                {
+                    throw new Exception("This Carton No already scanned, update not allowed.");
+                }
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
@@ -4335,14 +4373,19 @@ ORDER BY P.SortOrder";
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
-            DataSet dsEntity;
+            DataSet dsEntity, dsCheck;
             try
             {
-               
+
                 #region Entity 
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ActualCatronQty Where CartonId='"+data["CartonId"] +"'", out dsEntity, false, "1");
-                
+                objCon.OpenDataSetThroughAdapter("Select * from ItemScanChild Where RefNo='" + data["CartonId"] + "'", out dsCheck, false, "1");
+                if (dsCheck.Tables[0].Rows.Count > 0)
+                {
+                    throw new Exception("This Carton No already scanned, update not allowed.");
+                }
+
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ActualCatronQty Where CartonId='" + data["CartonId"] + "'", out dsEntity, false, "1");
 
                 if (data != null)
                 {
@@ -4499,7 +4542,7 @@ ORDER BY P.SortOrder";
             DataSet dsEntity;
             try
             {
-               
+
                 #region Entity 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.PackerCategoryEmployee where  PackerCategoryId='" + masterId + "'", out dsEntity, false, "1");

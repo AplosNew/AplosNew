@@ -3383,7 +3383,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         try {
             $http({
                 method: 'POST',
-                url: $scope.path + "GetProductionPlanningData?planrowid=" + id + "&ProductionOrderId=" + PRID + "&processid=" + $scope.PlanningTypeProcessId
+                url: "OrderManagements/productionOrderSchedulingParametersType1/GetType2ProductionPlanningData?planrowid=" + id + "&ProductionOrderId=" + PRID + "&processid=" + $scope.PlanningTypeProcessId
             }).then(function successCallback(res) {
 
                 $scope.VWCDATA = res.data.WCDATA;
@@ -3426,7 +3426,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         try {
             $http({
                 method: 'GET',
-                url: $scope.path + "getProductMasterParametersDisplay?productionOrderID=" + $scope.VROWDATA.ProductionOrderId + "&entityid=" + $scope.VROWDATA.entityid
+                url: $scope.path + "OrderManagements/productionOrderSchedulingParametersType1/getType2ProductMasterParametersDisplay?productionOrderID=" + $scope.VROWDATA.ProductionOrderId + "&entityid=" + $scope.VROWDATA.entityid
             }).then(function successCallback(res) {
                 $scope.PRODUCTPARAMS = res.data.PRODUCTPARAMS[0];
                 $scope.PRODUCTIONPARAMS = res.data.PRODUCTIONPARAMS[0];
