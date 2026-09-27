@@ -2935,7 +2935,7 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                                     dsBC.Tables[0].DefaultView.RowFilter = "Id='" + dsExcel.Tables[0].Rows[i][4].ToString().Trim() + "'";
                                     dsWorkCenIncharge.Tables[0].DefaultView.RowFilter = "EmployeeCode='" + dsExcel.Tables[0].Rows[i][11].ToString().Trim() + "'";
 
-                                    if (dsBC.Tables[0].DefaultView.Count == 0)
+                                    if (dsExcel.Tables[0].Rows[i][4].ToString().Trim()!=DBNull.Value.ToString() && dsBC.Tables[0].DefaultView.Count == 0)
                                     {
                                         throw new Exception("ProductionOrder no '" + dsExcel.Tables[0].Rows[i][4].ToString().Trim() + "' not valid PO. Please check !!");
 
@@ -2957,10 +2957,12 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                                     vm.WorkCenter = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
                                     vm.ProductionOrderId = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
                                     vm.StyleNo = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
-                                    vm.QtyPerHour = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][6]);
+                                    vm.QtyPerHour = ParseDecimalOrFormula(dsExcel.Tables[0].Rows[i][6]);
                                     vm.Operator = Convert.ToInt16(dsExcel.Tables[0].Rows[i][7]);
-                                    vm.Helper = Convert.ToInt16(dsExcel.Tables[0].Rows[i][8]);
-                                    vm.SPT = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][9]);
+                                    //vm.Helper = dsExcel.Tables[0].Rows[i][8] != null ? Convert.ToInt32(dsExcel.Tables[0].Rows[i][8]) : 0;
+                                    //vm.SPT = dsExcel.Tables[0].Rows[i][9]!=null? Convert.ToDecimal(dsExcel.Tables[0].Rows[i][9]):0;
+                                    vm.Helper = ParseIntOrDefault(dsExcel.Tables[0].Rows[i][8]);
+                                    vm.SPT = ParseDecimalOrFormula(dsExcel.Tables[0].Rows[i][9]);
                                     vm.Remarks = dsExcel.Tables[0].Rows[i][10].ToString().Trim();
                                     vm.WorkCenterIncharge = dsWorkCenIncharge.Tables[0].DefaultView[0]["SystemId"].ToString();
                                     vm.QCIncharge = dsQCIncharge.Tables[0].DefaultView[0]["SystemId"].ToString();
@@ -3003,7 +3005,69 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
+        private decimal ParseDecimalOrFormula(object cellValue)
+        {
+            if (cellValue == null || cellValue == DBNull.Value)
+                return 0;
 
+            string text = cellValue.ToString().Trim();
+            if (string.IsNullOrWhiteSpace(text))
+                return 0;
+
+            // Direct number (covers the normal case, e.g. "25", "25.5")
+            if (decimal.TryParse(text, System.Globalization.NumberStyles.Any,
+                    System.Globalization.CultureInfo.InvariantCulture, out decimal directValue))
+                return directValue;
+
+            // Strip a leading "=" if the cell was entered as an Excel formula string, e.g. "=200/4"
+            if (text.StartsWith("="))
+                text = text.Substring(1).Trim();
+
+            // Simple two-operand expression: 200/4, 200*4, 200+4, 200-4
+            var match = System.Text.RegularExpressions.Regex.Match(
+                text, @"^(-?\d+(\.\d+)?)\s*([\+\-\*/])\s*(-?\d+(\.\d+)?)$");
+
+            if (match.Success)
+            {
+                decimal left = decimal.Parse(match.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture);
+                decimal right = decimal.Parse(match.Groups[4].Value, System.Globalization.CultureInfo.InvariantCulture);
+                char op = match.Groups[3].Value[0];
+
+                switch (op)
+                {
+                    case '/':
+                        return right == 0 ? 0 : left / right;
+                    case '*':
+                        return left * right;
+                    case '+':
+                        return left + right;
+                    case '-':
+                        return left - right;
+                }
+            }
+
+            // Couldn't parse as a number or a simple formula — default to 0
+            return 0;
+        }
+        private int ParseIntOrDefault(object cellValue)
+        {
+            if (cellValue == null || cellValue == DBNull.Value)
+                return 0;
+
+            string text = cellValue.ToString().Trim();
+            if (string.IsNullOrWhiteSpace(text))
+                return 0;
+
+            // handles "25", "25.0" style cells (Excel numeric cells often round-trip as double text)
+            if (int.TryParse(text, out int intVal))
+                return intVal;
+
+            if (decimal.TryParse(text, System.Globalization.NumberStyles.Any,
+                    System.Globalization.CultureInfo.InvariantCulture, out decimal decVal))
+                return (int)decVal;
+
+            return 0;
+        }
         [HttpPost, Authorize]
         public JsonResult SaveDailyTargetUploadedData(List<Dictionary<string, object>> data, string targetDate, string processId, string shiftId)
         {
@@ -3101,13 +3165,13 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
         {
             try
             {
-                var sql = @"SELECT P.UserName ProcessName,ept.EntityId,WG.UserName WorkGroupName,EM.EmployeeName ,ER.EmployeeName ReportingOfficerName,dte.*
+                var sql = @"SELECT P.UserName ProcessName,dte.EntityId,EN.UserName EntityName,WG.UserName WorkGroupName,EM.EmployeeName ,ER.EmployeeName ReportingOfficerName,dte.*
 FROM [dbo].[DailyTargetEmployee] dte 
 LEFT JOIN HKP.Process P ON P.Id=dte.ProcessId
 LEFT JOIN HKP.WorkGroup WG ON WG.Id=dte.WorkGroupId
 LEFT JOIN DBO.EmployeeInformation EM ON EM.SystemId=dte.EmployeeId
 LEFT JOIN DBO.EmployeeInformation ER ON ER.SystemId=dte.ReportingOfficerId
-left join hkp.EntityProcessTag ept on ept.ProcessId = p.Id";
+left join ORG.Entity EN on EN.Id = dte.EntityId";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -3117,7 +3181,7 @@ left join hkp.EntityProcessTag ept on ept.ProcessId = p.Id";
         }
 
         [HttpPost, Authorize]
-        public JsonResult SaveDailyTargetEmployeeData(Dictionary<string, object> data)
+        public JsonResult SaveDailyTargetEmployeeData(Dictionary<string, object> data,string entityId)
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -3137,7 +3201,7 @@ left join hkp.EntityProcessTag ept on ept.ProcessId = p.Id";
 
                     if (dv.Count == 0)
                     {
-                        //data["Id"] = GetDailyTargetEmployeePK();
+                        data["EntityId"] = entityId;
                         AddNewRow(dsBC.Tables[0], data);
                     }
                     else
