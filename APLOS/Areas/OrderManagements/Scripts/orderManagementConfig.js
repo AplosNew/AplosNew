@@ -341,7 +341,10 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             templateUrl: 'OrderManagements/ProductionOrder/CartonUpdate',
             controller: 'CartonUpdateController'
         })
-       
+        .when('/sku-upload', {
+            templateUrl: 'OrderManagements/masterOrder/SKUUpload',
+            controller: 'SKUUploadController'
+        })
 
         ;
 }

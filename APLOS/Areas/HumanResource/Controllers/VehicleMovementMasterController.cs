@@ -1780,7 +1780,11 @@ left join EmployeeInformation EI on EI.SystemId = DM.DriverId";
                                         Where EMP.EmployeeStatus='Active' ";
                 }
 
-                return Json(_sqlRepository.GetDataCollection(CmdText), JsonRequestBehavior.AllowGet);
+
+                var jsondata = Json(_sqlRepository.GetDataCollection(CmdText), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+
             }
             catch (Exception ex)
             {

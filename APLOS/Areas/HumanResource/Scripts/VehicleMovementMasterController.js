@@ -386,7 +386,96 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
 
     }
 
+    $scope.popUpDataList = [];
+    $scope.getEmpPopUpData = function () {
+        try {
+
+            $scope.popUpDataList = [];
+            $http({
+                method: 'GET',
+                url: 'employees/authorizationconfig/getallemployeedata'
+
+            }).then(function successCallback(response) {
+                $scope.popUpDataList = response.data;
+            });
+            angular.element(document.querySelector('#popUp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.closePopUp = function () {
+        MakeData();
+        $scope.SavePurposeRP();
+        angular.element(document.querySelector('#popUp')).modal('hide');
+    };
+
+    // #region checkbox all
+
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+    };
+
+    function CheckBoxSelectAllEmolyeeWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridPopUp").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.popUpDataList.length; i++) {
+                $scope.popUpDataList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridPopUp").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    // #endregion checkbox all
+
     $scope.PurposeEmployeeList = [];
+    function MakeData() {
+        for (var i = 0; i < $scope.popUpDataList.length; i++) {
+            if ($scope.popUpDataList[i].Flag == true) {
+                if (checkExists($scope.PurposeEmployeeList, $scope.popUpDataList[i].SystemID) === false) {
+                    var ob = {};
+                    //ob.Id = -(Math.floor(Math.random() * 100) + 1);//
+                    ob.Id = null;
+                    ob.VehiclePurposeId = $scope.ModelNew.Id;
+                    ob.ResponsiblePersonId = $scope.popUpDataList[i].SystemId;
+                    ob.EmployeeCode = $scope.popUpDataList[i].EmployeeCode;
+                    ob.EmployeeName = $scope.popUpDataList[i].EmployeeName;
+                    ob.LegalDesignation = $scope.popUpDataList[i].LegalDesignation;
+                    ob.Department = $scope.popUpDataList[i].Department;
+                    ob.Company = $scope.popUpDataList[i].Company;
+                    ob.Plant = $scope.popUpDataList[i].Plant;
+                    ob.Section = $scope.popUpDataList[i].Section;
+                    ob.SubSection = $scope.popUpDataList[i].SubSection;
+                    ob.Line = $scope.popUpDataList[i].Line;
+
+                    $scope.PurposeEmployeeList.push(ob);
+                }
+            }
+        }
+
+    }
+
+    function checkExists(list, id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].ResponsiblePersonId === id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     $scope.GetemployeeDataList = function (x) {
         $http({
             method: 'POST',
@@ -438,6 +527,33 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
             })
 
     }
+
+    $scope.message_confirmation = "";
+    $scope.removeEmp = function (data) {
+        $scope.runobj = data.data;
+        $scope.message_confirmation = 'Are you sure want to delete [ ' + $scope.runobj.EmployeeCode + ' ]';
+        angular.element(document.querySelector('#confirmRunDelPopUp')).modal('show');
+    };
+    $scope.DeleteEmployee = function () {
+        if (!baseService.isUndefinedOrNull($scope.runobj.Id)) {
+            $http({
+                method: 'POST',
+                url: 'OrderManagements/ProductionOrder/DeleteEmployee?id=' + $scope.runobj.Id
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getSavedEmpData();
+                }
+            }, function () {
+                ShowResult(commonMessage.NetworkError, 'failure');
+            }).finally(function () {
+            });
+        }
+
+    };
     //  #endregion PurposeMaaster
 
     // #region LocationMaster

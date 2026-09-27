@@ -93,6 +93,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return View();
         }
 
+        public ActionResult SKUUpload()
+        {
+            return View();
+        }
+
         #endregion
 
         #region -- Operations

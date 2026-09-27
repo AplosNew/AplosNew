@@ -69,41 +69,72 @@
             </ul>
         </div>
     </div>
-    <div class="row">
-
-        <div class="table-responsive">
-            <div id="bgtCodeGridId" ej-grid e-datasource="PurposeEmployeeList" e-load="loadGridEdit"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                <div e-columns>
-                    <div e-column e-headertext="Check / Uncheck" e-template="#checkboxEmp" e-textalign="center" e-width="60"></div>
-                    @*<div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>*@
-                    <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="100"></div>
-                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
-                    <div e-column e-field="DOJ" e-headertext="DOJ" e-width="100"></div>
-
-                    <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
-                    <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
-                    <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
-
-                </div>
-            </div>
-            <script type="text/template" id="checkboxEmp">
-                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" ng-model="data.Active" />
-
-            </script>
-
+    @*<div class="row">
+        <div class="col-xs-12">
             <div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li> <button ng-click="SavePurposeRP();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
-                    
+                <ul class="list-inline text-left">
+                    <li> <button ng-click="getEmpPopUpData();" ng-disabled="ModelNew.Id==null" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Add Responsible Person</button></li>
                 </ul>
             </div>
+            <div class="content-container-fluid" style="color:black;">
+                <div style="color:black;" id="GridEmpPopUp" ej-grid e-datasource="PurposeEmployeeList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-type="string" e-template="#Remove" e-headertext="Remove" e-width="40"></div>
+                        <div e-column e-field="EmpSystemId" e-headertext="EmpSystemId" e-headertext-color="black" e-textalign="left" e-width="75"></div>
+                        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                        <div e-column e-field="Company" e-headertext="Company" e-width="80"></div>
+                        <div e-column e-field="Plant" e-headertext="Plant" e-width="80"></div>
+                        <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                        <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                        <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                        <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                        <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                    </div>
+                    <script type="text/template" id="Remove">
+                        <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
+                            <button ng-click="$parent.removeEmp(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-trash"></i></button>
+                        </div>
+                    </script>
+                </div>
+            </div>
         </div>
+    </div>*@
+    <div class="row">
+
+            <div class="table-responsive">
+                <div id="bgtCodeGridId" ej-grid e-datasource="PurposeEmployeeList" e-load="loadGridEdit"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-headertext="Check / Uncheck" e-template="#checkboxEmp" e-textalign="center" e-width="60"></div>
+                        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="100"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
+                        <div e-column e-field="DOJ" e-headertext="DOJ" e-width="100"></div>
+
+                        <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                        <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+                        <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
+
+                    </div>
+                </div>
+                <script type="text/template" id="checkboxEmp">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" ng-model="data.Active" />
+
+                </script>
+
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SavePurposeRP();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+
+                    </ul>
+                </div>
+            </div>
 
 
 
-    </div>
+        </div>
 </div>
 
 <div class="table-responsive aplos-grid-toggle">
@@ -115,12 +146,50 @@
             <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
             <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
             <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
-
-
             <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
             <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
-
             <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
         </div>
     </div>
 </div>
+
+<div class="modal fade site-modal in" id="popUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Employee Information<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridPopUp" ej-grid e-datasource="popUpDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-templaterefresh="refreshTemplateemployee" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                            <div e-column e-field="SystemId" e-headertext="EmpSystemId" e-headertext-color="black" e-textalign="left" e-width="75"></div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="Company" e-headertext="Company" e-width="80"></div>
+                            <div e-column e-field="Plant" e-headertext="Plant" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplate">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                        </script>
+                        <script type="text/x-jsrender" id="headerTemplate">
+                            <input type="checkbox" id="headchk" />
+                        </script>
+                    </div>
+                    <div class="common-btn" style="padding-right: 15px;">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="closePopUp();" class="btn">Apply</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<confirm-archive-generic modalid="confirmRunDelPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteEmployee();"></confirm-archive-generic>
