@@ -12,284 +12,229 @@ function SKUUploadController(commonMessage, $scope, $rootScope, baseService, $ro
         return $scope.tab === tabNum;
     };
 
-    //  #region Master Order Data Upload Download
-    $scope.GetSampleFile = function () {
-        var ReportFormat = 'Excel';
-        location.href = 'OrderManagements/MasterOrder/GetMOSampleFile?reportFormat=' + ReportFormat;
-    };
-    $scope.picdata = null;
-    $scope.ShowSaveBtn = false;
-    $("#uploadImage").change(function () {
-        $scope.picdata = this.files[0];
+
+    $scope.moentityList = [];
+    $http({
+        method: 'GET',
+        url: 'OrderManagements/ProductionOrder/GetMasterOrderEntityCbo'
+    }).then(function successCallback(response) {
+        $scope.moentityList = response.data;
     });
 
-    $scope.getFile = function () {
-        $scope.progress = 0;
-        fileReader.readAsDataUrl($scope.file, $scope)
-            .then(function (result) {
-                $scope.imageSrc = result;
-            });
-    };
-    $scope.ShowSaveBtn = false;
-    $scope.moData = [];
-    $scope.ImportData = function () {
-        try {
-            $scope.$broadcast('show-errors-check-validity');
-            if ($scope.ModelNewForm.$valid) {
-                var picData = new FormData();
-                $http({
-                    method: 'POST',
-                    url: 'OrderManagements/MasterOrder/ImportMOData',
-                    headers: { 'Content-Type': undefined },
-                    transformRequest: function (data) {
-                        picData.append("modelNew", angular.toJson(data.modelNew));
-                        if (baseService.isUndefinedOrNull($scope.picdata) === false) {
-                            picData.append('file', data.file);
-                        }
-                        return picData;
-                    },
-                    data: {
-                        'file': $scope.picdata
 
-                    }
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        $scope.ShowSaveBtn = false;
-                        ShowResult(response.data.Message, "failure");
+    // #region Recipe Material and SO
 
-                    }
-                    else {
-                        $scope.moData = [];
-                        $scope.moData = response.data;
-                        $scope.ShowSaveBtn = true;
-                    }
-                }, function errorCallback(response) {
 
-                });
-                return true;
 
-            }
-        } catch (e) {
-
-            ShowResult(e, "failure");
-        }
-    };
-
-    $scope.SaveMOData = function () {
-        try {
-            $scope.ShowSaveBtn = true;
-            $http({
-                method: 'POST',
-                url: 'OrderManagements/MasterOrder/SaveMOData',
-                data: { 'dataList': $scope.moData },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    $scope.ShowSaveBtn = true;
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.moData = [];
-                    $("#uploadImage").val(null);
-                    $scope.ShowSaveBtn = false;
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            };
-
-        } catch (e) {
-            ShowResult(e, 'failure');
-            $scope.ShowSaveBtn = false;
-        }
-    };
-    //  #endregion SaveMOData Upload Download
-
-    $scope.fileNew = { CompanyId: null, MasterOrderNo: null, ItemNo:null }
-
-    $scope.companyList = [];
-    $scope.GetCompanyCboList = function () {
-        try {
-
-            $http({
-                method: 'Get',
-                url: 'OrderManagements/masterorder/GetCompanyCboList'
-            }).then(function successCallback(response) {
-                $scope.companyList = response.data;
-            }
-            )
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    }
-    $scope.GetCompanyCboList();
-
-    $scope.SearchColumn = 'MasterOrderNo';
-    $scope.SearchValue = null;
-
-    $scope.modelFilterByList = [
-        { 'name': 'Creation Date', 'value': 'AddedDate' },
-        { 'name': 'Created By', 'value': 'AddedBy' },
-        { 'name': 'Order Type', 'value': 'OrderType' },
-        { 'name': 'Plant', 'value': 'UserName' },
-        { 'name': 'Entity', 'value': 'Entity' },
-        { 'name': 'Customer Name', 'value': 'CustomerName' },
-        { 'name': 'Buyer', 'value': 'Buyer' },
+    $scope.recipeMaterialFilterList = [
         { 'name': 'Master Order No', 'value': 'MasterOrderNo' },
-        { 'name': 'Order Category', 'value': 'OrderCategory' },
-        { 'name': 'Order Year', 'value': 'OrderYear' },
-        { 'name': 'Total Qty', 'value': 'TotalQty' },
-        { 'name': 'Line Item No', 'value': 'NoOfLineItem' },
-        { 'name': 'Responsible Person', 'value': 'ResponsiblePersonName' },
-        { 'name': 'Bill To', 'value': 'InvoicingPartyPlant' },
-        { 'name': 'Ship To', 'value': 'DeliveryPartyPlant' },
-        { 'name': 'Buyer Ref. No-Item', 'value': 'BuyerReferenceNoItem' },
-        { 'name': 'Own Item', 'value': 'OwnItem' },
-        { 'name': 'Buyer Orde/Ref No', 'value': 'BuyerReferenceNo' },
-        { 'name': 'Own Order/Ref No', 'value': 'OwnReferenceNo' }
+        { 'name': 'Buyer Order#', 'value': 'BuyerOrderNo' },
+        { 'name': 'Own Order#', 'value': 'OwnOrderNo' },
+        { 'name': 'Buyer Item#', 'value': 'BuyerReferenceNo' },
+        { 'name': 'Own Item#', 'value': 'OwnReferenceNo' },
+        {
+            'name': 'Material',
+            'value': 'MaterialMasterName'
+        },
+        {
+            'name': 'Product Name',
+            'value': 'ProductName'
+        },
+        {
+            'name': 'Buyer',
+            'value': 'Buyer'
+        },
+        {
+            'name': 'Article',
+            'value': 'Article'
+        },
+        {
+            'name': 'Customer',
+            'value': 'Customer'
+        },
+        {
+            'name': 'Commitment Date',
+            'value': 'CommitmentDate'
+        },
+        {
+            'name': 'Destination',
+            'value': 'DestinationName'
+        },
+        {
+            'name': 'Shipment Mode',
+            'value': 'ShipmentModeName'
+        },
+        {
+            'name': 'PO Number',
+            'value': 'PONumber'
+        }
     ];
-    $scope.files = [];
-    $scope.ShowMasterOrder = function () {
-        $scope.files = [];
-        if (!baseService.isUndefinedOrNull($scope.fileNew.CompanyId)) {
-            $http({
-                method: 'POST',
-                data: {
-                    'companyId': $scope.fileNew.CompanyId, 'column': $scope.SearchColumn, 'value': $scope.SearchValue
-                },
-                url: 'OrderManagements/masterorder/getlist'
-            }).then(function successCallback(response) {
-                $scope.files = response.data;
-            });
-            angular.element(document.querySelector('#MOPopUpNew')).modal('show');
-        }
+
+    $scope.recipeMaterialParameters = {
+        limit: 10
+        , offset: 0
+        , order: 'asc'
+        , sort: 'MaterialMasterName, ArticleName'
+        , searchBy: 'MaterialMasterName'
+        , pageSize: 10
+        , total_count: 0
+        , search: null
+        , serverPagination: true
+    };
+    $scope.recipeMaterialList = [];
+    $scope.recipeMaterialParameters.searchBy = "MaterialMasterName";
+    $scope.recipeMaterialParameters.search = "";
+    $scope.recipeMaterialPopUp = function () {
+        angular.element(document.querySelector('#recipeMaterialPopUp')).modal('show');
+        //$("#recipeMaterialPopUp").ejDialog("setTitle", "Sales Order");
+        //var eDialog = $("#recipeMaterialPopUp").data("ejDialog");
+        //eDialog.open();
+
+        //var gridObj = $("#recipeMaterialPopUp").data("ejGrid");
+        //gridObj.clearFiltering(); 
+        $scope.serachSoMaterial();
+
     };
 
-    $scope.getData = function () {
-        if (!baseService.isUndefinedOrNull($scope.fileNew.CompanyId)) {
-            $http({
-                method: 'POST',
-                data: {
-                    'companyId': $scope.fileNew.CompanyId, 'column': $scope.SearchColumn, 'value': $scope.SearchValue
-                },
-                url: 'OrderManagements/masterorder/getlist'
-            }).then(function successCallback(response) {
-                $scope.files = response.data;
-            });
-        }
-    };
+    $scope.summaryRows = [{
+        title: "Total Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Qty", dataMember: "Qty", format: "{0:N0}" }],
+        showCaptionSummary: true
 
-    $scope.Set = function (index) {
-        $scope.index = index.data;
-        $scope.fileNew.MasterOrderNo = $scope.index.Id;
-        angular.element(document.querySelector('#MOPopUpNew')).modal('hide');
-    }
+    }];
+    $scope.serachSoMaterial = function serachSoMaterial() {
+        var DropDownEntityListObj = $("#moentityDropdown").data("ejDropDownList");
+        $scope.MOEntityId = DropDownEntityListObj.getSelectedValue();
 
-    $scope.GetMOISampleFile = function () {
-        var ReportFormat = 'Excel';
-        location.href = 'OrderManagements/MasterOrder/GetMOISampleFile?reportFormat=' + ReportFormat;
-    };
-
-    $("#uploadMOIImage").change(function () {
-        $scope.picdata = this.files[0];
-    });
-
-    $scope.moiData = [];
-    $scope.ImportMOIData = function () {
-        try {
-            $scope.$broadcast('show-errors-check-validity');
-            if ($scope.ModelNew2Form.$valid) {
-                var picData = new FormData();
-                $http({
-                    method: 'POST',
-                    url: 'OrderManagements/MasterOrder/ImportMOIData',
-                    headers: { 'Content-Type': undefined },
-                    transformRequest: function (data) {
-                        picData.append("fileNew", angular.toJson(data.fileNew));
-                        if (baseService.isUndefinedOrNull($scope.picdata) === false) {
-                            picData.append('file', data.file);
-                        }
-                        return picData;
-                    },
-                    data: {
-                        'file': $scope.picdata
-
-                    }
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        $scope.ShowSaveBtn = false;
-                        ShowResult(response.data.Message, "failure");
-
-                    }
-                    else {
-                        $scope.moiData = [];
-                        $scope.moiData = response.data;
-                        $scope.ShowSaveBtn = true;
-                    }
-                }, function errorCallback(response) {
-
-                });
-                return true;
-
-            }
-        } catch (e) {
-
-            ShowResult(e, "failure");
-        }
-    };
-
-    $scope.SaveMOIData = function () {
-        try {
-            if (baseService.isUndefinedOrNull($scope.fileNew.MasterOrderNo)) {
-                throw "MasterOrderNo is required.";
-            }
-            $scope.ShowSaveBtn = true;
-            $http({
-                method: 'POST',
-                url: 'OrderManagements/MasterOrder/SaveMOIData',
-                data: { 'dataList': $scope.moiData, 'masterId': $scope.fileNew.MasterOrderNo },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    $scope.ShowSaveBtn = true;
-                    ShowResult(response.data.Message, 'failure');
+        if (angular.isUndefinedOrNull($scope.MOEntityId)) {
+            for (var i = 0; i < DropDownEntityListObj.popupListItems.length; i++) {
+                if (angular.isUndefinedOrNull($scope.MOEntityId)) {
+                    $scope.MOEntityId = + DropDownEntityListObj.popupListItems[i].Id;
+                } else {
+                    $scope.MOEntityId += ',' + DropDownEntityListObj.popupListItems[i].Id;
                 }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.moiData = [];
-                    $("#uploadMOIImage").val(null);
-                    $scope.ShowSaveBtn = false;
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            };
-
-        } catch (e) {
-            ShowResult(e, 'failure');
-            $scope.ShowSaveBtn = false;
+            }
         }
-    };
-
-    $scope.moiList = [];
-    $scope.ShowMasterOrderItem = function () {
         $http({
             method: 'GET',
-            url: 'OrderManagements/MasterOrder/GetMasterItemList?masterOrderId=' + $scope.fileNew.MasterOrderNo
+            url: $scope.path + 'GetSalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search + "&productionorderid=" + $scope.model.Id + "&EntityId=" + $scope.model.EntityId + "&ProcessId=" + $scope.model.PlanningTypeProcessId + "&moentity=" + $scope.MOEntityId
         }).then(function successCallback(response) {
-            $scope.moiList = response.data;
-            angular.element(document.querySelector('#MOIPopUpNew')).modal('show');
+
+            for (var i = 0; i < response.data.length; i++) {
+                for (var J = 0; J < $scope.recipeMaterialListSelected.length; J++) {
+                    if (response.data[i].SalesOrderId == $scope.recipeMaterialListSelected[J].SalesOrderId)
+                        response.data[i].Checked = true;
+                }
+            }
+            $scope.MaterialID = "";//important for changing color
+            $scope.recipeMaterialList = response.data;
+
         });
+
+
     }
 
-    $scope.SetMOI = function (index) {
-        $scope.itemindex = index.data;
-        $scope.fileNew.ItemNo = $scope.itemindex.Id;
-        angular.element(document.querySelector('#MOIPopUpNew')).modal('hide');
+    $scope.recipeMaterialListSelected = [];
+    $scope.addRecipeMaterial = function () {
+
+        try {
+            var id = "";
+            var productid = "";
+            var groupid = "";
+            for (var i = 0; i < $scope.recipeMaterialList.length; i++) {
+                if ($scope.recipeMaterialList[i].Checked == true) {
+                    //if (baseService.isUndefinedOrNull($scope.recipeMaterialList[i].ProductionGrouping)
+                    //    || $scope.recipeMaterialList[i].ProductionGrouping == "")
+                    //{
+                    //    throw "Sales orders without product group are not allowed";
+                    //}
+                    if (baseService.isUndefinedOrNull($scope.recipeMaterialList[i].ArticleId)
+                        || $scope.recipeMaterialList[i].ArticleId == "") {
+                        throw "Sales order items without product are not allowed";
+                    }
+
+
+                    if (id == "")
+                        id = $scope.recipeMaterialList[i].ArticleId;
+
+                    if (productid == "")
+                        productid = $scope.recipeMaterialList[i].ProductID;
+
+                    if (groupid == "")
+                        groupid = $scope.recipeMaterialList[i].ProductionGrouping;
+
+
+
+                    if (!baseService.isUndefinedOrNull($scope.recipeMaterialList[i].ProductionGrouping)) {
+                        if ($scope.recipeMaterialList[i].ProductionGrouping != groupid) {
+                            throw "Selecting different group materials are not allowed";
+                        }
+                        else {
+                            if ($scope.recipeMaterialList[i].ArticleId != id) {
+                                $scope.message_DiffArticleconfirmation = 'You are going to add different articles. Are you sure?';
+                                angular.element(document.querySelector('#confirmDiffArticlePopUp')).modal('show');
+                            }
+                        }
+
+                    } else {
+                        if ($scope.recipeMaterialList[i].ArticleId != id)
+                            throw "Selecting different articles are not allowed";
+
+                    }
+                    //if ($scope.recipeMaterialList[i].ProductID != productid)
+                    //    throw "Selecting different products are not allowed";
+
+
+
+
+                    //if ($scope.recipeMaterialList[i].MaterialMasterId != id)
+                    //    throw "Selecting different material are not allowed";
+
+                }
+            }
+
+            $scope.recipeMaterialListSelected = [];
+            for (var i = 0; i < $scope.recipeMaterialList.length; i++) {
+                if ($scope.recipeMaterialList[i].Checked == true) {
+                    $scope.recipeMaterialListSelected.push($scope.recipeMaterialList[i]);
+                }
+            }
+
+            if (baseService.isUndefinedOrNull($scope.message_DiffArticleconfirmation)) {
+                $scope.CloseRecipeMaterialPopUp();
+            }
+        } catch (e) {
+            ShowResult(e, 'failure', 'recipeMaterialPopUp');
+        }
+    };
+
+
+
+    $scope.message_DiffArticleconfirmation = null;
+    $scope.message_DiffArticle1confirmation = null;
+
+    $scope.ConDiffArticle = function () {
+        $scope.message_DiffArticle1confirmation = 'You are going to add different articles. Are you sure?';
+        angular.element(document.querySelector('#confirmDiffArticle1PopUp')).modal('show');
     }
 
-    $scope.GetSOSampleFile = function () {
+    $scope.OverConDiffArticle = function () {
+        $scope.CloseRecipeMaterialPopUp();
+    }
+
+
+    $scope.checkSameRecipe = function (data, index, event) {
+        $rootScope.genericPushInTempList(data, event, $scope.productionMaterialList, 'SalesOrderId', 'SalesOrderId');
+    };
+
+    $scope.CloseRecipeMaterialPopUp = function () {
+        angular.element(document.querySelector('#recipeMaterialPopUp')).modal('hide');
+    };
+
+    // #endregion Recipe Material and SO
+
+    $scope.GetSKUSampleFile = function () {
         var ReportFormat = 'Excel';
-        location.href = 'OrderManagements/MasterOrder/GetSOSampleFile?reportFormat=' + ReportFormat;
+        location.href = 'OrderManagements/MasterOrder/DownloadTemplate?salesOrderId=' + 263810102;
     };
 
     $("#uploadSOImage").change(function () {

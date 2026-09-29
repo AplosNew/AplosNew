@@ -1085,7 +1085,7 @@ Group By  D.ProductionOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueI
                      LEFT JOIN (Select SUM(SC.Qty) Qty,SC.CharacteristicsValueId SKU1Id,D.ProductionOrderId From [TRN].[FirstCharacteristics] SC
 LEFT JOIN TRN.SalesOrder S ON S.Id=SC.SalesOrderId
 LEFT JOIN TRN.ProductionOrderDetail D ON D.SalesOrderId=S.Id
-Where D.ProductionOrderId='" + poId + @"'' Group By SC.CharacteristicsValueId,D.ProductionOrderId) S ON S.ProductionOrderId=D.ProductionOrderID AND S.SKU1Id=D.SKU1Id
+Where D.ProductionOrderId='" + poId + @"' Group By SC.CharacteristicsValueId,D.ProductionOrderId) S ON S.ProductionOrderId=D.ProductionOrderID AND S.SKU1Id=D.SKU1Id
                      WHERE D.ProductionOrderId = '" + poId + @"'";
                     }
                     else if (Convert.ToBoolean(savedCount.Rows[0]["SKU2"].ToString()) && !Convert.ToBoolean(savedCount.Rows[0]["SKU1"].ToString()) && !Convert.ToBoolean(savedCount.Rows[0]["Both"].ToString()))
@@ -1101,7 +1101,7 @@ LEFT JOIN HKP.CharacteristicsValue CV ON CV.Id = D.SKU2Id
 LEFT JOIN (Select SUM(SC.Qty) Qty,SC.CharacteristicsValueId SKU2Id,D.ProductionOrderId From TRN.[SecondCharacteristics] SC
 LEFT JOIN TRN.SalesOrder S ON S.Id=SC.SalesOrderId
 LEFT JOIN TRN.ProductionOrderDetail D ON D.SalesOrderId=S.Id
-Where D.ProductionOrderId='" + poId + @"'' Group By SC.CharacteristicsValueId,D.ProductionOrderId) S ON S.ProductionOrderId=D.ProductionOrderID AND S.SKU2Id=D.SKU2Id
+Where D.ProductionOrderId='" + poId + @"' Group By SC.CharacteristicsValueId,D.ProductionOrderId) S ON S.ProductionOrderId=D.ProductionOrderID AND S.SKU2Id=D.SKU2Id
 LEFT JOIN HKP.WorkCenterGroup WG ON WG.Id=D.WorkCenterGroupId
 WHERE D.ProductionOrderId = '" + poId + @"'";
                     }

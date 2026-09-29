@@ -2981,6 +2981,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                             string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
                             item["Id"] = detailid;
                             item["ProductionOrderId"] = _MasterId;
+                           
 
 
                             materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
@@ -3018,7 +3019,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                             item["ProductionOrderId"] = _MasterId;
                             item["Sequence"] = sq;
                             item["IsCompleted"] = 0;
-
+                            item["RelaySequence"] = 0;
 
                             materialCommonService.AddNewRowD(dsProcDetail.Tables[0], item);
                         }
