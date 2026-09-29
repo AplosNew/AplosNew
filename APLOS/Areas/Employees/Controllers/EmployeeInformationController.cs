@@ -69,6 +69,7 @@ namespace Aplos.Areas.Employees.Controllers
         #endregion Constructor
 
         EmployeeProfile employeeProfile = new EmployeeProfile();
+        private int colOverAllEfficiency;
 
         #region Pages
 
@@ -3258,6 +3259,230 @@ left join ORG.Entity EN on EN.Id = dte.EntityId";
             public DateTime UpdatedDate { get; set; }
             public string UpdatedFromIP { get; set; }
 
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetDailyTargetReport(ReportFormat reportFormat, DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var workbook = DailyTargetReport(out string reportFileName, identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate);
+                switch (reportFormat)
+                {
+                    case ReportFormat.Pdf:
+                        return RenderReportAsPdf(workbook, reportFileName);
+
+                    case ReportFormat.Excel:
+                        return RenderReportAsExcel(workbook, reportFileName);
+
+                    default:
+                        return View();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public IWorkbook DailyTargetReport(out string reportFileName, string companyId, string plantId, string plantName, DateTime fromDate, DateTime toDate)
+        {
+            var reportUtility = new ReportUtility();
+            var excelEngine = new ExcelEngine();
+            var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);
+            workbook.Version = ExcelVersion.Excel2013;
+            var sheet = workbook.Worksheets[0];
+            sheet.Name = "Voucher";
+
+
+            reportFileName = "DailyTargetReport" + toDate.ToString("dd-MMM-yyyy");
+
+            var dsLocal = GetDailyTargetReportSQL(fromDate, toDate);
+
+            var row = 3;
+
+            var colLast = 1;
+
+            int xlsCol = 1;
+            int colOutput = 0;
+            int colSMV = 0;
+            int colProduceMinute = 0;
+            int colStyle = 0;
+            int colPO = 0;
+            int colTargetDate = 0;
+            int colWorkCenterName = 0;
+            int colTargetQty = 0;
+            int colSAM = 0;
+            int colQty = 0;
+            int colAvailableMinute = 0;
+            int colSequence = 0;
+            int colSkillAllowance = 0;
+            int colStandardEfficiency = 0;
+            int colOrderSizeAllowance = 0;
+            int colEffiency = 0;
+            int colShift = 0;
+            int colWorkCenter = 0;
+            int colProductionSummary = 0;
+            int colMO = 0;
+            int colCarder = 0;
+            int colWorkingHour = 0;
+            int colRemark = 0;
+
+
+
+            row++;
+
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Style", 12); colStyle = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "PO", 12); colPO = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Output"); colOutput = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "SMV", 8); colSMV = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "ProduceMinute", 8); colProduceMinute = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "TargetDate", 12); colTargetDate = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "WorkCenterName", 8); colWorkCenterName = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "MO", 8); colMO = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Carder", 8); colCarder = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "WorkingHour", 8); colWorkingHour = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "TargetQty", 8); colTargetQty = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "AvailableMinute", 8); colAvailableMinute = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "OverAllEfficiency", 8); colOverAllEfficiency = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "StandardEfficiency", 8); colStandardEfficiency = xlsCol; xlsCol++;
+            colLast = xlsCol;
+
+            if (dsLocal.Rows.Count > 0)
+            {
+                double totalTranAmount = 0;
+                double totalBookCurrencyAmount = 0;
+                var xRow = row;
+                row++;
+                for (int i = 0; i < dsLocal.Rows.Count; i++)
+                {
+                    reportUtility.SetText(ref sheet, row, colStyle, dsLocal.Rows[i]["Style"].ToString());
+                    reportUtility.SetText(ref sheet, row, colPO, dsLocal.Rows[i]["PO"].ToString());
+                    reportUtility.SetText(ref sheet, row, colOutput, Convert.ToDouble(dsLocal.Rows[i]["Output"].ToString()));
+                    reportUtility.SetText(ref sheet, row, colSMV, Convert.ToDouble(dsLocal.Rows[i]["SMV"].ToString()));
+                    reportUtility.SetText(ref sheet, row, colProduceMinute, Convert.ToDouble(dsLocal.Rows[i]["ProduceMinute"].ToString()));
+                    reportUtility.SetText(ref sheet, row, colTargetDate, dsLocal.Rows[i]["TargetDate"].ToString());
+                    reportUtility.SetText(ref sheet, row, colWorkCenterName, dsLocal.Rows[i]["WorkCenterName"].ToString());
+                    reportUtility.SetText(ref sheet, row, colMO, Convert.ToDouble(dsLocal.Rows[i]["MO"].ToString()));
+                    reportUtility.SetText(ref sheet, row, colCarder, Convert.ToDouble(dsLocal.Rows[i]["Carder"].ToString()));
+                    reportUtility.SetText(ref sheet, row, colWorkingHour, Convert.ToDouble(dsLocal.Rows[i]["WorkingHour"].ToString()));
+                    reportUtility.SetText(ref sheet, row, colTargetQty, Convert.ToDouble(dsLocal.Rows[i]["TargetQty"].ToString()));
+
+                    reportUtility.SetText(ref sheet, row, colAvailableMinute, Convert.ToDouble(dsLocal.Rows[i]["AvailableMinute"].ToString()));
+                    //reportUtility.SetText(ref sheet, row, colSequence, Convert.ToDouble(dsLocal.Rows[i]["Sequence"].ToString()));
+                    reportUtility.SetText(ref sheet, row, colOverAllEfficiency, Convert.ToDouble(dsLocal.Rows[i]["OverAllEfficiency"].ToString()));//OTSBD.clsStaticInfo.dbl
+                    reportUtility.SetText(ref sheet, row, colStandardEfficiency, Convert.ToDouble(dsLocal.Rows[i]["StandardEfficiency"].ToString()));
+
+                    sheet.Range[row, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[row, 1, row, colLast].BorderAround(ExcelLineStyle.Hair);
+                    row++;
+
+                }
+
+
+                //sheet.UsedRange.AutofitColumns();
+                //sheet[1, 2].ColumnWidth = 40;
+                sheet.UsedRange.CellStyle.Font.Size = 8;
+                row += 4;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                sheet.Range["A1"].RowHeight = 20;
+                sheet.Range["A1"].CellStyle.Font.Size = 14;
+                sheet.Range["A1" + ":" + GetColumnNameForXls(colLast) + "1"].Merge();
+                sheet.Range["A1" + ":" + GetColumnNameForXls(colLast) + "1"].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range["A1" + ":" + GetColumnNameForXls(colLast) + "1"].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range["A1" + ":" + GetColumnNameForXls(colLast) + "1"].CellStyle.Font.Bold = true;
+                sheet.Range["A1"].Text = identity.CompanyName;
+                sheet.Range["A2"].RowHeight = 15;
+                sheet.Range["A2"].CellStyle.Font.Size = 10;
+                sheet.Range["A2" + ":" + GetColumnNameForXls(colLast) + "2"].Merge();
+                sheet.Range["A2" + ":" + GetColumnNameForXls(colLast) + "2"].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range["A2" + ":" + GetColumnNameForXls(colLast) + "2"].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range["A2" + ":" + GetColumnNameForXls(colLast) + "2"].CellStyle.Font.Bold = true;
+                sheet.Range["A2"].Text = "Summary Report of " + " On " + fromDate.ToString("dd-MMM-yyyy") + " To " + toDate.ToString("dd-MMM-yyyy");
+
+                // reportUtility.CompanyPlantHeader(ref sheet, colLast, "Summary Report of " + " On " + toDate.ToString("dd-MMM-yyyy"), companyId, plantId, plantName, null);
+                reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
+            }
+
+            return workbook;
+        }
+        private DataTable GetDailyTargetReportSQL(DateTime fromDate, DateTime toDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            
+            var cmdText = @"DECLARE @fromDate DATE = '" + fromDate + "', @toDate   DATE = '" + toDate + @"';
+            SELECT  dt.id,DT.StyleNo Style,DT.ProductionOrderId PO
+            ,PS.Quantity [Output] ,DT.SPT SMV,ProduceMinute=PS.Quantity*DT.SPT
+            ,CONVERT(varchar(15),CAST(DT.TargetDate  AS date),100) [TargetDate]
+,DT.WorkCenterMasterId,wcm.UserName WorkCenterName,ISNULL(PBC.MCtotalMP,0) MO,ISNULL(PBC.NonMCtotalMP,0) Carder
+            ,(DT.WorkingHour*60) WorkingHour,DT.TargetQty,AvailableMinute=ISNULL(PBC.NonMCtotalMP*(DT.WorkingHour*60),0)
+ ,OverAllEfficiency=ISNULL((PS.Quantity*DT.SPT)/(PBC.NonMCtotalMP*(DT.WorkingHour*60)),0)
+ ,StandardEfficiency=ISNULL((PS.Quantity*DT.SPT)/(PBC.NonMCtotalMP*(DT.WorkingHour*60)),0)
+            FROM [dbo].[DailyTarget] DT 
+            LEFT JOIN ShiftDefination  SD ON SD.SystemId=DT.ShiftId
+            LEFT JOIN [SCS].[WorkCenterMaster] wcm on wcm.Id=DT.WorkCenterMasterId
+            LEFT JOIN TRN.ProductionOrder PO ON PO.Id=DT.ProductionOrderId
+			LEFT JOIN(select ProductionOrderId,WorkCenterMasterId,ProcessId,ProductionShiftId,SUM(Quantity) Quantity 
+				from TRN.ProductionSummary group by ProductionOrderId,WorkCenterMasterId,ProcessId,ProductionShiftId) PS ON PS.ProductionOrderId=PO.Id 
+					and PS.WorkCenterMasterId=DT.WorkCenterMasterId and ps.ProcessId=DT.ProcessId --and PS.SalesOrderId=SO.Id
+					and DT.ShiftId=PS.ProductionShiftId
+            LEFT JOIN trn.ProductionBulletinTemplate pb on DT.ProductionOrderId = pb.ProductionOrderId
+            LEFT JOIN trn.ProductionBulletinTemplateMaster pbm on pbm.ProductionBulletinTemplateId = pb.Id
+			LEFT JOIN DBO.ProducitonBulletinCalculation PBC ON PBC.ProductionBulletinTemplateMasterId=pbm.Id
+			where DT.TargetDate between @fromDate AND @toDate
+            order by ISNULL((PS.Quantity*DT.SPT)/(PBC.NonMCtotalMP*(DT.WorkingHour*60)),0) desc
+            ";
+            return _sqlRepository.GetDataTable(cmdText);
+        }
+
+        private string GetColumnNameForXls(int ColumnNo)
+        {
+            ColumnNo = ColumnNo - 1;
+            if (ColumnNo < 0)
+            {
+                return "";
+            }
+
+            var CharVelue1 = 0;
+            var CharVelue2 = 0;
+            char ch1, ch2;
+            string ColumnName;
+            int reminder, div;
+
+            reminder = ColumnNo % 26;
+            div = ColumnNo / 26;
+
+            if (div == 0)
+            {
+                CharVelue1 = 65;
+                CharVelue1 = CharVelue1 + reminder;
+            }
+            if (div > 0)
+            {
+                CharVelue1 = 65;
+                CharVelue2 = 65;
+                CharVelue1 = CharVelue1 + div;
+                CharVelue2 = CharVelue2 + reminder;
+            }
+
+            if (CharVelue2 == 0)
+            {
+                ch1 = (char)CharVelue1;
+                ColumnName = "" + ch1;
+            }
+            else
+            {
+                CharVelue1 = CharVelue1 - 1;
+                ch1 = (char)CharVelue1;
+                ch2 = (char)CharVelue2;
+                ColumnName = "" + ch1 + ch2;
+            }
+
+            return ColumnName;
         }
 
         #endregion

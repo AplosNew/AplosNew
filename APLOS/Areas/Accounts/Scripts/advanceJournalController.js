@@ -103,14 +103,15 @@ function advanceJournalController(accountService, cboService, commonMessage, $sc
         $scope.voucher.CurrencyId = $scope.baseCurrencyId;
         $scope.GetCurrencyExchangeRateList();
     });
-
+    $scope.voucherNOIsManually = false;
     $scope.getCboVoucherTypeJournalVoucherList = function () {
         accountService.getCboVoucherTypeJournalVoucherList(function (result) {
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
-                $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
-                $scope.voucher.DocDate = $scope.voucher.PostingDate;
+                $scope.voucherNOIsManually = $scope.voucherTypeList[0].IsManually;
+                //$scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
+                //$scope.voucher.DocDate = $scope.voucher.PostingDate;
                 $scope.GetCurrencyExchangeRateList();
             }
         });
@@ -138,6 +139,7 @@ function advanceJournalController(accountService, cboService, commonMessage, $sc
     $scope.Get = function (data) {
         $scope.voucher.Id = data.Id;
         $scope.voucher.DocRefNo = data.DocRefNo;
+        $scope.voucher.VoucherNo = data.VoucherNo;
         $scope.voucher.Narration = data.Narration;
         $scope.voucher.CurrencyId = data.CurrencyId;
         $scope.voucher.EntityId = data.EntityId;
