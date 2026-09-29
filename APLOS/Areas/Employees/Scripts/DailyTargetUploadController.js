@@ -266,4 +266,19 @@ function DailyTargetUploadController(cboService, commonMessage, $scope, $rootSco
             $rootScope.toggle();
         }
     };
+    $scope.ReportFormat = 'Excel';
+    $scope.workCenterId = null;
+    $scope.dayStatus = null;
+    $scope.DailyTergetReport = function () {
+        try {
+            if (angular.isUndefinedOrNull($scope.FromDate))
+                throw 'Plase select from date.';
+            if (angular.isUndefinedOrNull($scope.ToDate))
+                throw 'Plase select to date.';
+            var file_src = $scope.path + 'GetDailyTargetReport?reportFormat=' + $scope.ReportFormat + '&fromDate=' + $scope.FromDate + '&toDate=' + $scope.ToDate ;
+            $rootScope.report(file_src);
+        } catch (e) {
+
+        }
+    }
 }
