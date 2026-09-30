@@ -2054,7 +2054,7 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
 
             try
             {
-                return Json(_sqlRepository.GetDataTable(@"Select IT.Id Value , IT.UserName Name from [dbo].[InspectionType] IT 
+                return Json(_sqlRepository.GetDataTable(@"Select Distinct IT.Id Value , IT.UserName Name from [dbo].[InspectionType] IT 
 left join [dbo].[InspectionEmployeeApplicable]  ITE on ITE.InspectionTypeID = IT.Id
 left join sec.[user] SU on SU.EmployeeId = ITE.EmployeeId
 where SU.UserId = '" + Userid + "'"));
