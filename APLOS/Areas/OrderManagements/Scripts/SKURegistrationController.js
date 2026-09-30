@@ -50,6 +50,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         LineItemReference: null,
         Remarks: null,
         StatusType: null,
+        ProcessId:null,
         AddedBy: null,
         AddedDate: null,
         AddedFromIP: null,
@@ -59,6 +60,14 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
+    $scope.ProcessList = [];
+    $scope.GetProcessByCompany = function () {
+        cboService.getCompanyProductionProcessCbo($window.companyId, function (response) {
+            $scope.ProcessList = response;
+        });
+    }
+    $scope.GetProcessByCompany();
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
@@ -398,6 +407,30 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
 
     };
 
+    $scope.UpdateSOProcess = function (obj) {
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/ProductionOrder/UpdateSOProcess',
+            data: {
+                'id': obj.data.Id
+                , 'processId': obj.data.ProcessId
+            }
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                var gridObj = $("#GridPackSOItemSelected").ejGrid("instance");
+                gridObj.refreshContent(true);
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
+
     $scope.packingTypeList = [];
     $http({
         method: 'GET',
@@ -658,6 +691,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         var summary = {
             Id: null,
             ComboRefNo: comboList[0].ComboRefNo,
+            ProcessId: comboList[0].ProcessId,
             ComboQty: 0,
             NoOfPack: comboList[0].PlanPack,
             BarCode: comboList[0].BarCode,

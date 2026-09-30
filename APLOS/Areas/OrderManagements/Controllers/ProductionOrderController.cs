@@ -3590,8 +3590,9 @@ AS SO ON so.SubProductionOrderId=T1.ProductionOrderId
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (select M.*,E.EmployeeName from PacketRegistrationMaster M
-LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.EmployeeId) AS TEMP WHERE " + strkey + " order by UserName";
+            string sql = @"select top 100 * from (select M.*,E.EmployeeName,P.UserName Process from PacketRegistrationMaster M
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.EmployeeId
+LEFT JOIN hkp.Process P ON P.Id=M.ProcessId) AS TEMP WHERE " + strkey + " order by UserName";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -3830,6 +3831,32 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND  TEMP.Sales
             }
         }
 
+        [HttpPost, Authorize]
+        public ActionResult UpdateSOProcess(string id, string processId)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("Update dbo.PacketRegistrationDetail set ProcessId=" + processId + " Where Id= '" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetPacketRegistrationTypeList(string masterId)
         {
@@ -3850,7 +3877,7 @@ SELECT
     Flag = CAST(CASE WHEN D.Id IS NULL THEN 0 ELSE 1 END AS bit),P.PackingCategory,D.Id,D.PacketRegistrationMasterId,D.PackingTypeId,
     NoOfUnitPerPack =CASE WHEN D.Id IS NULL AND P.PackingCategory = 'Individual' THEN 1 ELSE D.NoOfUnitPerPack END,
     NoOfPack =(SUM(SO.Qty) * CM.PlanPercentage / 100) + SUM(SO.Qty),D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,PT.PackingType
-    ,LineItemReference = COALESCE(D.LineItemReference,CM.LineItemReference,MOI.BuyerReferenceNo)
+    ,LineItemReference = COALESCE(D.LineItemReference,CM.LineItemReference,MOI.BuyerReferenceNo),D.ProcessId
 FROM PackingCategory P
 LEFT JOIN PacketRegistrationType D ON D.PackingCategory = P.PackingCategory AND D.PacketRegistrationMasterId = @PacketRegistrationMasterId
 LEFT JOIN PacketRegistrationDetail PD ON PD.PacketRegistrationMasterId = @PacketRegistrationMasterId
@@ -3859,7 +3886,7 @@ LEFT JOIN TRN.SalesOrder SO ON SO.Id = PD.SalesOrderId
 LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId
 LEFT JOIN HKP.PackingType PT ON PT.Id=D.PackingTypeId
 Group By P.PackingCategory,D.Id,D.PacketRegistrationMasterId,D.PackingTypeId,D.NoOfUnitPerPack,CM.PlanPercentage,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,PT.PackingType
-,D.LineItemReference,CM.LineItemReference,MOI.BuyerReferenceNo,P.SortOrder
+,D.LineItemReference,CM.LineItemReference,MOI.BuyerReferenceNo,P.SortOrder,D.ProcessId
 ORDER BY P.SortOrder";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
@@ -3891,6 +3918,7 @@ ORDER BY P.SortOrder";
                         dr["Id"] = masterId + "-" + (i + 1).ToString();
                         dr["PacketRegistrationMasterId"] = masterId;
                         dr["PackingTypeId"] = packCatlist[i]["PackingTypeId"];
+                        dr["ProcessId"] = packCatlist[i]["ProcessId"];
                         dr["PackingCategory"] = packCatlist[i]["PackingCategory"];
                         dr["NoOfUnitPerPack"] = packCatlist[i]["NoOfUnitPerPack"];
                         dr["NoOfPack"] = packCatlist[i]["NoOfPack"];
@@ -3906,6 +3934,7 @@ ORDER BY P.SortOrder";
                     {
                         DataRow dr = dspackCat.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
+                        dr["ProcessId"] = packCatlist[i]["ProcessId"];
                         dr["PackingTypeId"] = packCatlist[i]["PackingTypeId"];
                         dr["NoOfUnitPerPack"] = packCatlist[i]["NoOfUnitPerPack"];
                         dr["NoOfPack"] = packCatlist[i]["NoOfPack"];
@@ -3954,6 +3983,7 @@ ORDER BY P.SortOrder";
                         dr["SKU2Id"] = packregilist[i]["SKU2Id"];
                         dr["UnitPerPack"] = packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"];
                         dr["NoOfUnit"] = packregilist[i]["NoOfUnit"];
+                        dr["ProcessId"] = packregilist[i]["ProcessId"];
                         //if (packregilist[i]["UnitPerPack"] != null)
                         //{
                         //    dr["NoOfPack"] = Convert.ToDecimal(packregilist[i]["NoOfUnit"]) / Convert.ToDecimal(packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"]);
@@ -3981,6 +4011,7 @@ ORDER BY P.SortOrder";
                         //{
                         //    dr["NoOfPack"] = Convert.ToDecimal(packregilist[i]["NoOfUnit"]) / Convert.ToDecimal(packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"]);
                         //}
+                        dr["ProcessId"] = packregilist[i]["ProcessId"];
                         dr["NoOfPack"] = packregilist[i]["NoOfPack"];
                         dr["BarCode"] = packregilist[i]["BarCode"];
                         dr["QRCode"] = packregilist[i]["QRCode"];
@@ -4042,6 +4073,7 @@ ORDER BY P.SortOrder";
                     prmasterId = masterId + "-" + (pcount + 1).ToString();
                     dr["PacketRegistrationTypeId"] = masterId;
 
+                    dr["ProcessId"] = packrdata["ProcessId"];
                     dr["ColorSizeQty"] = packrdata["ColorSizeQty"];
                     dr["NoOfPack"] = packrdata["NoOfPack"];
                     dr["ComboRefNo"] = packrdata["ComboRefNo"];

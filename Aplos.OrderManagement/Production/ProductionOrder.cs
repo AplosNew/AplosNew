@@ -1205,7 +1205,10 @@ Where SO.OrderStatusId NOT IN('Closed,Cancelled')";
                 //GROUP BY ComboRefNo
                 //ORDER BY ComboRefNo;";
 
-                string sql = @"select P.*,NoOfSKU=(select Count(Id) from PackingComboSKUDetail Where PackingComboReferenceId=P.Id) from PackingComboReference P Where PacketRegistrationTypeId= '" + packetRegistrationTypeId + @"'";
+                string sql = @"SELECT P.*,S.UserName Process,NoOfSKU=(select Count(Id) from PackingComboSKUDetail Where PackingComboReferenceId=P.Id) 
+FROM PackingComboReference P 
+LEFT JOIN HKP.Process S ON S.Id=P.ProcessId
+Where PacketRegistrationTypeId= '" + packetRegistrationTypeId + @"'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1253,7 +1256,7 @@ Order By SCV.UserName";
     CEILING((SUM(SC.Qty) * CM.PlanPercentage / 100.0) + SUM(SC.Qty)) AS NoOfUnit,SUM(SC.Qty) AS Qty,
     UnitPerPack = ISNULL(PR.UnitPerPack,PT.NoOfUnitPerPack),PR.BarCode,PR.QRCode,PR.RFID,PR.Remark,
     NoOfPack =CEILING(ISNULL(PR.NoOfPack,((SUM(SC.Qty) * CM.PlanPercentage / 100.0)+ SUM(SC.Qty))/ ISNULL(PR.UnitPerPack,PT.NoOfUnitPerPack)))
-    ,LineItemReference = COALESCE(PR.LineItemReference,CM.LineItemReference)
+    ,LineItemReference = COALESCE(PR.LineItemReference,CM.LineItemReference),PR.ProcessId
 FROM TRN.SecondCharacteristics SC
 LEFT JOIN TRN.FirstCharacteristics FC ON FC.Id = SC.FirstCharacteristicsId
 LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = FC.CharacteristicsValueId
@@ -1263,7 +1266,7 @@ LEFT JOIN dbo.PacketRegistration PR ON PR.SalesOrderId = SC.SalesOrderId AND FC.
 LEFT JOIN dbo.PacketRegistrationType PT ON PT.Id = '" + packetRegistrationTypeId + @"'
 LEFT JOIN dbo.PacketRegistrationMaster CM ON CM.Id = PT.PacketRegistrationMasterId
 WHERE SC.SalesOrderId " + soId + @"
-GROUP BY PR.Id,SC.SalesOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueId,FCV.UserName,SCV.UserName,PR.UnitPerPack,PT.NoOfUnitPerPack,PR.BarCode,PR.QRCode,PR.RFID,PR.Remark,CM.PlanPercentage,PR.NoOfPack,PR.LineItemReference,CM.LineItemReference
+GROUP BY PR.Id,SC.SalesOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueId,FCV.UserName,SCV.UserName,PR.UnitPerPack,PT.NoOfUnitPerPack,PR.BarCode,PR.QRCode,PR.RFID,PR.Remark,CM.PlanPercentage,PR.NoOfPack,PR.LineItemReference,CM.LineItemReference,PR.ProcessId
 HAVING SUM(SC.Qty) <> 0;";
 
                 return _sqlRepository.GetDataCollection(sql);
