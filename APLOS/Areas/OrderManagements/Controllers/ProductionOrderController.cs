@@ -4667,6 +4667,59 @@ ORDER BY P.SortOrder";
         #region QRCode
 
         [Authorize]
+        public ActionResult GenerateActualQRCode(Dictionary<string, object> data)
+        {
+            try
+            {
+                string packetRegistrationId = Convert.ToString(data["PacketRegistrationId"]);
+                string comboRefNo = Convert.ToString(data["ComboRefNo"]);
+
+                Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+                DataTable dt = order.GetActualQRCodeData(packetRegistrationId, comboRefNo);
+
+                if (dt == null || dt.Rows.Count == 0)
+                {
+                    return Json(new { Error = true, Message = "No carton data found." });
+                }
+
+                List<QRCodeItem> qrCodeItems = dt.AsEnumerable().Select(row => new QRCodeItem
+                {
+                    PackingName = Convert.ToString(row["PackingName"]),
+                    Customer = Convert.ToString(row["Customer"]),
+                    SOId = Convert.ToString(row["SOId"]),
+                    Color = Convert.ToString(row["Color"]),
+                    Size = Convert.ToString(row["Size"]),
+                    NoOfPcs = Convert.ToString(row["NoOfPcs"]),
+                    CartonNo = Convert.ToString(row["CartonNo"])
+                }).ToList();
+
+                byte[] pdfBytes = BuildQRCodePdf(qrCodeItems);
+
+                // -----------------------------------------
+                // Save to a temp folder on the server, same
+                // way your other download-generating actions do
+                // -----------------------------------------
+                //string fileName = $"QRCode_{packetRegistrationId}_{DateTime.Now:yyyyMMddHHmmss}.pdf";
+                string fileName = $"QRCode_{packetRegistrationId}.pdf";
+               
+                //save the file to server temp folder
+                string fullPath = Path.Combine(HostingEnvironment.MapPath("~/") + fileName);
+                System.IO.File.WriteAllBytes(fullPath, pdfBytes);
+
+                return Json(new
+                {
+                    Error = false,
+                    Message = "QR Code generated successfully.",
+                    FileName = fullPath   // matches response.data.FileName your JS already expects
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [Authorize]
         public ActionResult GenerateQRCode(Dictionary<string, object> data)
         {
             try
@@ -4674,7 +4727,7 @@ ORDER BY P.SortOrder";
                 string packetRegistrationId = Convert.ToString(data["PacketRegistrationId"]);
 
                 Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
-                DataTable dt = order.GetQRCodeData(packetRegistrationId);
+                DataTable dt = order.GetActualQRCodeData(packetRegistrationId);
 
                 if (dt == null || dt.Rows.Count == 0)
                 {

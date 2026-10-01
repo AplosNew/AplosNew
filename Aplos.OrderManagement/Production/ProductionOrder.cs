@@ -1429,7 +1429,65 @@ WHERE M.StatusType IN ('Running','Active') AND M.Id='" + masterId + "'";
             }
         }
 
-        public DataTable GetQRCodeData(string masterId)
+        public DataTable GetActualQRCodeData(string masterId,string comboRefNo)
+        {
+            try
+            {
+                string sql = "";
+                if (comboRefNo== "null"|| comboRefNo == "")
+                {
+                    sql = @"SELECT PackingName=COALESCE(R.LineItemReference,T.LineItemReference,M.LineItemReference),P.UserName AS Customer,D.SalesOrderId AS SOId,FCV.UserName AS Color,SCV.UserName AS Size,NoOfPcs=(Select ActualQty from dbo.ActualCatronQty Where CartonId='" + masterId + @"'),CG.Id CartonNo         
+    FROM dbo.PacketRegistrationMaster M
+    LEFT JOIN dbo.PacketRegistrationType T ON T.PacketRegistrationMasterId = M.Id
+    LEFT JOIN dbo.PacketRegistrationDetail D ON D.PacketRegistrationMasterId = M.Id
+    LEFT JOIN TRN.SalesOrder S ON S.Id = D.SalesOrderId
+    LEFT JOIN TRN.MasterOrderItem MI ON MI.Id = S.MasterOrderItemId
+    LEFT JOIN TRN.MasterOrder MO ON MO.Id = MI.MasterOrderId
+    LEFT JOIN HKP.Party P ON P.Id = MO.PartyId
+    LEFT JOIN dbo.PacketRegistration R ON R.PacketRegistrationTypeId = T.Id AND R.SalesOrderId = D.SalesOrderId
+    LEFT JOIN dbo.CartonGeneration CG ON CG.PacketRegistrationId = R.Id
+    LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = R.SKU1Id
+    LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = R.SKU2Id
+    WHERE M.StatusType IN ('Running','Active') AND CG.Id = '" + masterId + @"' 
+    Order By CG.CartonNo";
+                }
+                else
+                {
+                    sql = @"SELECT PackingName=COALESCE(T.LineItemReference,M.LineItemReference),
+SOId = STUFF((
+     SELECT DISTINCT ', ' + D2.SalesOrderId
+     FROM dbo.[PackingComboSKUDetail] D2
+     WHERE D2.PackingComboReferenceId = R.Id
+     FOR XML PATH('')
+ ), 1, 1, ''),
+ Customer = STUFF((
+     SELECT DISTINCT ', ' + P.UserName
+     FROM dbo.[PackingComboSKUDetail] D2
+     LEFT JOIN TRN.SalesOrder S ON S.Id = D2.SalesOrderId
+    LEFT JOIN TRN.MasterOrderItem MI ON MI.Id = S.MasterOrderItemId
+    LEFT JOIN TRN.MasterOrder MO ON MO.Id = MI.MasterOrderId
+    LEFT JOIN HKP.Party P ON P.Id = MO.PartyId
+     WHERE D2.PackingComboReferenceId = R.Id
+     FOR XML PATH('')
+ ), 1, 1, '')
+,R.ColorSizeQty,NoOfPcs=(Select ActualQty from dbo.ActualCatronQty Where CartonId='" + masterId + @"'),CG.Id CartonNo 
+
+    FROM dbo.PacketRegistrationMaster M
+    LEFT JOIN dbo.PacketRegistrationType T ON T.PacketRegistrationMasterId = M.Id
+    LEFT JOIN dbo.PackingComboReference R ON R.PacketRegistrationTypeId = T.Id
+    LEFT JOIN dbo.CartonGeneration CG ON CG.PackingComboReferenceId = R.Id
+    WHERE M.StatusType IN ('Running','Active') AND CG.Id = '" + masterId + @"' 
+    Order By CG.CartonNo DESC";
+                }
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetActualQRCodeData(string masterId)
         {
             try
             {

@@ -68,12 +68,13 @@ function CartonUpdateController(commonMessage, $scope, $rootScope, baseService, 
             $scope.QRCodeGenerateModel.SKUColor = obj.data.SKUColor;
             $scope.QRCodeGenerateModel.SKUSize = obj.data.SKUSize;
             $scope.QRCodeGenerateModel.Qty = obj.data.Qty;
-            $scope.QRCodeGenerateModel.PacketRegistrationId = obj.data.Id;
+            $scope.QRCodeGenerateModel.PacketRegistrationId = obj.data.CartonId;
+            $scope.QRCodeGenerateModel.ComboRefNo = obj.data.ComboRefNo;
             $scope.fileName = "QRCode_" + $scope.QRCodeGenerateModel.PacketRegistrationId + ".pdf"; // was "QRCode.pptx" — fix extension too
 
             $http({
                 method: 'POST',
-                url: "OrderManagements/ProductionOrder/GenerateQRCode",
+                url: "OrderManagements/ProductionOrder/GenerateActualQRCode",
                 data: { 'data': $scope.QRCodeGenerateModel },
                 dataType: 'JSON'
             }).then(function successCallback(response) {

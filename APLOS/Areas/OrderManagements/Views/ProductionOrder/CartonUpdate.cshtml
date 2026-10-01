@@ -24,7 +24,7 @@
                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                  e-allowselection="true" e-filtersettings-filterType="excel">
                 <div e-columns>
-                    @*<div e-column e-type="string" e-template="#GenQR" e-headertext="GenQR" e-width="30"></div>*@
+                    <div e-column e-type="string" e-template="#GenQR" e-headertext="GenQR" e-width="30"></div>
                     <div e-column e-type="string" e-field="CartonId" e-headertext="CartonId" e-width="80"></div>
                     <div e-column e-type="string" e-field="CartonNo" e-headertext="CartonNo" e-width="80"></div>
                     <div e-column e-type="string" e-field="ComboRefNo" e-headertext="ComboRefNo" e-width="80"></div>
@@ -34,11 +34,11 @@
                     <div e-column e-type="string" e-template="#ActualQty" e-headertext="ActualQty" e-width="80"></div>
                     <div e-column e-type="string" e-template="#Remarks" e-headertext="Remarks" e-width="80"></div>
                 </div>
-                @*<script type="text/template" id="GenQR">
+                <script type="text/template" id="GenQR">
                     <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
-                        <button ng-click="$parent.generateQRCode(this);" title="Generate QR" class="btn single-small-btn" tabindex="6"><i class="fa fa-qrcode"></i></button>
+                        <button ng-click="$parent.generateQRCode(this);" title="Generate QR" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="fa fa-qrcode"></i></button>
                     </div>
-                </script>*@
+                </script>
                 <script type="text/template" id="ActualQty">
                     <div class="col-sm-10" style="padding:0px; width:70px;">
                         <input type="text" ng-model="data.ActualQty" n-decimals="2" style="color:black;" class="form-control" />

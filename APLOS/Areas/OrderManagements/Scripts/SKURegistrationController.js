@@ -314,6 +314,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
             $scope.recipeMaterialListSelected = [];
             for (var i = 0; i < $scope.recipeMaterialList.length; i++) {
                 if ($scope.recipeMaterialList[i].Checked == true) {
+                    $scope.recipeMaterialList[i].ProcessId = $scope.ModelNew.ProcessId;
                     $scope.recipeMaterialListSelected.push($scope.recipeMaterialList[i]);
                 }
             }
@@ -545,6 +546,11 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
             url: 'OrderManagements/ProductionOrder/GetComboPackingSKUData?soId=' + $scope.sqlsoId + '&packetRegistrationTypeId=' + typemasterId
         }).then(function successCallback(response) {
             $scope.skuList = response.data;
+            for (var i = 0; i < $scope.skuList.length; i++) {
+                if (baseService.isUndefinedOrNull($scope.skuList[i].ProcessId)) {
+                    $scope.skuList[i].ProcessId = $scope.ModelNew.ProcessId;
+                }
+            }
         });
     }
 
@@ -568,6 +574,11 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
             url: 'OrderManagements/ProductionOrder/GetPackingResigtationSKUData?soId=' + $scope.sqlsoId + '&packetRegistrationTypeId=' + typemasterId
         }).then(function successCallback(response) {
             $scope.skuList = response.data;
+            for (var i = 0; i < $scope.skuList.length; i++) {
+                if (baseService.isUndefinedOrNull($scope.skuList[i].ProcessId)) {
+                    $scope.skuList[i].ProcessId = $scope.ModelNew.ProcessId;
+                }
+            }
         });
     }
 
