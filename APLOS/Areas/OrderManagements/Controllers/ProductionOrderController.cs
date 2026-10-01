@@ -3611,7 +3611,8 @@ LEFT JOIN hkp.Process P ON P.Id=M.ProcessId) AS TEMP WHERE " + strkey + " order 
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from PacketRegistrationMaster where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                string userName = (data["UserName"]?.ToString() ?? "").Replace("'", "''");
+                con.OpenDataSetThroughAdapter("select * from PacketRegistrationMaster where UserName='" + userName + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("UserName already exists!!!");
                 con.OpenDataSetThroughAdapter("select * from PacketRegistrationMaster where Id='" + data["Id"] + "'", out dsMaster, false, "1");
@@ -3664,7 +3665,7 @@ LEFT JOIN hkp.Process P ON P.Id=M.ProcessId) AS TEMP WHERE " + strkey + " order 
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetSRSalesOrderListSearch(string column, string value, string packetRegistrationMasterId)
+        public ActionResult GetSRSalesOrderListSearch(string column, string value, string packetRegistrationMasterId,string ProcessId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string strkey = "1=1";
@@ -3716,7 +3717,20 @@ LEFT JOIN hkp.Process P ON P.Id=M.ProcessId) AS TEMP WHERE " + strkey + " order 
                                 OR 
                        	    (ISNULL(moi.JobWorkType,'')<>'' AND EOUT.PlantId='" + identity.PlantId + @"' )
                        )
-                       AND (OS.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' " + activeStatus + @" and  SO.Id not IN (SELECT DISTINCT SalesOrderId FROM dbo.PacketRegistrationDetail)) AND MOI.ArticleId<>''
+                       AND (OS.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' " + activeStatus + @" AND NOT EXISTS (
+    SELECT 1
+    FROM dbo.PacketRegistrationDetail d
+    JOIN dbo.PacketRegistrationMaster m ON m.Id = d.PacketRegistrationMasterId
+    WHERE d.SalesOrderId = SO.Id
+      AND COALESCE(d.ProcessId, m.ProcessId) = '"+ ProcessId + @"'
+)
+AND NOT EXISTS (                                   -- already in the packet being edited
+    SELECT 1
+    FROM dbo.PacketRegistrationDetail d2
+    WHERE d2.SalesOrderId = SO.Id
+      AND d2.PacketRegistrationMasterId = '" + packetRegistrationMasterId + @"'
+)
+AND MOI.ArticleId <> '')
                         
 						UNION
 						

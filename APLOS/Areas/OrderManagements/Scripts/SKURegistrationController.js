@@ -50,7 +50,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
         LineItemReference: null,
         Remarks: null,
         StatusType: null,
-        ProcessId:null,
+        ProcessId: null,
         AddedBy: null,
         AddedDate: null,
         AddedFromIP: null,
@@ -249,7 +249,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     $scope.serachSoMaterial = function serachSoMaterial() {
         $http({
             method: 'GET',
-            url: $scope.path + 'GetSRSalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search + "&packetRegistrationMasterId=" + $scope.ModelNew.Id
+            url: $scope.path + 'GetSRSalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search + "&packetRegistrationMasterId=" + $scope.ModelNew.Id + "&ProcessId=" + $scope.ModelNew.ProcessId
         }).then(function successCallback(response) {
 
             for (var i = 0; i < response.data.length; i++) {
@@ -408,27 +408,29 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
     };
 
     $scope.UpdateSOProcess = function (obj) {
-        $http({
-            method: 'POST',
-            url: 'OrderManagements/ProductionOrder/UpdateSOProcess',
-            data: {
-                'id': obj.data.Id
-                , 'processId': obj.data.ProcessId
-            }
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                var gridObj = $("#GridPackSOItemSelected").ejGrid("instance");
-                gridObj.refreshContent(true);
-            }
-        }, function () {
-            ShowResult(commonMessage.NetworkError, 'failure');
-        }).finally(function () {
-        });
+        if (!baseService.isUndefinedOrNull(obj.data.ProcessId)) {
+            $http({
+                method: 'POST',
+                url: 'OrderManagements/ProductionOrder/UpdateSOProcess',
+                data: {
+                    'id': obj.data.Id
+                    , 'processId': obj.data.ProcessId
+                }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    var gridObj = $("#GridPackSOItemSelected").ejGrid("instance");
+                    gridObj.refreshContent(true);
+                }
+            }, function () {
+                ShowResult(commonMessage.NetworkError, 'failure');
+            }).finally(function () {
+            });
 
+        }
     };
 
     $scope.packingTypeList = [];
