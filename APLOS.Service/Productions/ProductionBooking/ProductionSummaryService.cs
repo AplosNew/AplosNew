@@ -2273,7 +2273,7 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
             try
             {
                 //  var _sql = @"SELECT Id as Value,UserName AS Text FROM HKP.Process where CompanyGroupId='"+ CompanyGroupId + "' ";
-                var _sql = @"SELECT DISTINCT P.Id AS [Value], P.UserName AS [Text],
+                var _sql = @"SELECT DISTINCT P.Id AS [Value], P.UserName AS [Text], 
 case when EP.ProductionBookingLevel = 'SubProductionOrder' then 'ProductionOrder' else EP.ProductionBookingLevel end ProductionBookingLevel 
 FROM HKP.EntityProcessTag AS EP
                             JOIN HKP.Process AS P ON EP.ProcessId=P.Id WHERE EP.EntityId='" + entityId + "'";
