@@ -990,6 +990,7 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
             if (productionLevel != "ProductionOrder")
             {
                 string CmdText = @"SELECT DISTINCT mo.MasterOrderNo
+                                    ,Concat(So.LineItemReference,'  ' , so.Id) LineItem
 	                                ,so.Id SalesOrderId
 	                                ,SO.CustomerPOId
 	                                ,CPO.PONumber
@@ -1013,10 +1014,10 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
                                 FROM TRN.ProductionOrderDetail POD
                                LEFT JOIN (
 	                                SELECT SUM((isnull(qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) AS PlannedQty
-		                                ,s.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description
+		                                ,s.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description,s.LineItemReference
 	                                FROM trn.SalesOrder AS s
 	                                INNER JOIN trn.MasterOrderItem AS moi ON moi.Id = s.MasterOrderItemId
-	                                GROUP BY S.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description
+	                                GROUP BY S.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description,s.LineItemReference
 	                                ) so ON POD.SalesOrderId = SO.Id
                                 LEFT JOIN TRN.[MasterOrderItem] moi ON moi.id = so.MasterOrderItemId
                                 LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
