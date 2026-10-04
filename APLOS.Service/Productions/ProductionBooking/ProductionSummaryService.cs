@@ -2495,7 +2495,17 @@ FROM HKP.EntityProcessTag AS EP
                         dr["ToWorkCenterMasterId"] = item.ToWorkCenterMasterId;
                         dr["FromSFGInventoryId"] = item.FromSFGInventoryId;
                         dr["ToSFGInventoryId"] = item.ToSFGInventoryId;
-                        dr["SubProductionOrderId"] = item.SubProductionOrderId;
+                        string orderId = item.SubProductionOrderId?.ToString();
+
+                        if (!string.IsNullOrEmpty(orderId) && orderId.All(char.IsDigit))
+                        {
+                            dr["SubProductionOrderId"] = item.SubProductionOrderId;
+                        }
+                        else
+                        {
+                            dr["SubProductionOrderId"] = DBNull.Value;
+                        }
+                        
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
                         dr["AddedFromIP"] = item.AddedFromIP;
@@ -2534,7 +2544,16 @@ FROM HKP.EntityProcessTag AS EP
                         dr["ToWorkCenterMasterId"] = item.ToWorkCenterMasterId;
                         dr["FromSFGInventoryId"] = item.FromSFGInventoryId;
                         dr["ToSFGInventoryId"] = item.ToSFGInventoryId;
-                        dr["SubProductionOrderId"] = item.SubProductionOrderId;
+                        string orderId = item.SubProductionOrderId?.ToString();
+
+                        if (!string.IsNullOrEmpty(orderId) && orderId.All(char.IsDigit))
+                        {
+                            dr["SubProductionOrderId"] = item.SubProductionOrderId;
+                        }
+                        else
+                        {
+                            dr["SubProductionOrderId"] = DBNull.Value;
+                        }
                         dr["UpdatedBy"] = item.UpdatedBy;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = item.UpdatedFromIP;
