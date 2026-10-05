@@ -367,13 +367,14 @@ function bankJournalController(bankService, accountService, cboService, commonMe
         $scope.voucher.IsReverse = false;
         $scope.voucher.Amount = null;
         $scope.voucher.VoucherId = null;
+        $scope.voucher.Id = null;
         $scope.voucher.Narration = null;
         $scope.voucher.AdditionalInfo = null;
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
-        $scope.voucher.CurrencyId = null;
+        //$scope.voucher.CurrencyId = null;
         $scope.voucher.OtherCashMasterId = null;
-        $scope.voucher.CompanyCurrencyRate = 1;
-        $scope.getCboVoucherTypeBankJournalList();
+        //$scope.voucher.CompanyCurrencyRate = 1;
+        //$scope.getCboVoucherTypeBankJournalList();
         $scope.advanceDetailList = [];
         $scope.advanceChargesList = [];
         $scope.voucherDetailList = [];
@@ -387,7 +388,7 @@ function bankJournalController(bankService, accountService, cboService, commonMe
                 $scope.voucherNOIsManually = $scope.voucherTypeList[0].IsManually;
                 $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
                 $scope.voucher.DocDate = $scope.voucher.PostingDate;
-                //$scope.GetCurrencyExchangeRateList();
+                $scope.GetCurrencyExchangeRateList();
             }
         });
     };
