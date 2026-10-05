@@ -240,6 +240,7 @@ function DailyTargetUploadController(cboService, commonMessage, $scope, $rootSco
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.ClearDailyTargetEmployee()
                     $scope.GetTargetEmployee();
                 }
             }), function errorCallBack(response) {
@@ -253,10 +254,20 @@ function DailyTargetUploadController(cboService, commonMessage, $scope, $rootSco
         }
     };
     $scope.ClearDailyTargetEmployee = function () {
-        $scope.DailyTargetEmployeeData = {};
+        $scope.DailyTargetEmployeeData.Id=null;
+        $scope.DailyTargetEmployeeData.ProcessId=null;
+        $scope.DailyTargetEmployeeData.Category=null;
+        $scope.DailyTargetEmployeeData.WorkGroupId=null;
+        $scope.DailyTargetEmployeeData.ReportingOfficerId=null;
+        $scope.DailyTargetEmployeeData.EmployeeId=null;
+        $scope.DailyTargetEmployeeData.Remark=null;
+        $scope.DailyTargetEmployeeData.Active=true;
         $scope.Action = "Save";
 
     }
+
+    
+
     $scope.GetEmployee = function (obj) {
         $scope.DailyTargetEmployeeData = obj.data;
         $scope.EntityId = obj.data.EntityId;
