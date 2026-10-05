@@ -267,7 +267,8 @@ namespace Library.OrderManagement.Production
                             left join hkp.Party p on p.Id = mo.PartyId
                             left join dbo.ProductLibrary pl on pl.Id = moi.ProductLibraryId
                             where mo.OrderStatusId not in ( 'Closed' , 'Cancelled' , 'Hold') and so.OrderStatusId not in ( 'Closed' , 'Cancelled' , 'Hold')
-				            and pl.Code !='null'";
+				            --and pl.Code !='null'
+";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
@@ -697,7 +698,7 @@ inner Join (select QMP.QMID IssueId,QMP.Id ParameterId,1 as PlanSet,PR.UserName 
 				) as sos on sos.Id = so.Id
                 where 
 				mo.OrderStatusId not in ( 'Closed' , 'Cancelled' , 'Hold') and so.OrderStatusId not in ( 'Closed' , 'Cancelled' , 'Hold')
-				 and pl.Code !='null'
+				 --and pl.Code !='null'
 				 group by so.Id,sos.Despatch,so.DeliveryDate,pl.Code,po.id,uom.UserName,os.UserName,
 				 moi.MasterOrderId,pc.UserName, psc.UserName,moi.Id,mma.StandardName,
                 pl.Remarks,ma.Code,ma.UserName,ma.Id,PM.UserName, prod.UserName,PM.Id,

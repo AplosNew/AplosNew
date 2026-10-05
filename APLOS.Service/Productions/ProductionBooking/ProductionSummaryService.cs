@@ -1041,7 +1041,7 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
                                 LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
                                 LEFT JOIN [SCS].[WorkCenterMasterProductPriority] WC ON WC.ProductMasterId = PM.Id AND WC.WorkCenterMasterId = '" + workCenterMasterId + @"'
                                 LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
-                                WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "'";
+                                WHERE PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "'";
 
                 return _sqlRepository.GetDataCollection(CmdText);
             }
