@@ -13120,6 +13120,42 @@ left join (Select pol.Id,pol.PackingLineItemId,pol.ProductCode,pol.PONo,pol.LotN
             }
         }
 
+        public void GetEmployeeByEntity(out List<Default2> DataList, string EntityId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @" Select Ei.Systemid Value , CONCAT(Ei.Employeecode , '  ', Ei.EmployeeName) Name from EmployeeInformation Ei 
+                            left join mst.manpowerbudget mpb on mpb.Id = Ei.Budgetcode 
+                            where mpb.EntityId = '" + EntityId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public void GetTransportEmployee(out List<Default2> DataList, string EmpSysId)
         {
             clsConnectionManager objCon = null;

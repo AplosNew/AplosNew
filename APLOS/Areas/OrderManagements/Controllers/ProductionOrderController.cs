@@ -2981,6 +2981,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                             string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
                             item["Id"] = detailid;
                             item["ProductionOrderId"] = _MasterId;
+                           
 
 
                             materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
@@ -3018,7 +3019,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                             item["ProductionOrderId"] = _MasterId;
                             item["Sequence"] = sq;
                             item["IsCompleted"] = 0;
-
+                            item["RelaySequence"] = 0;
 
                             materialCommonService.AddNewRowD(dsProcDetail.Tables[0], item);
                         }
@@ -3589,8 +3590,9 @@ AS SO ON so.SubProductionOrderId=T1.ProductionOrderId
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (select M.*,E.EmployeeName from PacketRegistrationMaster M
-LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.EmployeeId) AS TEMP WHERE " + strkey + " order by UserName";
+            string sql = @"select top 100 * from (select M.*,E.EmployeeName,P.UserName Process from PacketRegistrationMaster M
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.EmployeeId
+LEFT JOIN hkp.Process P ON P.Id=M.ProcessId) AS TEMP WHERE " + strkey + " order by UserName";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -3609,7 +3611,8 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.EmployeeId) AS TEMP WHERE " 
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from PacketRegistrationMaster where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                string userName = (data["UserName"]?.ToString() ?? "").Replace("'", "''");
+                con.OpenDataSetThroughAdapter("select * from PacketRegistrationMaster where UserName='" + userName + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("UserName already exists!!!");
                 con.OpenDataSetThroughAdapter("select * from PacketRegistrationMaster where Id='" + data["Id"] + "'", out dsMaster, false, "1");
@@ -3662,7 +3665,7 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.EmployeeId) AS TEMP WHERE " 
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetSRSalesOrderListSearch(string column, string value, string packetRegistrationMasterId)
+        public ActionResult GetSRSalesOrderListSearch(string column, string value, string packetRegistrationMasterId,string ProcessId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string strkey = "1=1";
@@ -3714,7 +3717,20 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.EmployeeId) AS TEMP WHERE " 
                                 OR 
                        	    (ISNULL(moi.JobWorkType,'')<>'' AND EOUT.PlantId='" + identity.PlantId + @"' )
                        )
-                       AND (OS.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' " + activeStatus + @" and  SO.Id not IN (SELECT DISTINCT SalesOrderId FROM dbo.PacketRegistrationDetail)) AND MOI.ArticleId<>''
+                       AND (OS.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' " + activeStatus + @" AND NOT EXISTS (
+    SELECT 1
+    FROM dbo.PacketRegistrationDetail d
+    JOIN dbo.PacketRegistrationMaster m ON m.Id = d.PacketRegistrationMasterId
+    WHERE d.SalesOrderId = SO.Id
+      AND COALESCE(d.ProcessId, m.ProcessId) = '"+ ProcessId + @"'
+)
+AND NOT EXISTS (                                   -- already in the packet being edited
+    SELECT 1
+    FROM dbo.PacketRegistrationDetail d2
+    WHERE d2.SalesOrderId = SO.Id
+      AND d2.PacketRegistrationMasterId = '" + packetRegistrationMasterId + @"'
+)
+AND MOI.ArticleId <> '')
                         
 						UNION
 						
@@ -3829,6 +3845,32 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND  TEMP.Sales
             }
         }
 
+        [HttpPost, Authorize]
+        public ActionResult UpdateSOProcess(string id, string processId)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("Update dbo.PacketRegistrationDetail set ProcessId=" + processId + " Where Id= '" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetPacketRegistrationTypeList(string masterId)
         {
@@ -3849,7 +3891,7 @@ SELECT
     Flag = CAST(CASE WHEN D.Id IS NULL THEN 0 ELSE 1 END AS bit),P.PackingCategory,D.Id,D.PacketRegistrationMasterId,D.PackingTypeId,
     NoOfUnitPerPack =CASE WHEN D.Id IS NULL AND P.PackingCategory = 'Individual' THEN 1 ELSE D.NoOfUnitPerPack END,
     NoOfPack =(SUM(SO.Qty) * CM.PlanPercentage / 100) + SUM(SO.Qty),D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,PT.PackingType
-    ,LineItemReference = COALESCE(D.LineItemReference,CM.LineItemReference,MOI.BuyerReferenceNo)
+    ,LineItemReference = COALESCE(D.LineItemReference,CM.LineItemReference,MOI.BuyerReferenceNo),D.ProcessId
 FROM PackingCategory P
 LEFT JOIN PacketRegistrationType D ON D.PackingCategory = P.PackingCategory AND D.PacketRegistrationMasterId = @PacketRegistrationMasterId
 LEFT JOIN PacketRegistrationDetail PD ON PD.PacketRegistrationMasterId = @PacketRegistrationMasterId
@@ -3858,7 +3900,7 @@ LEFT JOIN TRN.SalesOrder SO ON SO.Id = PD.SalesOrderId
 LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId
 LEFT JOIN HKP.PackingType PT ON PT.Id=D.PackingTypeId
 Group By P.PackingCategory,D.Id,D.PacketRegistrationMasterId,D.PackingTypeId,D.NoOfUnitPerPack,CM.PlanPercentage,D.AddedBy,D.AddedDate,D.AddedFromIP,D.UpdatedBy,D.UpdatedDate,D.UpdatedFromIP,PT.PackingType
-,D.LineItemReference,CM.LineItemReference,MOI.BuyerReferenceNo,P.SortOrder
+,D.LineItemReference,CM.LineItemReference,MOI.BuyerReferenceNo,P.SortOrder,D.ProcessId
 ORDER BY P.SortOrder";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
@@ -3890,6 +3932,7 @@ ORDER BY P.SortOrder";
                         dr["Id"] = masterId + "-" + (i + 1).ToString();
                         dr["PacketRegistrationMasterId"] = masterId;
                         dr["PackingTypeId"] = packCatlist[i]["PackingTypeId"];
+                        dr["ProcessId"] = packCatlist[i]["ProcessId"];
                         dr["PackingCategory"] = packCatlist[i]["PackingCategory"];
                         dr["NoOfUnitPerPack"] = packCatlist[i]["NoOfUnitPerPack"];
                         dr["NoOfPack"] = packCatlist[i]["NoOfPack"];
@@ -3905,6 +3948,7 @@ ORDER BY P.SortOrder";
                     {
                         DataRow dr = dspackCat.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
+                        dr["ProcessId"] = packCatlist[i]["ProcessId"];
                         dr["PackingTypeId"] = packCatlist[i]["PackingTypeId"];
                         dr["NoOfUnitPerPack"] = packCatlist[i]["NoOfUnitPerPack"];
                         dr["NoOfPack"] = packCatlist[i]["NoOfPack"];
@@ -3953,6 +3997,7 @@ ORDER BY P.SortOrder";
                         dr["SKU2Id"] = packregilist[i]["SKU2Id"];
                         dr["UnitPerPack"] = packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"];
                         dr["NoOfUnit"] = packregilist[i]["NoOfUnit"];
+                        dr["ProcessId"] = packregilist[i]["ProcessId"];
                         //if (packregilist[i]["UnitPerPack"] != null)
                         //{
                         //    dr["NoOfPack"] = Convert.ToDecimal(packregilist[i]["NoOfUnit"]) / Convert.ToDecimal(packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"]);
@@ -3980,6 +4025,7 @@ ORDER BY P.SortOrder";
                         //{
                         //    dr["NoOfPack"] = Convert.ToDecimal(packregilist[i]["NoOfUnit"]) / Convert.ToDecimal(packregilist[i]["UnitPerPack"] == null || packregilist[i]["UnitPerPack"] == DBNull.Value ? DBNull.Value : packregilist[i]["UnitPerPack"]);
                         //}
+                        dr["ProcessId"] = packregilist[i]["ProcessId"];
                         dr["NoOfPack"] = packregilist[i]["NoOfPack"];
                         dr["BarCode"] = packregilist[i]["BarCode"];
                         dr["QRCode"] = packregilist[i]["QRCode"];
@@ -4041,6 +4087,7 @@ ORDER BY P.SortOrder";
                     prmasterId = masterId + "-" + (pcount + 1).ToString();
                     dr["PacketRegistrationTypeId"] = masterId;
 
+                    dr["ProcessId"] = packrdata["ProcessId"];
                     dr["ColorSizeQty"] = packrdata["ColorSizeQty"];
                     dr["NoOfPack"] = packrdata["NoOfPack"];
                     dr["ComboRefNo"] = packrdata["ComboRefNo"];
@@ -4620,6 +4667,59 @@ ORDER BY P.SortOrder";
         #region QRCode
 
         [Authorize]
+        public ActionResult GenerateActualQRCode(Dictionary<string, object> data)
+        {
+            try
+            {
+                string packetRegistrationId = Convert.ToString(data["PacketRegistrationId"]);
+                string comboRefNo = Convert.ToString(data["ComboRefNo"]);
+
+                Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+                DataTable dt = order.GetActualQRCodeData(packetRegistrationId, comboRefNo);
+
+                if (dt == null || dt.Rows.Count == 0)
+                {
+                    return Json(new { Error = true, Message = "No carton data found." });
+                }
+
+                List<QRCodeItem> qrCodeItems = dt.AsEnumerable().Select(row => new QRCodeItem
+                {
+                    PackingName = Convert.ToString(row["PackingName"]),
+                    Customer = Convert.ToString(row["Customer"]),
+                    SOId = Convert.ToString(row["SOId"]),
+                    Color = Convert.ToString(row["Color"]),
+                    Size = Convert.ToString(row["Size"]),
+                    NoOfPcs = Convert.ToString(row["NoOfPcs"]),
+                    CartonNo = Convert.ToString(row["CartonNo"])
+                }).ToList();
+
+                byte[] pdfBytes = BuildQRCodePdf(qrCodeItems);
+
+                // -----------------------------------------
+                // Save to a temp folder on the server, same
+                // way your other download-generating actions do
+                // -----------------------------------------
+                //string fileName = $"QRCode_{packetRegistrationId}_{DateTime.Now:yyyyMMddHHmmss}.pdf";
+                string fileName = $"QRCode_{packetRegistrationId}.pdf";
+               
+                //save the file to server temp folder
+                string fullPath = Path.Combine(HostingEnvironment.MapPath("~/") + fileName);
+                System.IO.File.WriteAllBytes(fullPath, pdfBytes);
+
+                return Json(new
+                {
+                    Error = false,
+                    Message = "QR Code generated successfully.",
+                    FileName = fullPath   // matches response.data.FileName your JS already expects
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [Authorize]
         public ActionResult GenerateQRCode(Dictionary<string, object> data)
         {
             try
@@ -4627,7 +4727,7 @@ ORDER BY P.SortOrder";
                 string packetRegistrationId = Convert.ToString(data["PacketRegistrationId"]);
 
                 Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
-                DataTable dt = order.GetQRCodeData(packetRegistrationId);
+                DataTable dt = order.GetActualQRCodeData(packetRegistrationId);
 
                 if (dt == null || dt.Rows.Count == 0)
                 {

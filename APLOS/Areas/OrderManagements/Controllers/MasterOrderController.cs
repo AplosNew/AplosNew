@@ -35,6 +35,7 @@ using Library.OrderManagement.Production;
 using Library.Service.Systems;
 using Library.Service.TaskScheduler;
 using Library.Data;
+using System.Reflection;
 #endregion
 
 namespace Aplos.Areas.OrderManagements.Controllers
@@ -97,6 +98,17 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             return View();
         }
+
+        public ActionResult SKURP()
+        {
+            return View();
+        }
+
+        public ActionResult ReasonMaster()
+        {
+            return View();
+        }
+
 
         #endregion
 
@@ -3127,6 +3139,389 @@ WHERE PP.PartyId='" + partyId + @"' ORDER BY 2";
             return Json(new { Message = AplosMessage.Insert });
         }
 
+        private List<CharValue> GetCharacteristicValues(int characteristicsId)
+        {
+            var list = new List<CharValue>();
+         
+             string sql = @"SELECT Id, ShortName FROM HKP.CharacteristicsValue Where Active = 1 AND Archive = 0";
+
+            list = ConvertDataTable<CharValue>(_sqlRepository.GetDataTable(sql));
+            return list;
+        }
+
+        private static List<T> ConvertDataTable<T>(DataTable dt)
+        {
+            try
+            {
+                var data = new List<T>();
+                foreach (DataRow row in dt.Rows)
+                {
+                    var item = GetItem<T>(row);
+                    data.Add(item);
+                }
+                return data;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        private static T _GetItem<T>(DataRow dr)
+        {
+            var temp = typeof(T);
+            var obj = Activator.CreateInstance<T>();
+
+            foreach (DataColumn column in dr.Table.Columns)
+            {
+                foreach (PropertyInfo pro in temp.GetProperties())
+                {
+                    if (pro.Name == column.ColumnName)
+                    {
+                        if (dr[column.ColumnName] == DBNull.Value)
+                            dr[column.ColumnName] = "";
+                        pro.SetValue(obj, dr[column.ColumnName], null);
+                        break;
+                    }
+                }
+            }
+            return obj;
+        }
+
+        private static T GetItem<T>(DataRow dr)
+        {
+            var temp = typeof(T);
+            var obj = Activator.CreateInstance<T>();
+
+            foreach (DataColumn column in dr.Table.Columns)
+            {
+                var pro = temp.GetProperty(column.ColumnName);
+                if (pro == null || !pro.CanWrite) continue;
+
+                object raw = dr[column.ColumnName];
+                Type targetType = Nullable.GetUnderlyingType(pro.PropertyType) ?? pro.PropertyType;
+
+                if (raw == DBNull.Value || raw == null || (raw is string s && s == "" && targetType != typeof(string)))
+                {
+                    // leave default value (0 / null / "")
+                    if (targetType == typeof(string)) pro.SetValue(obj, "", null);
+                    continue;
+                }
+
+                pro.SetValue(obj, Convert.ChangeType(raw, targetType), null);
+            }
+            return obj;
+        }
+
+        [HttpGet]
+        public ActionResult DownloadTemplate(string salesOrderId)
+        {
+            var sizeColumns = GetCharacteristicValues(characteristicsId: 2); // sizes
+
+            using (var engine = new ExcelEngine())
+            {
+                IApplication app = engine.Excel;
+                app.DefaultVersion = ExcelVersion.Xlsx;
+                IWorkbook workbook = app.Workbooks.Create(1);
+                IWorksheet sheet = workbook.Worksheets[0];
+                sheet.Name = "SKU Upload";
+
+                sheet.Range["A1"].Text = "FG Colour";
+                sheet.Range["A1"].CellStyle.Font.Bold = true;
+
+                int col = 2;
+                foreach (var size in sizeColumns)
+                {
+                    var cell = sheet.Range[1, col];
+                    cell.Text = size.Code;           // e.g. "S", "M", "L"...
+                    cell.CellStyle.Font.Bold = true;
+                    col++;
+                }
+
+                // One example/empty row so the user sees the expected shape.
+                sheet.Range["A2"].Text = string.Empty; // e.g. "FRUIT DOMAIN"
+                sheet.UsedRange.AutofitColumns();
+
+                using (var stream = new System.IO.MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    stream.Position = 0;
+                    return File(stream.ToArray(),
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        $"SKU_Template_{salesOrderId}.xlsx");
+                }
+            }
+        }
+
+        #region SKUResPerson
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetSKUResPersonList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 100 * from (SELECT S.Id,S.ResponsiblePersonId,FORMAT(S.TargetDate,'dd-MMM-yyyy')TargetDate,S.Status,E.EmployeeName ResponsiblePersonName
+FROM dbo.SKUResponsiblePerson S
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=S.ResponsiblePersonId) AS TEMP WHERE " + strkey + "";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+       
+        [HttpPost]
+        public JsonResult CreateSKUResPerson(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+               
+                con.OpenDataSetThroughAdapter("select * from dbo.SKUResponsiblePerson where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("SKUResponsiblePerson", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data,Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        public ActionResult DeleteSKUResPerson(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from dbo.SKUResponsiblePerson where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SavePackerEmployee(List<Dictionary<string, object>> data, string masterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsEntity;
+            try
+            {
+
+                #region Entity 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.PackerCategoryEmployee where  PackerCategoryId='" + masterId + "'", out dsEntity, false, "1");
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsEntity.Tables[0]);
+                        dv.RowFilter = "Id='" + Convert.ToInt64(item["Id"]) + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            AddNewRow(dsEntity.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsEntity);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetPackerEmployee(string masterId)
+        {
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            var jsondata = Json(order.GetPackerEmployee(masterId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult DeleteEmployee(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from [dbo].[PackerCategoryEmployee] where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+
+
+        #endregion
+
+        #region Reason Master
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetReasonMasterList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 100 * from (SELECT S.*,E.EmployeeName ResponsiblePersonName,P.UserName Process
+FROM dbo.ReasonMaster S
+LEFT JOIN HKP.Process P ON P.Id=S.ProcessId
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=S.ResponsiblePersonId) AS TEMP WHERE " + strkey + "";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpPost]
+        public JsonResult CreateReasonMaster(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from dbo.ReasonMaster where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("ReasonMaster", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        public ActionResult DeleteReasonMaster(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from dbo.ReasonMaster where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+
+
+
+        #endregion
+    }
+
+    public class CharValue
+    {
+        public int Id { get; set; }
+        public string Code { get; set; } // ShortName (change to StandardName/UserName if that's your display field)
     }
 
     public class OpenHeadModelNew

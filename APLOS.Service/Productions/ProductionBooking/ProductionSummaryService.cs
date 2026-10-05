@@ -990,6 +990,7 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
             if (productionLevel != "ProductionOrder")
             {
                 string CmdText = @"SELECT DISTINCT mo.MasterOrderNo
+                                    ,Concat(So.LineItemReference,'  ' , so.Id) LineItem
 	                                ,so.Id SalesOrderId
 	                                ,SO.CustomerPOId
 	                                ,CPO.PONumber
@@ -1013,10 +1014,10 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
                                 FROM TRN.ProductionOrderDetail POD
                                LEFT JOIN (
 	                                SELECT SUM((isnull(qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) AS PlannedQty
-		                                ,s.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description
+		                                ,s.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description,s.LineItemReference
 	                                FROM trn.SalesOrder AS s
 	                                INNER JOIN trn.MasterOrderItem AS moi ON moi.Id = s.MasterOrderItemId
-	                                GROUP BY S.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description
+	                                GROUP BY S.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description,s.LineItemReference
 	                                ) so ON POD.SalesOrderId = SO.Id
                                 LEFT JOIN TRN.[MasterOrderItem] moi ON moi.id = so.MasterOrderItemId
                                 LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
@@ -1046,10 +1047,12 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
             }
             else
             {
-                string CmdText = @"SELECT PO.Id ProductionOrderId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, Qty,FORMAT(LSD,'dd-MMM-yyyy') LSD 
-								   ,FORMAT(CommitmentDate,'dd-MMM-yyyy') CommitmentDate, PD.Product, PD.ProductCategory,PD.Buyer,PD.Customer 
+                string CmdText = @"SELECT PO.Id ProductionOrderId,Case when POSB.Id is not null then POSB.Id  else Po.Id end  SubPo
+,PS.UserName ProductionStatus, PO.RequiredTimeUnit, PO.Qty,FORMAT(PO.LSD,'dd-MMM-yyyy') LSD 
+								   ,FORMAT(Po.CommitmentDate,'dd-MMM-yyyy') CommitmentDate, PD.Product, PD.ProductCategory,PD.Buyer,PD.Customer 
                                    ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber
 								   FROM TRN.ProductionOrder PO 
+								   left join [dbo].[ProductionOrderSchedulingParametersType2] POSB on POSB.Productionorderid = PO.Id
 								   LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id=PO.ProductionStatusId
 								   LEFT JOIN 
 								   (select distinct POD.ProductionOrderId,PM.UserName AS Product,pc.UserName AS ProductCategory
@@ -2270,7 +2273,9 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
             try
             {
                 //  var _sql = @"SELECT Id as Value,UserName AS Text FROM HKP.Process where CompanyGroupId='"+ CompanyGroupId + "' ";
-                var _sql = @"SELECT DISTINCT P.Id AS [Value], P.UserName AS [Text],EP.ProductionBookingLevel FROM HKP.EntityProcessTag AS EP
+                var _sql = @"SELECT DISTINCT P.Id AS [Value], P.UserName AS [Text], 
+case when EP.ProductionBookingLevel = 'SubProductionOrder' then 'ProductionOrder' else EP.ProductionBookingLevel end ProductionBookingLevel 
+FROM HKP.EntityProcessTag AS EP
                             JOIN HKP.Process AS P ON EP.ProcessId=P.Id WHERE EP.EntityId='" + entityId + "'";
 
                 return _sqlRepository.GetDataCollection(_sql, null);
@@ -2490,6 +2495,17 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                         dr["ToWorkCenterMasterId"] = item.ToWorkCenterMasterId;
                         dr["FromSFGInventoryId"] = item.FromSFGInventoryId;
                         dr["ToSFGInventoryId"] = item.ToSFGInventoryId;
+                        string orderId = item.SubProductionOrderId?.ToString();
+
+                        if (!string.IsNullOrEmpty(orderId) && orderId.All(char.IsDigit))
+                        {
+                            dr["SubProductionOrderId"] = item.SubProductionOrderId;
+                        }
+                        else
+                        {
+                            dr["SubProductionOrderId"] = DBNull.Value;
+                        }
+                        
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
                         dr["AddedFromIP"] = item.AddedFromIP;
@@ -2528,6 +2544,16 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                         dr["ToWorkCenterMasterId"] = item.ToWorkCenterMasterId;
                         dr["FromSFGInventoryId"] = item.FromSFGInventoryId;
                         dr["ToSFGInventoryId"] = item.ToSFGInventoryId;
+                        string orderId = item.SubProductionOrderId?.ToString();
+
+                        if (!string.IsNullOrEmpty(orderId) && orderId.All(char.IsDigit))
+                        {
+                            dr["SubProductionOrderId"] = item.SubProductionOrderId;
+                        }
+                        else
+                        {
+                            dr["SubProductionOrderId"] = DBNull.Value;
+                        }
                         dr["UpdatedBy"] = item.UpdatedBy;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = item.UpdatedFromIP;

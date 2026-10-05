@@ -2018,6 +2018,8 @@
     <Content Include="Areas\MIS\Scripts\orderStatusBIController.js" />
     <Content Include="Areas\MIS\Scripts\atAGlanceBIController.js" />
     <Content Include="Areas\MIS\Scripts\misConfig.js" />
+    <Content Include="Areas\OrderManagements\Scripts\ReasonMasterController.js" />
+    <Content Include="Areas\OrderManagements\Scripts\SKUResponsiblePersonController.js" />
     <Content Include="Areas\OrderManagements\Scripts\CartonUpdateController.js" />
     <Content Include="Areas\OrderManagements\Scripts\DispatchController.js" />
     <Content Include="Areas\OrderManagements\Scripts\SKUUploadController.js" />
@@ -5157,6 +5159,8 @@
     <Content Include="Areas\OrderManagements\Views\ProductionOrder\CartonUpdate.cshtml" />
     <Content Include="Areas\Accounts\Views\_VoucherUpdatePopUp.cshtml" />
     <Content Include="Areas\OrderManagements\Views\MasterOrder\SKUUpload.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\MasterOrder\SKURP.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\MasterOrder\ReasonMaster.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

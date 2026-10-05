@@ -561,7 +561,7 @@ namespace Library.Service.OrderManagements
                                 ,MO.Type,isnull(moi.Consignment,0) AS Consignment
                                 ,CASE WHEN ISNULL(eout.Id,'')<>'' OR ISNULL(TOUT.Id,'')<>'' THEN CONCAT(POWN.UserName,'(',EOWN.UserName,')') ELSE '' END AS OrderOwner
 
-	                            ,POD.Id, POD.packetRegistrationMasterId, MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId
+	                            ,POD.Id, POD.packetRegistrationMasterId,POD.ProcessId, MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId
 	                            , SO.Id AS SalesOrderId,SO.Id SONo, P.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping
 	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
 	                            , MOI.ArticleId, ART.StandardName AS ArticleName,MOI.BuyerReferenceNo,MOI.OwnReferenceNo,MO.BuyerReferenceNo AS BuyerOrderNo,MO.OwnReferenceNo AS OwnOrderNo

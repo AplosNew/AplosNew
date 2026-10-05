@@ -345,6 +345,15 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             templateUrl: 'OrderManagements/masterOrder/SKUUpload',
             controller: 'SKUUploadController'
         })
+        .when('/sku-rp', {
+            templateUrl: 'OrderManagements/masterOrder/SKURP',
+            controller: 'SKUResponsiblePersonController'
+        })
+
+        .when('/reason-master', {
+            templateUrl: 'OrderManagements/masterOrder/ReasonMaster',
+            controller: 'ReasonMasterController'
+        })
 
         ;
 }

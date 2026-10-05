@@ -1353,6 +1353,8 @@ upanelApp.controller("PackerCategoryController", PackerCategoryController)
 upanelApp.controller("DispatchController", DispatchController)
 upanelApp.controller("CartonUpdateController", CartonUpdateController)
 upanelApp.controller("SKUUploadController", SKUUploadController)
+upanelApp.controller("SKUResponsiblePersonController", SKUResponsiblePersonController)
+upanelApp.controller("ReasonMasterController", ReasonMasterController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);
