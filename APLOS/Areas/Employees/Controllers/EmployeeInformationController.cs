@@ -3197,7 +3197,6 @@ left join ORG.Entity EN on EN.Id = dte.EntityId";
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[DailyTargetEmployee]  where Id='" + data["Id"] + "'", out dsBC, false, "1");
                 if (data != null)
                 {
-
                     DataView dv = new DataView(dsBC.Tables[0]);
                     dv.RowFilter = "Id='" + data["Id"] + "'";
 
