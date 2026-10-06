@@ -3119,7 +3119,38 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                             item["WorkCenterMasterId"] = GetPK(item["WorkCenter"].ToString());
                             AddNewRow(dsBC.Tables[0], item);
                         }
+                        else
+                        {
+                            
+
+                            DataRow dr = dsBC.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+                            dr["ShiftId"] = shiftId;
+                            dr["ProcessId"] = processId;
+                            dr["TargetDate"] = targetDate;
+                            dr["WorkCenterMasterId"] = GetPK(item["WorkCenter"].ToString());
+                            dr["TargetQty"] = item["TargetQty"];
+                            dr["SPT"] = item["SPT"];
+                            dr["ProductionOrderId"] = item["ProductionOrderId"];
+                            dr["Operator"] = item["Operator"];
+                            dr["Helper"] = item["Helper"];
+                            dr["Remarks"] = item["Remarks"];
+                            dr["StyleNo"] = item["StyleNo"];
+                            dr["QtyPerHour"] = item["QtyPerHour"];
+                            dr["WorkingHour"] = item["WorkingHour"];
+                            dr["QCIncharge"] = item["QCIncharge"];
+                            dr["WorkCenterIncharge"] = item["WorkCenterIncharge"];
+                            dr["AddedBy"] = dsBC.Tables[0].Rows[0]["AddedBy"].ToString();
+                            dr["AddedDate"] = dsBC.Tables[0].Rows[0]["AddedDate"];
+                            dr["AddedFromIP"] = dsBC.Tables[0].Rows[0]["AddedFromIP"].ToString();
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                            dr["UpdatedFromIP"] = identity.IPAddress;
+
+                            dr.EndEdit();
+                        }
                     }
+                    
                 }
 
                 #endregion
