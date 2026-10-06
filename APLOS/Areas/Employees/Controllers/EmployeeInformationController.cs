@@ -3119,7 +3119,38 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                             item["WorkCenterMasterId"] = GetPK(item["WorkCenter"].ToString());
                             AddNewRow(dsBC.Tables[0], item);
                         }
+                        else
+                        {
+                            
+
+                            DataRow dr = dsBC.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+                            dr["ShiftId"] = shiftId;
+                            dr["ProcessId"] = processId;
+                            dr["TargetDate"] = targetDate;
+                            dr["WorkCenterMasterId"] = GetPK(item["WorkCenter"].ToString());
+                            dr["TargetQty"] = item["TargetQty"];
+                            dr["SPT"] = item["SPT"];
+                            dr["ProductionOrderId"] = item["ProductionOrderId"];
+                            dr["Operator"] = item["Operator"];
+                            dr["Helper"] = item["Helper"];
+                            dr["Remarks"] = item["Remarks"];
+                            dr["StyleNo"] = item["StyleNo"];
+                            dr["QtyPerHour"] = item["QtyPerHour"];
+                            dr["WorkingHour"] = item["WorkingHour"];
+                            dr["QCIncharge"] = item["QCIncharge"];
+                            dr["WorkCenterIncharge"] = item["WorkCenterIncharge"];
+                            dr["AddedBy"] = dsBC.Tables[0].Rows[0]["AddedBy"].ToString();
+                            dr["AddedDate"] = dsBC.Tables[0].Rows[0]["AddedDate"];
+                            dr["AddedFromIP"] = dsBC.Tables[0].Rows[0]["AddedFromIP"].ToString();
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                            dr["UpdatedFromIP"] = identity.IPAddress;
+
+                            dr.EndEdit();
+                        }
                     }
+                    
                 }
 
                 #endregion
@@ -3197,7 +3228,6 @@ left join ORG.Entity EN on EN.Id = dte.EntityId";
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[DailyTargetEmployee]  where Id='" + data["Id"] + "'", out dsBC, false, "1");
                 if (data != null)
                 {
-
                     DataView dv = new DataView(dsBC.Tables[0]);
                     dv.RowFilter = "Id='" + data["Id"] + "'";
 
@@ -3483,9 +3513,9 @@ SELECT
     DT.StyleNo Style, DT.ProductionOrderId PO,
     DT.WorkCenterMasterId, wcm.UserName WorkCenterName,
     ISNULL(PBC.MCtotalMP,0) MO, ISNULL(PBC.NonMCtotalMP,0) Carder,
-    SUM(PS.Quantity) [Output],
+    SUM(ISNULL(PS.Quantity,0)) [Output],
     SUM(DT.SPT) SMV,
-    SUM(PS.Quantity*DT.SPT) ProduceMinute,
+    SUM(ISNULL(PS.Quantity,0)*DT.SPT) ProduceMinute,
     SUM(DT.WorkingHour*60) WorkingHour,
     SUM(DT.TargetQty) TargetQty,
     SUM(ISNULL(PBC.NonMCtotalMP*(DT.WorkingHour*60),0)) AvailableMinute,

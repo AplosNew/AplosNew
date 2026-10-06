@@ -261,7 +261,9 @@ function DailyTargetUploadController(cboService, commonMessage, $scope, $rootSco
         $scope.DailyTargetEmployeeData.ReportingOfficerId=null;
         $scope.DailyTargetEmployeeData.EmployeeId=null;
         $scope.DailyTargetEmployeeData.Remark=null;
-        $scope.DailyTargetEmployeeData.Active=true;
+        $scope.DailyTargetEmployeeData.Active = true;
+        $scope.DailyTargetEmployeeData.EmployeeName = null;
+        $scope.DailyTargetEmployeeData.ReportingOfficerName = null;
         $scope.Action = "Save";
 
     }
