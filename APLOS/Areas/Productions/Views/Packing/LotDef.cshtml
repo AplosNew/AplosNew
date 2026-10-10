@@ -1,0 +1,103 @@
+﻿<togglable name="Define Lot"></togglable>
+<div class="form-elements form-horizontal" ng-form name="GeneralForm">
+    <input type="hidden" ng-model="selectedValues.Id">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="From Date" ng-model="selectedValues.FromDate" datepicker class="form-control" tabindex="4">
+
+            </div>
+        </div>
+
+     
+
+    </div>
+
+    <div class="col-xs-12 col-sm-6 col-md-6">
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="To Date" ng-model="selectedValues.ToDate" datepicker class="form-control" tabindex="4">
+
+            </div>
+        </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">From Location<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Location" ng-model="selectedValues.FromLocation" class="form-control" maxlength="200" required tabindex="4">
+            </div>
+        </div>
+
+       
+
+    </div>
+
+    <div class="common-btn">
+        <ul class="common-btn list-inline text-right">
+            @*<li><button ng-click="selectemployee()" class="btn" tabindex="10"><i class="glyphicon glyphicon-plus-sign"></i> Select Employee</button></li>*@
+            <li><button ng-click="savedata()" class="btn" tabindex="10"><i class="glyphicon glyphicon-save"></i> {{Action}}</button></li>
+            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li><button ng-click="Clear()" class="btn" tabindex="10"><i class="glyphicon glyphicon-save"></i> Clear</button></li>
+
+        </ul>
+    </div>
+
+
+</div>
+
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="aplos-grid-toggle">
+    <div class="content-container-fluid">
+        <div id="Grid" ng-init="chkinit()" ej-grid e-datasource="editdata" e-recorddoubleclick="editdoubleclick"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                <div e-column e-field="Company" e-type="string" e-headertext="Company" e-visible="false"></div>
+                <div e-column e-field="Plant" e-type="string" e-headertext="Plant" e-visible="false"></div>
+
+                <div e-column e-field="FromLocation" e-type="string" e-headertext="From Location" e-width="80"></div>
+                <div e-column e-field="ToLocation" e-type="string" e-headertext="To Location" e-width="80"></div>
+                <div e-column e-field="MovementCategory" e-type="string" e-headertext="Movement Category" e-width="80"></div>
+                <div e-column e-field="Entity" e-type="string" e-headertext="Entity" e-width="80"></div>
+                <div e-column e-field="Item" e-type="string" e-headertext="Item" e-width="80"></div>
+                <div e-column e-field="FromStorageLoc" e-type="string" e-headertext="From Storage Location" e-width="80"></div>
+                <div e-column e-field="ToStorageLoc" e-type="string" e-headertext="To Storage Location" e-width="80"></div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn" style="margin-top:20px;">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="PrintReport();" class="btn">Export To Excel</button></li>
+        </ul>
+    </div>
+</div>
+
+
+<confirm-modal></confirm-modal>

@@ -52,6 +52,10 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return View();
         }
+        public ActionResult LotDef()
+        {
+            return View();
+        }
 
         [HttpPost, Authorize]
         public ActionResult GetList(string ToDate, string FromDate, string type, string group, string column, string value, string Loc)

@@ -3781,23 +3781,27 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND  TEMP.Sales
         {
             try
             {
+                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ConnectionManager.DAL.ConManager objCon;
-                DataSet dsSO = null;
+                DataSet dsSO, dsWCDD = null;
                 string sql = "SELECT * FROM dbo.PacketRegistrationDetail where packetRegistrationMasterId=" + packetRegistrationMasterId + "";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsSO, false, "1");
 
-                string SystemID = "";
+                objCon.OpenDataSetThroughAdapter("select count(Id) countId from dbo.PacketRegistrationDetail where packetRegistrationMasterId=" + packetRegistrationMasterId + "", out dsWCDD, false, "1");
+                int wccount = Convert.ToInt32(dsWCDD.Tables[0].Rows[0]["countId"].ToString());
+
                 for (int i = 0; i < details.Count; i++)
                 {
                     dsSO.Tables[0].DefaultView.RowFilter = "SalesOrderId='" + details[i]["SalesOrderId"] + "'";
                     if (dsSO.Tables[0].DefaultView.Count == 0)
                     {
+                        wccount++;
 
                         DataRow dr = dsSO.Tables[0].NewRow();
 
-                        dr["Id"] = packetRegistrationMasterId + "-" + (i + 1).ToString();
+                        dr["Id"] = materialCommonService.MakePK(packetRegistrationMasterId, wccount, 2); ;
                         dr["PacketRegistrationMasterId"] = packetRegistrationMasterId;
                         dr["SalesOrderId"] = details[i]["SalesOrderId"];
 

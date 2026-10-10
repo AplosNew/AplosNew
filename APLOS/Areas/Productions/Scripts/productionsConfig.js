@@ -426,7 +426,10 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/ProductionReport/Aplos',
             controller: 'EmployeeWiseProductionReportController'
         })
-
+        .when('/definelot', {
+            templateUrl: 'Productions/Packing/LotDef',
+            controller: 'DefineLotController'
+        })
 
 
         ;
