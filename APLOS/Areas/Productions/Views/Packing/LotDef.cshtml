@@ -1,46 +1,87 @@
 ﻿<togglable name="Define Lot"></togglable>
 <div class="form-elements form-horizontal" ng-form name="GeneralForm">
-    <input type="hidden" ng-model="selectedValues.Id">
+    <input type="hidden" ng-model="modalNew.Id">
     <div class="col-xs-12 col-sm-6 col-md-6">
-
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Lot Number<sup>*</sup></label>
+            <div class="col-sm-8">
+                <input type="text" disabled name="LotNumber" ng-model="modalNew.LotNumber" class="form-control text-right" tabindex="13">
+            </div>
+        </div>
 
         <div class="form-group">
             <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="From Date" ng-model="selectedValues.FromDate" datepicker class="form-control" tabindex="4">
+                <input type="text" name="From Date" ng-model="modalNew.FromDate" datepicker class="form-control" tabindex="4">
 
             </div>
         </div>
 
-     
 
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Customer<sup>*</sup></label>
+            <div class="col-sm-8">
+                <div class="input-group">
+                    <input type="text" name="Customer" ng-model="modalNew.Customer" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="selectCustomer();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Lot Weight<sup>*</sup></label>
+            <div class="col-sm-8">
+                <input type="text" n-decimals="2" name="Total Qty" ng-model="modalNew.LotWeight" class="form-control text-right" tabindex="13">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">No Of Unit<sup>*</sup></label>
+            <div class="col-sm-8">
+                <input type="text" n-decimals="2" name="Total Qty" ng-model="modalNew.NoOfUnit" class="form-control text-right" tabindex="13">
+            </div>
+        </div>
     </div>
 
     <div class="col-xs-12 col-sm-6 col-md-6">
-
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select name="Process" class="form-control" ng-model="modalNew.ProcessId" ng-options="item.Value as item.Text for item in ProcessList" required>
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
         <div class="form-group">
             <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="To Date" ng-model="selectedValues.ToDate" datepicker class="form-control" tabindex="4">
+                <input type="text" name="To Date" ng-model="modalNew.ToDate" datepicker class="form-control" tabindex="4">
 
             </div>
         </div>
 
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">From Location<sup>*</sup></label>
+            <label class="col-sm-4 control-label">Location<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Location" ng-model="selectedValues.FromLocation" class="form-control" maxlength="200" required tabindex="4">
+                <input type="text" name="Location" ng-model="modalNew.LocationId" class="form-control" maxlength="200" required tabindex="4">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Per Unit Weight<sup>*</sup></label>
+            <div class="col-sm-8">
+                <input type="text" n-decimals="2" name="PerUnitWeight" ng-model="modalNew.PerUnitWeight" class="form-control text-right" tabindex="13">
             </div>
         </div>
 
-       
 
     </div>
 
     <div class="common-btn">
         <ul class="common-btn list-inline text-right">
-            @*<li><button ng-click="selectemployee()" class="btn" tabindex="10"><i class="glyphicon glyphicon-plus-sign"></i> Select Employee</button></li>*@
-            <li><button ng-click="savedata()" class="btn" tabindex="10"><i class="glyphicon glyphicon-save"></i> {{Action}}</button></li>
+            <li><button ng-click="Save()" class="btn" tabindex="10"><i class="glyphicon glyphicon-save"></i> {{Action}}</button></li>
             <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
             <li><button ng-click="Clear()" class="btn" tabindex="10"><i class="glyphicon glyphicon-save"></i> Clear</button></li>
 
@@ -73,7 +114,7 @@
 </div>
 
 <div class="aplos-grid-toggle">
-    <div class="content-container-fluid">
+    @*<div class="content-container-fluid">
         <div id="Grid" ng-init="chkinit()" ej-grid e-datasource="editdata" e-recorddoubleclick="editdoubleclick"
              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
              e-allowselection="true" e-filtersettings-filterType="excel">
@@ -91,7 +132,7 @@
                 <div e-column e-field="ToStorageLoc" e-type="string" e-headertext="To Storage Location" e-width="80"></div>
             </div>
         </div>
-    </div>
+    </div>*@
     <div class="common-btn" style="margin-top:20px;">
         <ul class="list-inline text-right">
             <li> <button ng-click="PrintReport();" class="btn">Export To Excel</button></li>
@@ -101,3 +142,38 @@
 
 
 <confirm-modal></confirm-modal>
+
+<div class="modal fade site-modal in" id="customersModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" data-dismiss="modal">&times;</button>
+                <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">Customer</h1>
+            </div>
+            <div class="modal-body" style="min-height:300px; min-width:100%;">
+                <div class="row" style="margin: 20px; font-style:italic"> </div>
+                <p style="margin:10px;">
+                    Select The Customer by Double Clicking the Choice.
+                <p>
+
+                    <div id="getCustomers" ej-grid e-datasource="CustomersList" e-templaterefresh="refreshTemplate"
+                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                         e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"
+                         e-recorddoubleclick="doubleCustomer">
+                        <div e-columns>
+                            <div e-column e-field="id" e-headertext="Id" e-width="80"></div>
+                            <div e-column e-field="username" e-headertext="Customer" e-width="120"></div>
+
+                        </div>
+                    </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
