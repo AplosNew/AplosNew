@@ -44,6 +44,24 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
     };
     $scope.GetSequence();
 
+    $scope.purposeList = [];
+    $http({
+        method: 'GET',
+        url: "Productions/MovementMaterialMaster/getPurposeCategory",
+        dataType: 'JSON'
+    }).then(function successCallback(response) {
+        $scope.purposeList = response.data;
+    });
+
+        $scope.getLocation = function () {
+            if (!baseService.isUndefinedOrNull($scope.modalNew.PurposeId)) {
+                var paymentTerm = $.grep($scope.purposeList, function (item) { return item.Value === $scope.modalNew.PurposeId; })[0];
+                $scope.modalNew.Location = paymentTerm.FromToLocation;
+
+        }
+    };
+
+
     $scope.CustomersList = [];
     $http({
         method: 'GET',
@@ -80,6 +98,65 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
             $rootScope.toggle();
         }
     };
+
+    $scope.ProductOrderList = [];
+    $scope.getProductionOrderPopUp = function () {
+        $scope.ProdQtyCount = 0;
+        $scope.InQuantity = 0;
+        $scope.OutQuantity = 0;
+        $scope.KillQuantity = 0;
+        $scope.TotalSalesOrderQty = 0;
+        $scope.TotalProductionBookingQty = 0;
+        $scope.TotalSalesOrderQty = 0;
+        $scope.RemainQty = 0;
+
+        $scope.ProcessId = null;
+
+        if (baseService.isUndefinedOrNull($scope.productionSummaryNew.WorkCenterMasterId)) {
+            if ($scope.Status === 'PROCESS')
+                return ShowResult('Please select Work Center.', 'failure');
+        }
+
+        $scope.WorkCenterMasterId = $scope.productionSummaryNew.WorkCenterMasterId;
+        if (baseService.isUndefinedOrNull($scope.WorkCenterMasterId)) {
+            $scope.WorkCenterMasterId = $scope.productionSummaryNew.ToWorkCenterMasterId;
+        }
+
+
+        $scope.ProductOrderList = [];
+        $http.get('Productions/ProductionSummary/GetProductionOrderData?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&status=' + $scope.Status)
+            .then(
+                function successCallback(response) {
+                    $scope.ProductOrderList = response.data;
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+
+        angular.element(document.querySelector('#POItemPopup')).modal('show');
+
+    };
+
+    $scope.SetPrOData = function ($event) {
+        $scope.productionSummaryNew.ProductionOrderId = $event.data.POId;
+
+        $scope.productionSummaryNew.BuyerOrder = $event.data.BuyerOrder;
+        $scope.productionSummaryNew.OwnOrder = $event.data.OwnOrder;
+
+        $scope.productionSummaryNew.BuyerItem = $event.data.BuyerItem;
+        $scope.productionSummaryNew.OwnItem = $event.data.OwnItem;
+
+
+        $scope.productionSummaryNew.ProductLibraryId = null;
+        $scope.productionSummaryNew.ProductCode = null;
+        $scope.productionSummaryNew.MasterOrderItemId = null;
+        $scope.productionSummaryNew.SalesOrderId = null;
+
+        angular.element(document.querySelector('#POItemPopup')).modal('hide');
+        
+    }
+
+
 
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');

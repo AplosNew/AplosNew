@@ -17,7 +17,17 @@
             </div>
         </div>
 
-
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Movement Purpose<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="modalNew.PurposeId" name="Movement Purpose"  ng-change="getLocation()" 
+                            ng-options="item.Value as item.Text for item in purposeList" required tabindex="6">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
         <div class="form-group">
             <label class="col-sm-4 control-label">Customer<sup>*</sup></label>
             <div class="col-sm-8">
@@ -36,12 +46,7 @@
                 <input type="text" n-decimals="2" name="Total Qty" ng-model="modalNew.LotWeight" class="form-control text-right" tabindex="13">
             </div>
         </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">No Of Unit<sup>*</sup></label>
-            <div class="col-sm-8">
-                <input type="text" n-decimals="2" name="Total Qty" ng-model="modalNew.NoOfUnit" class="form-control text-right" tabindex="13">
-            </div>
-        </div>
+        
     </div>
 
     <div class="col-xs-12 col-sm-6 col-md-6">
@@ -66,7 +71,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Location<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Location" ng-model="modalNew.LocationId" class="form-control" maxlength="200" required tabindex="4">
+                <input type="text" name="Location" disabled ng-model="modalNew.Location" class="form-control" maxlength="200" required tabindex="4">
             </div>
         </div>
         <div class="form-group">
@@ -75,7 +80,12 @@
                 <input type="text" n-decimals="2" name="PerUnitWeight" ng-model="modalNew.PerUnitWeight" class="form-control text-right" tabindex="13">
             </div>
         </div>
-
+        <div class="form-group">
+            <label class="col-sm-4 control-label">No Of Unit<sup>*</sup></label>
+            <div class="col-sm-8">
+                <input type="text" n-decimals="2" name="Total Qty" ng-model="modalNew.NoOfUnit" class="form-control text-right" tabindex="13">
+            </div>
+        </div>
 
     </div>
 
@@ -133,11 +143,7 @@
             </div>
         </div>
     </div>*@
-    <div class="common-btn" style="margin-top:20px;">
-        <ul class="list-inline text-right">
-            <li> <button ng-click="PrintReport();" class="btn">Export To Excel</button></li>
-        </ul>
-    </div>
+    
 </div>
 
 
