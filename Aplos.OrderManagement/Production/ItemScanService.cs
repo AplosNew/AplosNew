@@ -406,115 +406,225 @@ namespace Library.Service.EmployeeServices
          }*/
 
         public string Create(string MId, IEnumerable<ItemScanChildData> DataToSave)
+
         {
+
             try
+
             {
+
                 if (DataToSave == null || !DataToSave.Any())
+
                     return "";
+
+
 
                 var items = DataToSave.ToList();
 
+
+
                 ConnectionManager.DAL.ConManager con =
-                  new ConnectionManager.DAL.ConManager("1");
+
+                    new ConnectionManager.DAL.ConManager("1");
+
+
 
                 string TableName = "dbo.ItemScanChild";
 
+
+
                 DataSet dsMaster;
 
-                // Load existing data structure
-                var sql = @"SELECT * FROM dbo.ItemScanChild WHERE 1 = 2";
+
+
+                // Load existing data structure
+
+                var sql = @"SELECT * FROM dbo.ItemScanChild WHERE 1 = 2";
+
+
 
                 con.OpenDataSetThroughAdapter(
-                  sql,
-                  out dsMaster,
-                  false,
-                  "1"
+
+                    sql,
+
+                    out dsMaster,
+
+                    false,
+
+                    "1"
+
                 );
+
+
 
                 string User = items[0].AddedBy;
 
+
+
                 int Index = 0;
+
                 string _Id = "";
 
+
+
                 foreach (ItemScanChildData item in items)
+
                 {
+
                     Index++;
 
-                    // Check RefNo already exists
-                    string checkSql = @"
-                SELECT *
-                FROM dbo.ItemScanChild
-                WHERE RefNo = '" + item.RefNo.Replace("'", "''") + @"'
-            ";
+
+
+                    // Check RefNo already exists
+
+                    string checkSql = @"
+
+                SELECT *
+
+                FROM dbo.ItemScanChild
+
+                WHERE RefNo = '" + item.RefNo.Replace("'", "''") + @"'
+
+            ";
+
+
 
                     DataTable existingData = _sqlRepository.GetDataTable(checkSql);
 
-                    // =====================================================
-                    // REFNO EXISTS -> UPDATE
-                    // =====================================================
-                    if (existingData.Rows.Count > 0)
+
+
+                    // =====================================================
+
+                    // REFNO EXISTS -> UPDATE
+
+                    // =====================================================
+
+                    if (existingData.Rows.Count > 0)
+
                     {
+
                         string updateSql = @"
-                    UPDATE dbo.ItemScanChild
-                    SET 
-                        LocMasterId = '" + item.LocMasterId.Replace("'", "''") + @"',
-                        UpdatedBy = '" + User.Replace("'", "''") + @"',
-                        UpdatedDate = GETDATE()
-                    WHERE RefNo = '" + item.RefNo.Replace("'", "''") + @"'
-                ";
+
+                    UPDATE dbo.ItemScanChild
+
+                    SET 
+
+                        LocMasterId = '" + item.LocMasterId.Replace("'", "''") + @"',
+
+                        UpdatedBy = '" + User.Replace("'", "''") + @"',
+
+                        UpdatedDate = GETDATE()
+
+                    WHERE RefNo = '" + item.RefNo.Replace("'", "''") + @"'
+
+                ";
+
+
 
                         _sqlRepository.ExecuteNonQuery(updateSql);
+
                     }
-                    // =====================================================
-                    // REFNO DOES NOT EXIST -> INSERT
-                    // =====================================================
-                    else
+
+                    // =====================================================
+
+                    // REFNO DOES NOT EXIST -> INSERT
+
+                    // =====================================================
+
+                    else
+
                     {
+
                         if (_Id == "")
+
                         {
+
                             clsGenID genid = new clsGenID();
+
                             genid.GenID(TableName, out _Id);
+
                         }
+
+
 
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
+
+
                         dr["Id"] = "SC" + _Id + "-" + Index;
+
                         dr["MasterId"] = MId;
+
                         dr["NetWeight"] = DBNull.Value;
+
                         dr["GWeight"] = DBNull.Value;
+
                         dr["PackedBy"] = DBNull.Value;
+
                         dr["Shade"] = DBNull.Value;
+
                         dr["AddedBy"] = User;
+
                         dr["AddedDate"] = DateTime.Now;
+
                         dr["ProductCode"] = DBNull.Value;
+
                         dr["POId"] = DBNull.Value;
+
                         dr["LotNo"] = DBNull.Value;
+
                         dr["RefNo"] = item.RefNo;
+
                         dr["Cones"] = DBNull.Value;
+
                         dr["LocMasterId"] = item.LocMasterId;
+
                         dr["Booked"] = 0;
+
                         dr["IsDespatch"] = 0;
+
                         dr["IsReturn"] = 0;
+
                         dr["PackingId"] = DBNull.Value;
+
                         dr["ReturnNetWeight"] = DBNull.Value;
 
+
+
                         dsMaster.Tables[0].Rows.Add(dr);
+
                     }
+
                 }
 
-                // Save only newly inserted records
-                if (dsMaster.Tables[0].Rows.Count > 0)
+
+
+                // Save only newly inserted records
+
+                if (dsMaster.Tables[0].Rows.Count > 0)
+
                 {
+
                     clsStaticInfo _info = new clsStaticInfo();
+
                     _info.SaveDataSets(dsMaster);
+
                 }
+
+
 
                 return "true";
+
             }
+
             catch (Exception ex)
+
             {
+
                 return ex.ToString();
+
             }
+
         }
 
 
