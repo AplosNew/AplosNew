@@ -1204,8 +1204,8 @@ SELECT
      CASE 
  WHEN S.ServiceYears <= 3 THEN 0
  WHEN S.ServiceYears >= 10 AND AC.PresentDays >= 240 THEN 30
- WHEN S.ServiceYears >= 4 AND AC.PresentDays >= 240 THEN 15
- WHEN S.ServiceYears >= 4 AND AC.PresentDays >= 120 THEN 7.5
+ WHEN S.ServiceYears >= 4 AND AC.PresentDays >= 240 THEN 30
+ WHEN S.ServiceYears >= 4 AND AC.PresentDays >= 120 THEN 15
  WHEN AC.PresentDays >= 240 THEN 7
  WHEN AC.PresentDays >= 120 THEN 3.5
  ELSE 0
