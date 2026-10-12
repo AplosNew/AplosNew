@@ -444,7 +444,7 @@ namespace Library.Service.EmployeeServices
                     string checkSql = @"
                 SELECT *
                 FROM dbo.ItemScanChild
-                WHERE RefNo = '" + item.RefNo.Replace("'", "''") + @"'
+                WHERE RefNo = '" + item.RefNo.Replace("'", "''") + @"' and LocMasterId = '" + item.LocMasterId.Replace("'", "''") + @"'
             ";
 
                     DataTable existingData = _sqlRepository.GetDataTable(checkSql);
