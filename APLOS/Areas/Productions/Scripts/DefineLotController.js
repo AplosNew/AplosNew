@@ -59,6 +59,7 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
         if (!baseService.isUndefinedOrNull($scope.modalNew.PurposeId)) {
             var paymentTerm = $.grep($scope.purposeList, function (item) { return item.Value === $scope.modalNew.PurposeId; })[0];
             $scope.modalNew.Location = paymentTerm.FromToLocation;
+            $scope.modalNew.MaterialMovementMasterId = paymentTerm.MaterialMovementMasterId;
 
         }
     };
@@ -93,7 +94,6 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
 
 
     $scope.Get = function (args) {
-
         $scope.modalNew = Object.assign({}, args.data);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
