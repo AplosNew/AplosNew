@@ -102,6 +102,14 @@ namespace Library.Service.EmployeeServices
                         dr["Remarks"] = item.Remarks;
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedDate"] = DateTime.Now.ToString();
+                        if (!string.IsNullOrEmpty(item.ProductionSummaryId))
+                        {
+                            dr["ProductItemsMissing"] = item.ProductionSummaryId;
+                        }
+                        else
+                        {
+                            dr["ProductItemsMissing"] = DBNull.Value;
+                        }
                         dsMaster.Tables[0].Rows.Add(dr);
 
 
@@ -432,33 +440,37 @@ namespace Library.Service.EmployeeServices
                 {
                     Index++;
 
-                    // Check RefNo already exists
+                    string currentRfid = item.RefNo ?? "";
+                    string currentLocId = item.LocMasterId ?? "";
+
+                    // Check if the exact combination of RFID (RefNo) AND LocMasterId already exists
                     string checkSql = @"
                 SELECT *
                 FROM dbo.ItemScanChild
-                WHERE RefNo = '" + item.RefNo.Replace("'", "''") + @"'
+                WHERE RefNo = '" + currentRfid.Replace("'", "''") + @"'
+                  AND LocMasterId = '" + currentLocId.Replace("'", "''") + @"'
             ";
 
                     DataTable existingData = _sqlRepository.GetDataTable(checkSql);
 
                     // =====================================================
-                    // REFNO EXISTS -> UPDATE
+                    // COMBINATION EXISTS -> UPDATE
                     // =====================================================
                     if (existingData.Rows.Count > 0)
                     {
                         string updateSql = @"
                     UPDATE dbo.ItemScanChild
                     SET 
-                        LocMasterId = '" + item.LocMasterId.Replace("'", "''") + @"',
                         UpdatedBy = '" + User.Replace("'", "''") + @"',
                         UpdatedDate = GETDATE()
-                    WHERE RefNo = '" + item.RefNo.Replace("'", "''") + @"'
+                    WHERE RefNo = '" + currentRfid.Replace("'", "''") + @"'
+                      AND LocMasterId = '" + currentLocId.Replace("'", "''") + @"'
                 ";
 
                         _sqlRepository.ExecuteNonQuery(updateSql);
                     }
                     // =====================================================
-                    // REFNO DOES NOT EXIST -> INSERT
+                    // COMBINATION DOES NOT EXIST -> INSERT NEW RECORD
                     // =====================================================
                     else
                     {
@@ -481,7 +493,7 @@ namespace Library.Service.EmployeeServices
                         dr["ProductCode"] = DBNull.Value;
                         dr["POId"] = DBNull.Value;
                         dr["LotNo"] = DBNull.Value;
-                        dr["RefNo"] = item.RefNo;
+                        dr["RefNo"] = item.RefNo; // RFID value
                         dr["Cones"] = DBNull.Value;
                         dr["LocMasterId"] = item.LocMasterId;
                         dr["Booked"] = 0;
@@ -494,7 +506,7 @@ namespace Library.Service.EmployeeServices
                     }
                 }
 
-                // Save only newly inserted records
+                // Save only newly inserted records via adapter dataset
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
                     clsStaticInfo _info = new clsStaticInfo();
@@ -1043,6 +1055,7 @@ namespace Library.Service.EmployeeServices
         public string Grade { get; set; }
         public string LocMasterId { get; set; }
         public string ShiftId { get; set; }
+        public string ProductionSummaryId { get; set; }
 
     }
 

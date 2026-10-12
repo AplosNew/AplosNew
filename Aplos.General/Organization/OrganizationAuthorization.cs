@@ -83,8 +83,9 @@ namespace Library.General.Organization
             }
             else
             {
-                string _sql = @"SELECT P.Id AS [Value], P.UserName AS [Text],EPT.ProductionBookingLevel FROM HKP.EntityProcessTag EPT
+                string _sql = @"SELECT P.Id AS [Value], P.UserName AS [Text],EPT.ProductionBookingLevel ,ISNULL( PPP.ItemScanApplicable,0) ItemScanApplicable FROM HKP.EntityProcessTag EPT
 						        INNER JOIN HKP.Process AS P ON P.Id=EPT.ProcessId
+								Inner join [dbo].[ProductionBookingProcessParameter] as PPP on PPP.ProcessId = p.Id
 						        INNER JOIN [SEC].[UserProcess] UP ON UP.ProcessId=P.Id
 						        WHERE EPT.EntityId='" + entityId + @"' AND UP.UserId='" + userId + "'";
                 return _sqlRepository.GetDataCollection(_sql);
