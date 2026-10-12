@@ -410,25 +410,25 @@ namespace Library.Service.EmployeeServices
             try
             {
                 if (DataToSave == null || !DataToSave.Any())
-                    return "{\"success\":false,\"message\":\"No data to save\"}";
+                    return "";
 
                 var items = DataToSave.ToList();
 
                 ConnectionManager.DAL.ConManager con =
-                    new ConnectionManager.DAL.ConManager("1");
+                  new ConnectionManager.DAL.ConManager("1");
 
                 string TableName = "dbo.ItemScanChild";
 
                 DataSet dsMaster;
 
-                // Load existing data structure
-                var sql = @"SELECT * FROM dbo.ItemScanChild WHERE 1 = 2";
+                // Load existing data structure
+                var sql = @"SELECT * FROM dbo.ItemScanChild WHERE 1 = 2";
 
                 con.OpenDataSetThroughAdapter(
-                    sql,
-                    out dsMaster,
-                    false,
-                    "1"
+                  sql,
+                  out dsMaster,
+                  false,
+                  "1"
                 );
 
                 string User = items[0].AddedBy;
@@ -440,38 +440,35 @@ namespace Library.Service.EmployeeServices
                 {
                     Index++;
 
-                    string currentRfid = item.RefNo ?? "";
-                    string currentLocId = item.LocMasterId ?? "";
-
-                    // Check RefNo and LocMasterId combination already exists
-                    string checkSql = @"
-                SELECT *
-                FROM dbo.ItemScanChild
-                WHERE RefNo = '" + currentRfid.Replace("'", "''") + @"' 
-                  AND LocMasterId = '" + currentLocId.Replace("'", "''") + @"'";
+                    // Check RefNo already exists
+                    string checkSql = @"
+                SELECT *
+                FROM dbo.ItemScanChild
+                WHERE RefNo = '" + item.RefNo.Replace("'", "''") + @"'
+            ";
 
                     DataTable existingData = _sqlRepository.GetDataTable(checkSql);
 
-                    // =====================================================
-                    // COMBINATION EXISTS -> UPDATE
-                    // =====================================================
-                    if (existingData.Rows.Count > 0)
+                    // =====================================================
+                    // REFNO EXISTS -> UPDATE
+                    // =====================================================
+                    if (existingData.Rows.Count > 0)
                     {
                         string updateSql = @"
-                    UPDATE dbo.ItemScanChild
-                    SET 
-                        LocMasterId = '" + currentLocId.Replace("'", "''") + @"',
-                        UpdatedBy = '" + User.Replace("'", "''") + @"',
-                        UpdatedDate = GETDATE()
-                    WHERE RefNo = '" + currentRfid.Replace("'", "''") + @"' 
-                      AND LocMasterId = '" + currentLocId.Replace("'", "''") + @"'";
+                    UPDATE dbo.ItemScanChild
+                    SET 
+                        LocMasterId = '" + item.LocMasterId.Replace("'", "''") + @"',
+                        UpdatedBy = '" + User.Replace("'", "''") + @"',
+                        UpdatedDate = GETDATE()
+                    WHERE RefNo = '" + item.RefNo.Replace("'", "''") + @"'
+                ";
 
                         _sqlRepository.ExecuteNonQuery(updateSql);
                     }
-                    // =====================================================
-                    // COMBINATION DOES NOT EXIST -> INSERT
-                    // =====================================================
-                    else
+                    // =====================================================
+                    // REFNO DOES NOT EXIST -> INSERT
+                    // =====================================================
+                    else
                     {
                         if (_Id == "")
                         {
@@ -505,21 +502,18 @@ namespace Library.Service.EmployeeServices
                     }
                 }
 
-                // Save only newly inserted records
-                if (dsMaster.Tables[0].Rows.Count > 0)
+                // Save only newly inserted records
+                if (dsMaster.Tables[0].Rows.Count > 0)
                 {
                     clsStaticInfo _info = new clsStaticInfo();
                     _info.SaveDataSets(dsMaster);
                 }
 
-                // Return valid JSON string instead of raw true
-                return "{\"success\":true,\"message\":\"Saved successfully\"}";
+                return "true";
             }
             catch (Exception ex)
             {
-                // Sanitize exception message so it doesn't contain HTML tags or quotes that break JSON parsing
-                string safeMessage = ex.Message.Replace("\"", "'").Replace("\r", " ").Replace("\n", " ");
-                return "{\"success\":false,\"message\":\"" + safeMessage + "\"}";
+                return ex.ToString();
             }
         }
 
