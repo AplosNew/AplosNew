@@ -1,5 +1,5 @@
 ﻿'use strict';
-DefineLotController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$window'];
+DefineLotController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
 function DefineLotController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'Define Lot';
     $scope.path = 'Productions/Packing/';
@@ -44,6 +44,8 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
     };
     $scope.GetSequence();
 
+    $scope.SubProductionOrderList = [];
+    $scope.skuList = [];
     $scope.purposeList = [];
     $http({
         method: 'GET',
@@ -53,10 +55,10 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
         $scope.purposeList = response.data;
     });
 
-        $scope.getLocation = function () {
-            if (!baseService.isUndefinedOrNull($scope.modalNew.PurposeId)) {
-                var paymentTerm = $.grep($scope.purposeList, function (item) { return item.Value === $scope.modalNew.PurposeId; })[0];
-                $scope.modalNew.Location = paymentTerm.FromToLocation;
+    $scope.getLocation = function () {
+        if (!baseService.isUndefinedOrNull($scope.modalNew.PurposeId)) {
+            var paymentTerm = $.grep($scope.purposeList, function (item) { return item.Value === $scope.modalNew.PurposeId; })[0];
+            $scope.modalNew.Location = paymentTerm.FromToLocation;
 
         }
     };
@@ -99,63 +101,81 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
         }
     };
 
-    $scope.ProductOrderList = [];
+    $scope.ProductionOrderList = [];
     $scope.getProductionOrderPopUp = function () {
-        $scope.ProdQtyCount = 0;
-        $scope.InQuantity = 0;
-        $scope.OutQuantity = 0;
-        $scope.KillQuantity = 0;
-        $scope.TotalSalesOrderQty = 0;
-        $scope.TotalProductionBookingQty = 0;
-        $scope.TotalSalesOrderQty = 0;
-        $scope.RemainQty = 0;
-
-        $scope.ProcessId = null;
-
-        if (baseService.isUndefinedOrNull($scope.productionSummaryNew.WorkCenterMasterId)) {
-            if ($scope.Status === 'PROCESS')
-                return ShowResult('Please select Work Center.', 'failure');
-        }
-
-        $scope.WorkCenterMasterId = $scope.productionSummaryNew.WorkCenterMasterId;
-        if (baseService.isUndefinedOrNull($scope.WorkCenterMasterId)) {
-            $scope.WorkCenterMasterId = $scope.productionSummaryNew.ToWorkCenterMasterId;
-        }
-
 
         $scope.ProductOrderList = [];
-        $http.get('Productions/ProductionSummary/GetProductionOrderData?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&status=' + $scope.Status)
+        $http.get('Productions/ProductionSummary/GetProductionOrderData?entityid=' + null + '&workCenterMasterId=' + null + '&productionLevel=' + null + '&processId=' + $scope.modalNew.ProcessId + '&status=' + null)
             .then(
                 function successCallback(response) {
-                    $scope.ProductOrderList = response.data;
+                    $scope.ProductionOrderList = response.data;
                 },
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
                 });
-
         angular.element(document.querySelector('#POItemPopup')).modal('show');
 
     };
 
     $scope.SetPrOData = function ($event) {
-        $scope.productionSummaryNew.ProductionOrderId = $event.data.POId;
-
-        $scope.productionSummaryNew.BuyerOrder = $event.data.BuyerOrder;
-        $scope.productionSummaryNew.OwnOrder = $event.data.OwnOrder;
-
-        $scope.productionSummaryNew.BuyerItem = $event.data.BuyerItem;
-        $scope.productionSummaryNew.OwnItem = $event.data.OwnItem;
-
-
-        $scope.productionSummaryNew.ProductLibraryId = null;
-        $scope.productionSummaryNew.ProductCode = null;
-        $scope.productionSummaryNew.MasterOrderItemId = null;
-        $scope.productionSummaryNew.SalesOrderId = null;
-
+        $scope.modalNew.ProductionOrderId = $event.data.POId;
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
-        
+
     }
 
+    $scope.SalesOrderListForProductionOrderId = [];
+    $scope.getSalesOrderOfProdOrderList = function (prodOrdId) {
+        $scope.openPopup('dialogSOItemsForProductionOrder');
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/ProductionOrder/GetProductionRecipeMaterialList?productionOrderId=' + prodOrdId
+        }).then(function successCallback(response) {
+            $scope.SalesOrderListForProductionOrderId = response.data;
+
+        });
+    }
+
+    $scope.summaryRows = [{
+        title: "Total Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Qty", dataMember: "Qty", format: "{0:N0}" }],
+        showCaptionSummary: true
+
+    }];
+
+    $scope.closePopup = function (popupName) {
+        angular.element(document.querySelector("#" + popupName + "")).modal("hide");
+        try {
+            $("#" + popupName).data("ejDialog").close();
+        } catch (e) {
+
+        }
+    }
+    $scope.openPopup = function (popupName) {
+
+        try {
+            $("#" + popupName).data("ejDialog").open();
+        } catch (e) {
+
+        }
+    }
+
+    $scope.SubProductionOrderList = [];
+    $scope.GetSPOata = function () {
+        $http({
+            method: 'POST',
+            data: { 'poId': $scope.modalNew.ProductionOrderId },
+            url: 'OrderManagements/ProductionOrder/GetSavedSKUData'
+        }).then(function successCallback(response) {
+            $scope.SubProductionOrderList = response.data;
+            angular.element(document.querySelector('#SPOItemPopup')).modal('show');
+
+        });
+    }
+
+    $scope.selectSPOItem = function (e) {
+        $scope.modalNew.SubProductionOrderId = e.data.ID;
+        $scope.modalNew.SalesOrder = e.data.SONo;
+        angular.element(document.querySelector('#SPOItemPopup')).modal('hide');
+    }
 
 
     $scope.Save = function () {
