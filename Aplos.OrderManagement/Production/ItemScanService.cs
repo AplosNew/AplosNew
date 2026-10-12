@@ -104,11 +104,11 @@ namespace Library.Service.EmployeeServices
                         dr["AddedDate"] = DateTime.Now.ToString();
                         if (!string.IsNullOrEmpty(item.ProductionSummaryId))
                         {
-                            dr["ProductItemsMissing"] = item.ProductionSummaryId;
+                            dr["ProductionSummaryId"] = item.ProductionSummaryId;
                         }
                         else
                         {
-                            dr["ProductItemsMissing"] = DBNull.Value;
+                            dr["ProductionSummaryId"] = DBNull.Value;
                         }
                         dsMaster.Tables[0].Rows.Add(dr);
 
@@ -128,7 +128,14 @@ namespace Library.Service.EmployeeServices
                         dr["Remarks"] = item.Remarks;
                         dr["UpdatedBy"] = item.UpdatedBy;
                         dr["UpdatedDate"] = DateTime.Now.ToString();
-
+                        if (!string.IsNullOrEmpty(item.ProductionSummaryId))
+                        {
+                            dr["ProductionSummaryId"] = item.ProductionSummaryId;
+                        }
+                        else
+                        {
+                            dr["ProductionSummaryId"] = DBNull.Value;
+                        }
                         dr.EndEdit();
                     }
 
@@ -483,7 +490,7 @@ namespace Library.Service.EmployeeServices
 
                 FROM dbo.ItemScanChild
 
-                WHERE RefNo = '" + item.RefNo.Replace("'", "''") + @"'
+                WHERE RefNo = '" + item.RefNo.Replace("'", "''") + @"' and LocMasterId = '" + item.LocMasterId.Replace("'", "''") + @"'
 
             ";
 
