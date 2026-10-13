@@ -3885,7 +3885,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         }
         return false;
     }
-    $scope.calculatedBulletinModel = { Id: Math.floor(Math.random() * 9) - 10, TotalSPT: 0, TotalManpower: 0, TotalWorkStation: 0, MCtotalspt: 0, MCtotalMP: 0, NonMCtotalspt: 0, NonMCtotalMP: 0, PitchTime: 0, ProductionEfficiencyPerHour: 0, MaxAllottedTime: 0, ProductionEfficiencyPerDay: 0, OrganizationEfficiency: 0, LineTargetPerHour: 0 };
+    $scope.calculatedBulletinModel = { Id: Math.floor(Math.random() * 1000) - 10, TotalSPT: 0, TotalManpower: 0, TotalWorkStation: 0, MCtotalspt: 0, MCtotalMP: 0, NonMCtotalspt: 0, NonMCtotalMP: 0, PitchTime: 0, ProductionEfficiencyPerHour: 0, MaxAllottedTime: 0, ProductionEfficiencyPerDay: 0, OrganizationEfficiency: 0, LineTargetPerHour: 0 };
 
     $scope.setIsLastOperation = function (data) {
         for (var i = 0; i <= $scope.operationList.length - 1; i++) {

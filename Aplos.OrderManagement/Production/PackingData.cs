@@ -1006,7 +1006,7 @@ order by pk.Date  DESC";
                 objCon.ExecuteNonQueryWrapper(strproductionSummary, true, "1");
                 objCon.ExecuteNonQueryWrapper(stritemScanChild, true, "1");
                 objCon.ExecuteNonQueryWrapper(strpolotreference, true, "1");
-                
+
                 objCon.CommitTransaction();
             }
             catch (Exception ex)
@@ -1684,7 +1684,7 @@ WHERE R.PurposeId IN (" + purposeId + ") AND ISM.WorkDate between '" + fromDate 
                         clsStaticInfo _info = new clsStaticInfo();
                         _info.SaveDataSets(dsProductionSummary, dsItemScanChild);
                     }
-                    
+
 
 
                 }
@@ -1752,7 +1752,143 @@ WHERE R.PurposeId IN (" + purposeId + ") AND ISM.WorkDate between '" + fromDate 
 
         #region DefineLot
 
-        public void CreateLot(Dictionary<string, object> data)
+
+        public IEnumerable<object> GetSUBPOData(string poId, string spoId)
+        {
+            try
+            {
+                // 1. Check if data already saved for this Production Order
+                string checkSql = @"SELECT * FROM dbo.ProductionOrderSchedulingParametersType2 WHERE ProductionOrderId = '" + poId + @"'";
+                DataTable savedCount = _sqlRepository.GetDataTable(checkSql); // adjust to your repo's scalar method
+
+                string str = "";
+                if (savedCount.Rows.Count > 0)
+                {
+
+                    if (Convert.ToBoolean(savedCount.Rows[0]["SKU1"].ToString()) && !Convert.ToBoolean(savedCount.Rows[0]["SKU2"].ToString()) && !Convert.ToBoolean(savedCount.Rows[0]["Both"].ToString()))
+                    {
+                        str = @"Select D.ID SubProductionOrderID,D.ProductionOrderID
+,SONo=STUFF((select distinct ','+sox.Id from trn.SalesOrder AS sox   
+								        INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							            where podx.ProductionOrderId=D.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+,Customer= REPLACE(REPLACE(
+										              STUFF((select distinct ','+XP.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                    where d.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										                        ,'&amp;','&'), 'amp;', '')	
+
+,FCV.UserName AS SKUColor,SCV.UserName AS SKUSize
+ ,OrderQty=S.Qty
+ ,PlanQty=CASE WHEN ISNULL(D.Qty,0)=0 THEN PO.PlannedQty ELSE D.Qty END
+ ,DL.LotQty,BalanceQty=(CASE WHEN ISNULL(D.Qty,0)=0 THEN PO.PlannedQty ELSE D.Qty END)-DL.LotQty
+ ,AvailableQty=(CASE WHEN ISNULL(D.Qty,0)=0 THEN PO.PlannedQty ELSE D.Qty END)-DL.LotQty
+FROM dbo.ProductionOrderSchedulingParametersType2  D
+INNER JOIN TRN.ProductionOrder PO ON PO.Id=D.ProductionOrderID
+LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = D.SKU1Id
+LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = SKU2Id
+LEFT JOIN (Select SUM(SC.Qty) Qty,SC.CharacteristicsValueId SKU1Id,D.ProductionOrderId From [TRN].[FirstCharacteristics] SC
+LEFT JOIN TRN.SalesOrder S ON S.Id=SC.SalesOrderId
+LEFT JOIN TRN.ProductionOrderDetail D ON D.SalesOrderId=S.Id
+Where D.ProductionOrderId='" + poId + @"' Group By SC.CharacteristicsValueId,D.ProductionOrderId) S ON S.ProductionOrderId=D.ProductionOrderID AND S.SKU1Id=D.SKU1Id
+LEFT JOIN(Select SUM(LotQty)LotQty,ProductionOrderId,SubProductionOrderId from dbo.DefineLot WHERE ProductionOrderId = '" + poId + @"' AND SubProductionOrderId=" + spoId + @" Group By ProductionOrderId,SubProductionOrderId)DL ON DL.ProductionOrderId=D.ProductionOrderID AND DL.SubProductionOrderId=D.ID
+WHERE D.ProductionOrderId = '" + poId + "' AND D.ID=" + spoId + "";
+                    }
+                    else if (Convert.ToBoolean(savedCount.Rows[0]["SKU2"].ToString()) && !Convert.ToBoolean(savedCount.Rows[0]["SKU1"].ToString()) && !Convert.ToBoolean(savedCount.Rows[0]["Both"].ToString()))
+                    {
+                        str = @"Select D.ID SubProductionOrderID,D.ProductionOrderID
+,SONo=STUFF((select distinct ','+sox.Id from trn.SalesOrder AS sox   
+								        INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							            where podx.ProductionOrderId=D.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+,Customer= REPLACE(REPLACE(
+										              STUFF((select distinct ','+XP.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                    where d.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										                        ,'&amp;','&'), 'amp;', '')	
+
+,FCV.UserName AS SKUColor,SCV.UserName AS SKUSize
+ ,OrderQty=S.Qty
+ ,PlanQty=CASE WHEN ISNULL(D.Qty,0)=0 THEN PO.PlannedQty ELSE D.Qty END
+ ,DL.LotQty,BalanceQty=(CASE WHEN ISNULL(D.Qty,0)=0 THEN PO.PlannedQty ELSE D.Qty END)-DL.LotQty
+ ,AvailableQty=(CASE WHEN ISNULL(D.Qty,0)=0 THEN PO.PlannedQty ELSE D.Qty END)-DL.LotQty
+FROM dbo.ProductionOrderSchedulingParametersType2  D
+INNER JOIN TRN.ProductionOrder PO ON PO.Id=D.ProductionOrderID
+LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = D.SKU1Id
+LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = SKU2Id
+LEFT JOIN (Select SUM(SC.Qty) Qty,SC.CharacteristicsValueId SKU2Id,D.ProductionOrderId From TRN.[SecondCharacteristics] SC
+LEFT JOIN TRN.SalesOrder S ON S.Id=SC.SalesOrderId
+LEFT JOIN TRN.ProductionOrderDetail D ON D.SalesOrderId=S.Id
+Where D.ProductionOrderId='" + poId + @"' Group By SC.CharacteristicsValueId,D.ProductionOrderId) S ON S.ProductionOrderId=D.ProductionOrderID AND S.SKU2Id=D.SKU2Id
+LEFT JOIN(Select SUM(LotQty)LotQty,ProductionOrderId,SubProductionOrderId from dbo.DefineLot WHERE ProductionOrderId = '" + poId + @"' AND SubProductionOrderId=" + spoId + @" Group By ProductionOrderId,SubProductionOrderId)DL ON DL.ProductionOrderId=D.ProductionOrderID AND DL.SubProductionOrderId=D.ID
+WHERE D.ProductionOrderId = '" + poId + "' AND D.ID=" + spoId + "";
+                    }
+                    else
+                    {
+                        str = @"Select D.ID SubProductionOrderID,D.ProductionOrderID
+,SONo=STUFF((select distinct ','+sox.Id from trn.SalesOrder AS sox   
+								        INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							            where podx.ProductionOrderId=D.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+,Customer= REPLACE(REPLACE(
+										              STUFF((select distinct ','+XP.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                    where d.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										                        ,'&amp;','&'), 'amp;', '')	
+
+,FCV.UserName AS SKUColor,SCV.UserName AS SKUSize
+ ,OrderQty=S.Qty
+ ,PlanQty=CASE WHEN ISNULL(D.Qty,0)=0 THEN PO.PlannedQty ELSE D.Qty END
+ ,DL.LotQty,BalanceQty=(CASE WHEN ISNULL(D.Qty,0)=0 THEN PO.PlannedQty ELSE D.Qty END)-DL.LotQty
+ ,AvailableQty=(CASE WHEN ISNULL(D.Qty,0)=0 THEN PO.PlannedQty ELSE D.Qty END)-DL.LotQty
+FROM dbo.ProductionOrderSchedulingParametersType2  D
+INNER JOIN TRN.ProductionOrder PO ON PO.Id=D.ProductionOrderID
+LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = D.SKU1Id
+LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = SKU2Id
+LEFT JOIN (Select SUM(SC.Qty) Qty,FC.CharacteristicsValueId SKU1Id,SC.CharacteristicsValueId SKU2Id,D.ProductionOrderId From TRN.[SecondCharacteristics] SC 
+LEFT JOIN [TRN].[FirstCharacteristics] FC ON FC.Id=SC.FirstCharacteristicsId
+LEFT JOIN TRN.SalesOrder S ON S.Id=SC.SalesOrderId
+LEFT JOIN TRN.ProductionOrderDetail D ON D.SalesOrderId=S.Id
+Where D.ProductionOrderId='" + poId + @"' Group By FC.CharacteristicsValueId,SC.CharacteristicsValueId,D.ProductionOrderId) S ON S.ProductionOrderId=D.ProductionOrderID
+AND S.SKU1Id=D.SKU1Id AND S.SKU2Id=D.SKU2Id
+LEFT JOIN(Select SUM(LotQty)LotQty,ProductionOrderId,SubProductionOrderId from dbo.DefineLot WHERE ProductionOrderId = '" + poId + @"' AND SubProductionOrderId=" + spoId + @" Group By ProductionOrderId,SubProductionOrderId)DL ON DL.ProductionOrderId=D.ProductionOrderID AND DL.SubProductionOrderId=D.ID
+WHERE D.ProductionOrderId = '" + poId + "' AND D.ID=" + spoId + "";
+                    }
+                }
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> GetScanData(string MaterialMovementMasterId)
+        {
+            try
+            {
+                var str = @"Select C.*,CG.NoOfPcs,Flag=CAST(0 as bit) from dbo.ItemScanChild C
+JOIN dbo.ItemScan S ON S.Id=C.MasterId
+join [dbo].[CartonGeneration] CG ON CG.Id=C.RefNo
+Where S.LocMasterId='" + MaterialMovementMasterId + "' AND LotNo IS NULL";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public void CreateLot(Dictionary<string, object> data, List<Dictionary<string, object>> list)
         {
             try
             {
@@ -1761,7 +1897,7 @@ WHERE R.PurposeId IN (" + purposeId + ") AND ISM.WorkDate between '" + fromDate 
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from dbo.DefineLot where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
+                string scids = string.Join(",", list.Select(x => $"'{x["Id"]}'"));
                 string _Id = "";
 
                 #region data update
@@ -1782,6 +1918,16 @@ WHERE R.PurposeId IN (" + purposeId + ") AND ISM.WorkDate between '" + fromDate 
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
+
+                var sqls = @"Update dbo.ItemScanChild Set LotNo = '" + data["LotNumber"] + "' , UpdatedBy = '" + identity.Name + "' where Id IN ("+scids+")";
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sqls, true, "1");
+                objCone.CommitTransaction();
 
 
             }

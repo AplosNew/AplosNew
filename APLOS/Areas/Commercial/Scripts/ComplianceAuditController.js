@@ -167,7 +167,7 @@ function ComplianceAuditController(cboService, commonMessage, $scope, $rootScope
             $scope.CheckList = [];
             for (var i = 0; i < $scope.CheckPList.length; i++) {
                 var ob = {};
-                ob.Id = $scope.CheckPList[i].Id == null ? Math.floor(Math.random() * 9) - 10 : $scope.CheckPList[i].Id;
+                ob.Id = $scope.CheckPList[i].Id == null ? Math.floor(Math.random() * 1000) - 10 : $scope.CheckPList[i].Id;
                 ob.CheckPointsId = $scope.CheckPList[i].CheckPointsId;
                 ob.CheckMark = $scope.CheckPList[i].CheckMark;
                 $scope.CheckList.push(ob);

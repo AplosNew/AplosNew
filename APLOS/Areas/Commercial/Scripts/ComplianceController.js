@@ -477,7 +477,7 @@ function ComplianceController(cboService, commonMessage, $scope, $rootScope, bas
                 if ($scope.popUpDataList[i].Flag == true) {
                     if (checkExistsAD($scope.ADDataList, $scope.popUpDataList[i].SystemId) === false) {
                         var ob = {};
-                        ob.Id = Math.floor(Math.random() * 9) - 10;
+                        ob.Id = Math.floor(Math.random() * 1000) - 10;
                         ob.ComplianceMasterId = $scope.ModelNew.Id;
                         ob.EmpSystemID = $scope.popUpDataList[i].SystemId;
                         ob.EmployeeCode = $scope.popUpDataList[i].EmployeeCode;

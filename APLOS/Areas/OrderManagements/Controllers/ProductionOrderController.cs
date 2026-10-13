@@ -3801,7 +3801,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND  TEMP.Sales
 
                         DataRow dr = dsSO.Tables[0].NewRow();
 
-                        dr["Id"] = materialCommonService.MakePK(packetRegistrationMasterId, wccount, 2); ;
+                        dr["Id"] = materialCommonService.MakePK(packetRegistrationMasterId, wccount, 2);
                         dr["PacketRegistrationMasterId"] = packetRegistrationMasterId;
                         dr["SalesOrderId"] = details[i]["SalesOrderId"];
 
@@ -3980,21 +3980,26 @@ ORDER BY P.SortOrder";
         {
             try
             {
+                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ConnectionManager.DAL.ConManager objCon;
-                DataSet dspackCat = null;
+                DataSet dspackCat, dsWCDD = null;
                 string sql = "SELECT * FROM [dbo].[PacketRegistration] where PacketRegistrationTypeId='" + masterId + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dspackCat, false, "1");
+
+                objCon.OpenDataSetThroughAdapter("select count(Id) countId from dbo.PacketRegistration where PacketRegistrationTypeId='" + masterId + "'", out dsWCDD, false, "1");
+                int wccount = Convert.ToInt32(dsWCDD.Tables[0].Rows[0]["countId"].ToString());
 
                 for (int i = 0; i < packregilist.Count; i++)
                 {
                     dspackCat.Tables[0].DefaultView.RowFilter = "Id='" + packregilist[i]["Id"] + "'";
                     if (dspackCat.Tables[0].DefaultView.Count == 0)
                     {
+                        wccount++;
                         DataRow dr = dspackCat.Tables[0].NewRow();
 
-                        dr["Id"] = masterId + "-" + (i + 1).ToString();
+                        dr["Id"] = materialCommonService.MakePK(masterId, wccount, 2);
                         dr["PacketRegistrationTypeId"] = masterId;
                         dr["SalesOrderId"] = packregilist[i]["SalesOrderId"];
                         dr["SKU1Id"] = packregilist[i]["SKU1Id"];

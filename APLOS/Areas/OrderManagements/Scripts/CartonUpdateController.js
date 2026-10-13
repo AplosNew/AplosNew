@@ -32,7 +32,7 @@ function CartonUpdateController(commonMessage, $scope, $rootScope, baseService, 
                 for (var i = 0; i < $scope.CartonList.length; i++) {
                     if (!baseService.isUndefinedOrNull($scope.CartonList[i].ActualQty) || $scope.CartonList[i].ActualQty > 0) {
                         if (baseService.isUndefinedOrNull($scope.CartonList[i].Id)) {
-                            $scope.CartonList[i].Id = -(Math.floor(Math.random() * 100) + 1);
+                            $scope.CartonList[i].Id = -(Math.floor(Math.random() * 1000) + 1);
                         }
                         tempList.push($scope.CartonList[i]);
                     }

@@ -1849,12 +1849,40 @@ namespace Aplos.Areas.Productions.Controllers
 
         #region DefineLot
 
-        [HttpPost]
-        public JsonResult CreateLot(Dictionary<string, object> data)
+        [HttpGet, Authorize]
+        public ActionResult GetSUBPOData(string poId, string spoId)
         {
             try
             {
-                det.CreateLot(data);
+                return Json(det.GetSUBPOData(poId,spoId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new { Error = true, Message = e.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetScanData(string MaterialMovementMasterId)
+        {
+            try
+            {
+                var jsondata = Json(det.GetScanData(MaterialMovementMasterId), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+            }
+            catch (Exception e)
+            {
+                return Json(new { Error = true, Message = e.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult CreateLot(Dictionary<string, object> data,List<Dictionary<string, object>>list)
+        {
+            try
+            {
+                det.CreateLot(data,list);
                 return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Success });
 
             }

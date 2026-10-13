@@ -5,8 +5,31 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
     $scope.path = 'Productions/Packing/';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.Action = "Save";
-    $scope.modal = {};
-    $scope.modalNew = {};
+    $scope.modal = {
+        Id: null,
+        Sequence: null,
+        LotNumber: null,
+        FromDate: null,
+        ToDate: null,
+        ProcessId: null,
+        CustomerId: null,
+        LotQty: null,
+        LotWeight: null,
+        NoOfUnit: null,
+        PerUnitWeight: null,
+        LotStatus: null,
+        Remarks: null,
+        AddedBy: null,
+        AddedDate: null,
+        AddedFromIP: null,
+        UpdatedBy: null,
+        UpdatedDate: null,
+        UpdatedFromIP: null
+    };
+    $scope.modalNew = Object.assign({}, $scope.modal);
+    
+
+    $scope.LotStatusList = [{ Value: 'Active', Text: "Active" }, { Value: 'Running', Text: "Running" }, { Value: 'Pending', Text: "Pending" }, { Value: 'Closed', Text: "Closed" }]
 
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
@@ -160,15 +183,21 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
 
     $scope.SubProductionOrderList = [];
     $scope.GetSPOata = function () {
-        $http({
-            method: 'POST',
-            data: { 'poId': $scope.modalNew.ProductionOrderId },
-            url: 'OrderManagements/ProductionOrder/GetSavedSKUData'
-        }).then(function successCallback(response) {
-            $scope.SubProductionOrderList = response.data;
-            angular.element(document.querySelector('#SPOItemPopup')).modal('show');
-
-        });
+        try {
+            if (baseService.isUndefinedOrNull($scope.modalNew.ProductionOrderId)) {
+                throw "Select Production Order.";
+            }
+            $http({
+                method: 'POST',
+                data: { 'poId': $scope.modalNew.ProductionOrderId },
+                url: 'OrderManagements/ProductionOrder/GetSavedSKUData'
+            }).then(function successCallback(response) {
+                $scope.SubProductionOrderList = response.data;
+                angular.element(document.querySelector('#SPOItemPopup')).modal('show');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
 
     $scope.selectSPOItem = function (e) {
@@ -177,29 +206,183 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
         angular.element(document.querySelector('#SPOItemPopup')).modal('hide');
     }
 
-
-    $scope.Save = function () {
+    $scope.skuList = [];
+    $scope.masterGo = function () {
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.ModelNewForm.$valid) {
+        if ($scope.GeneralForm.$valid) {
             $http({
-                method: 'POST',
-                url: $scope.saveUrl,
-                data: { 'data': $scope.modalNew },
+                method: 'GET',
+                url: "Productions/Packing/GetSUBPOData?poId=" + $scope.modalNew.ProductionOrderId + "&spoId=" + $scope.modalNew.SubProductionOrderId,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
+                $scope.skuList = response.data;
+            });
+        }
+    }
+
+
+    $scope.cartonDetail = [];
+    $scope.inactiveCartons = [];
+    $scope.GetScanData = function () {
+        try {
+            //if (parseFloat(e.data.quant) <= 0) {
+            //    throw "Please First Enter the Plan Qty";
+            //}
+            //if ($scope.cartonDetail.length > 0) {
+            //    if ($scope.cartonDetail[0]["LotNo"] === e.data.LotNo) {
+            //        $scope.cartonDetal = $scope.cartonDetail;
+            //        $scope.inactiveCartons = $scope.inactiveCartons;
+            //        angular.element(document.querySelector('#cartonDetailModal')).modal('show');
+            //    }
+            //    else {
+            //        $http({
+            //            method: 'GET',
+            //            url: "Productions/Packing/GetScanData?MaterialMovementMasterId=" + $scope.modalNew.MaterialMovementMasterId,
+            //            dataType: 'JSON'
+            //        }).then(function successCallback(response) {
+            //            $scope.cartonDetail = response.data.Data;
+
+            //            $scope.inactiveCartons = response.data.Inactive;
+            //            fillCartons();
+            //            angular.element(document.querySelector('#cartonDetailModal')).modal('show');
+            //        });
+
+            //    }
+            //}
+            //else {
+            //    $http({
+            //        method: 'GET',
+            //        url: $scope.path + "getCartonsDetails",
+            //        params: { 'LotNo': e.data.LotNo, 'ProductCode': e.data.ProductCode, 'PO': e.data.PO },
+            //        dataType: 'JSON'
+            //    }).then(function successCallback(response) {
+            //        $scope.cartonDetail = response.data.Data;
+            //        $scope.inactiveCartons = response.data.Inactive;
+            //        angular.element(document.querySelector('#cartonDetailModal')).modal('show');
+            //    });
+            //}
+
+            $http({
+                method: 'GET',
+                url: "Productions/Packing/GetScanData?MaterialMovementMasterId=" + $scope.modalNew.MaterialMovementMasterId,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.cartonDetail = response.data;
+
+                // $scope.inactiveCartons = response.data.Inactive;
+                //fillCartons();
+                angular.element(document.querySelector('#cartonDetailModal')).modal('show');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    // #region checkbox all
+
+    $scope.refreshTemplate = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
+    };
+
+    function CheckBoxSelectAll(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#CartonDetails").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.cartonDetail.length; i++) {
+                $scope.cartonDetail[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#CartonDetails").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    // #endregion checkbox all
+
+    //Closing of The Carton Details Modal
+
+    $scope.cartonList = [];
+    function MakeData() {
+
+        for (var i = 0; i < $scope.cartonDetail.length; i++) {
+            if ($scope.cartonDetail[i].Flag == true) {
+                if (checkExists($scope.cartonList, $scope.cartonDetail[i].Id) === false) {
+                    var ob = {};
+                    ob.Id = $scope.cartonDetail[i].Id;
+                    ob.NoOfPcs = $scope.cartonDetail[i].NoOfPcs;
+                    ob.RefNo = $scope.cartonDetail[i].RefNo;
+                    ob.LotNo = $scope.modalNew.LotNumber;
+
+                    $scope.cartonList.push(ob);
+                }
+            }
+        }
+
+    }
+
+    function checkExists(list, id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].Id === id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.CloseCarton = function () {
+        try {
+            MakeData();
+            $scope.Save();
+            angular.element(document.querySelector('#cartonDetailModal')).modal('hide');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+
+
+    $scope.Save = function () {
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.GeneralForm.$valid) {
+                if (baseService.arrayLength($scope.cartonList) > 0) {
+                    $scope.modalNew.LotQty = $scope.cartonList.reduce((sum, item) => sum + item.NoOfPcs, 0);
                 }
                 else {
-                    ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
-                    $scope.getData();
-
+                    throw "Select Carton."
                 }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
 
+
+                $http({
+                    method: 'POST',
+                    url: "Productions/Packing/CreateLot",
+                    data: { 'data': $scope.modalNew, 'list': $scope.cartonList },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        ClearFields(response.data.Sequence);
+                        $scope.getData();
+
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
     };
 
@@ -232,6 +415,7 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
     };
 
     function ClearFields(seq) {
+        $scope.GetLotNumber();
         $scope.Action = 'Save';
         $scope.modalNew = Object.assign({}, $scope.modal);
         $scope.modalNew.Sequence = seq;
