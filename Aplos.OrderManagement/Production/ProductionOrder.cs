@@ -1521,6 +1521,23 @@ SOId = STUFF((
             }
         }
 
+        public DataTable GetDefineLotQRData(string id)
+        {
+            try
+            {
+                var str = @"Select DL.*,P.UserName Process,PR.UserName Purpose,[Location]=MM.FromLocation+'-'+MM.ToLocation,MM.Id MaterialMovementMasterId from dbo.DefineLot DL
+LEFT JOIN HKP.Process P ON P.Id=DL.ProcessId
+LEFT JOIN [HKP].[MaterialMovementPurpose] PR ON PR.Id=DL.PurposeId
+LEFT JOIN [MST].[MaterialMovementMaster] MM ON MM.PurposeId=PR.Id
+Where DL.Id='"+id+"'";
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         public DataTable GetComboQRCodeData(string masterId)
         {
             try

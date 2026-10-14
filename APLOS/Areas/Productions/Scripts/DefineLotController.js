@@ -27,7 +27,7 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
         UpdatedFromIP: null
     };
     $scope.modalNew = Object.assign({}, $scope.modal);
-    
+
 
     $scope.LotStatusList = [{ Value: 'Active', Text: "Active" }, { Value: 'Running', Text: "Running" }, { Value: 'Pending', Text: "Pending" }, { Value: 'Closed', Text: "Closed" }]
 
@@ -117,6 +117,7 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
 
     $scope.Get = function (args) {
         $scope.modalNew = Object.assign({}, args.data);
+        $scope.masterGo();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -420,7 +421,35 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
         $scope.modalNew.Sequence = seq;
     }
 
+    $scope.QRCodeGenerateModel = {};
+    $scope.pdfdownloadgriddataUrl = 'GridReports/DownloadPdf';
+    $scope.generateQRCode = function (obj) {
+        try {
+            $scope.QRCodeGenerateModel.LotNumber = obj.data.LotNumber;
+            $scope.QRCodeGenerateModel.LotId = obj.data.Id;
+            $scope.fileName = "QRCode_" + $scope.QRCodeGenerateModel.LotId + ".pdf"; // was "QRCode.pptx" — fix extension too
 
+            $http({
+                method: 'POST',
+                url: "OrderManagements/ProductionOrder/GenerateLotQRCode",
+                data: {
+                    'data': $scope.QRCodeGenerateModel
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $window.open($scope.pdfdownloadgriddataUrl + "?FileName=" + $scope.fileName);
+                }
+            }, function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 
 
 

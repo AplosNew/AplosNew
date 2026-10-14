@@ -1892,7 +1892,20 @@ Where S.LocMasterId='" + MaterialMovementMasterId + "' AND LotNo IS NULL";
         {
             try
             {
-                var str = @"Select DL.*,P.UserName Process,PR.UserName Purpose,[Location]=MM.FromLocation+'-'+MM.ToLocation,MM.Id MaterialMovementMasterId from dbo.DefineLot DL
+                var str = @"Select DL.*,P.UserName Process,PR.UserName Purpose,[Location]=MM.FromLocation+'-'+MM.ToLocation,MM.Id MaterialMovementMasterId 
+,SONo=STUFF((select distinct ','+sox.Id from trn.SalesOrder AS sox   
+								        INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							            where podx.ProductionOrderId=DL.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+,Customer= REPLACE(REPLACE(
+										              STUFF((select distinct ','+XP.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                    where dL.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										                        ,'&amp;','&'), 'amp;', '')
+from dbo.DefineLot DL
 LEFT JOIN HKP.Process P ON P.Id=DL.ProcessId
 LEFT JOIN [HKP].[MaterialMovementPurpose] PR ON PR.Id=DL.PurposeId
 LEFT JOIN [MST].[MaterialMovementMaster] MM ON MM.PurposeId=PR.Id";
