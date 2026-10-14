@@ -2219,7 +2219,7 @@ left join [dbo].[InspectionTranGrandChild] ITG on ITG.InspectionTranChildId	 = T
 left join trn.SalesOrder so on so.id = fc.SalesOrderId 
 left join trn.MasterOrderItem moi on moi.id = so.MasterOrderItemId
 left join trn.MasterOrder mo on mo.id = moi.MasterOrderId
-where FC.SalesOrderId = '" + SO + "'"));
+where FC.SalesOrderId = '" + SO + "'   order by Color ,size "));
 
             }
             catch (Exception ex)
