@@ -1893,7 +1893,7 @@ Where S.LocMasterId='" + MaterialMovementMasterId + "' AND LotNo IS NULL";
             try
             {
                 var str = @"Select DL.*,P.UserName Process,PR.UserName Purpose,[Location]=MM.FromLocation+'-'+MM.ToLocation,MM.Id MaterialMovementMasterId 
-,SONo=STUFF((select distinct ','+sox.Id from trn.SalesOrder AS sox   
+,SalesOrder=STUFF((select distinct ','+sox.Id from trn.SalesOrder AS sox   
 								        INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
 							            where podx.ProductionOrderId=DL.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 ,Customer= REPLACE(REPLACE(

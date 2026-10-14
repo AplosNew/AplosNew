@@ -271,6 +271,10 @@ DesignationId=(select DesignationId from  ORG.Position where Id =(select Positio
 
                         dtId.DefaultView.RowFilter = @"BudgetCode='" + data[i].BudgetCode + "'";
                         dtEd.DefaultView.RowFilter = @"EmployeeCode='" + data[i].EmployeeCode + "'";
+                        if (dtId.DefaultView.Count == 0)
+                        {
+                            throw new Exception("This Budget Code '" + data[i].BudgetCode + "' at Line no - " + i + " doesn't exist!! Please Check Again!!");
+                        }
                         if (dtEd.DefaultView.Count > 0)
                         {
                             Dictionary<string, string> jj = new Dictionary<string, string>();

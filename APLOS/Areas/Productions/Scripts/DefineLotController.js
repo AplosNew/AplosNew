@@ -5,6 +5,8 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
     $scope.path = 'Productions/Packing/';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.Action = "Save";
+    $scope.skuList = [];
+
     $scope.modal = {
         Id: null,
         Sequence: null,
@@ -117,12 +119,24 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
 
     $scope.Get = function (args) {
         $scope.modalNew = Object.assign({}, args.data);
-        $scope.masterGo();
+        $scope.Getskudata();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
     };
+
+
+    $scope.Getskudata = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        $http({
+            method: 'GET',
+            url: "Productions/Packing/GetSUBPOData?poId=" + $scope.modalNew.ProductionOrderId + "&spoId=" + $scope.modalNew.SubProductionOrderId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.skuList = response.data;
+        });
+    }
 
     $scope.ProductionOrderList = [];
     $scope.getProductionOrderPopUp = function () {
@@ -353,6 +367,14 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
         try {
             $scope.$broadcast('show-errors-check-validity');
             if ($scope.GeneralForm.$valid) {
+
+                var fd = $filter('dateFiltering')($scope.modalNew.FromDate, 'dd-MM-yyyy');
+                var td = $filter('dateFiltering')($scope.modalNew.ToDate, 'dd-MM-yyyy');
+
+                if (new Date(fd) > new Date(td)) {
+                    throw 'From Date cann\'t be greater than To Date.';
+                }
+
                 if (baseService.arrayLength($scope.cartonList) > 0) {
                     $scope.modalNew.LotQty = $scope.cartonList.reduce((sum, item) => sum + item.NoOfPcs, 0);
                 }
