@@ -1863,6 +1863,21 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetDefineLot()
+        {
+            try
+            {
+                var jsondata = Json(det.GetDefineLot(), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+            }
+            catch (Exception e)
+            {
+                return Json(new { Error = true, Message = e.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetScanData(string MaterialMovementMasterId)
         {
             try

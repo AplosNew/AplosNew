@@ -1388,7 +1388,7 @@ namespace Library.Service.Productions
             {
                 var _sql = @"SELECT P.UserName AS Text,P.Id as Value, FromToLocation =M.FromLocation+'-'+M.ToLocation,M.Id MaterialMovementMasterId
                 FROM HKP.MaterialMovementPurpose P
-                INNER JOIN mst.MaterialMovementMaster M ON M.PurposeId=P.Id";
+                LEFT JOIN mst.MaterialMovementMaster M ON M.PurposeId=P.Id";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
             catch (Exception)

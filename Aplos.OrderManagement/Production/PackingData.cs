@@ -1888,6 +1888,22 @@ Where S.LocMasterId='" + MaterialMovementMasterId + "' AND LotNo IS NULL";
             }
         }
 
+        public IEnumerable<object> GetDefineLot()
+        {
+            try
+            {
+                var str = @"Select DL.*,P.UserName Process,PR.UserName Purpose,[Location]=MM.FromLocation+'-'+MM.ToLocation,MM.Id MaterialMovementMasterId from dbo.DefineLot DL
+LEFT JOIN HKP.Process P ON P.Id=DL.ProcessId
+LEFT JOIN [HKP].[MaterialMovementPurpose] PR ON PR.Id=DL.PurposeId
+LEFT JOIN [MST].[MaterialMovementMaster] MM ON MM.PurposeId=PR.Id";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         public void CreateLot(Dictionary<string, object> data, List<Dictionary<string, object>> list)
         {
             try

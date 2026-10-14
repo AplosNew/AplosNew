@@ -1,5 +1,5 @@
-﻿@*<togglable name="Define Lot"></togglable>*@
-<h3 class="site-heading" style="cursor:unset;"><span class="glyphicon glyphicon-info-sign"></span> Define Lot</h3>
+﻿<togglable name="Define Lot"></togglable>
+@*<h3 class="site-heading" style="cursor:unset;"><span class="glyphicon glyphicon-info-sign"></span> Define Lot</h3>*@
 <div class="form-elements form-horizontal" ng-form name="GeneralForm">
     <div class="row">
         <input type="hidden" ng-model="modalNew.Id">
@@ -176,7 +176,20 @@
         </div>
     </div>
 </div>
-
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+            <div e-column e-field="LotNumber" e-headertext="LotNumber" e-width="2"></div>
+            <div e-column e-field="Process" e-headertext="Process" e-width="3"></div>
+            <div e-column e-field="Purpose" e-headertext="Purpose" e-width="5"></div>
+            <div e-column e-field="Location" e-headertext="Location" e-width="5"></div>
+            <div e-column e-field="LotStatus" e-headertext="LotStatus" e-width="5"></div>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade site-modal in" id="customersModal" tabindex="-1">
     <div class="modal-dialog modal-lg">

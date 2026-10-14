@@ -34,12 +34,11 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
 
-
+    $scope.ModelList = [];
     $scope.getData = function () {
         $http({
-            method: 'POST',
-            url: $scope.path + "GetList",
-            data: { column: $scope.searchBy, value: $scope.search },
+            method: 'GET',
+            url: $scope.path + "GetDefineLot",
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
