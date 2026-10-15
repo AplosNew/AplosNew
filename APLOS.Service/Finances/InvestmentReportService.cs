@@ -65,14 +65,16 @@ namespace Library.Service.Finances
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Voucher No");
             reportUtility.SetText(ref sheet, row, 2, header["VoucherNo"].ToString());
             reportUtility.SetMasterHeaderText(ref sheet, row, 3, "Voucher Date");
-            reportUtility.SetText(ref sheet, row, 4, header["VoucherDate"].ToString());
+            reportUtility.SetText(ref sheet, row, 4, header["PostingDate"].ToString());
 
             sheet[reportUtility.GetColumnNameForXls(4) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
 
             row++;
 
-            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Posting Date");
-            reportUtility.SetText(ref sheet, row, 2, header["PostingDate"].ToString());
+            //reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Posting Date");
+            //reportUtility.SetText(ref sheet, row, 2, header["PostingDate"].ToString());
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Doc Ref");
+            reportUtility.SetText(ref sheet, row, 2, header["DocRefNo"].ToString());
             reportUtility.SetMasterHeaderText(ref sheet, row, 3, "DocDate");
             reportUtility.SetText(ref sheet, row, 4, header["DocDate"].ToString());
 
@@ -82,8 +84,7 @@ namespace Library.Service.Finances
 
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Status");
             reportUtility.SetText(ref sheet, row, 2, header["Status"].ToString());
-            reportUtility.SetMasterHeaderText(ref sheet, row, 3, "Doc Ref");
-            reportUtility.SetText(ref sheet, row, 4, header["DocRefNo"].ToString());
+            
 
             sheet[reportUtility.GetColumnNameForXls(4) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
 
