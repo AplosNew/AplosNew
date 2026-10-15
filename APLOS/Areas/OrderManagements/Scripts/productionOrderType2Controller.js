@@ -2336,8 +2336,18 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                     url: 'OrderManagements/ProductionOrder/GetSKUData'
                 }).then(function successCallback(response) {
 
+                    var usedIds = new Set();
+
                     for (var i = 0; i < response.data.length; i++) {
-                        response.data[i].ID = -(Math.floor(Math.random() * 100) + 1);
+                        var randomId;
+
+                        do {
+                            randomId = -(Math.floor(Math.random() * 1000000) + 1);
+                        } while (usedIds.has(randomId));
+
+                        usedIds.add(randomId);
+                        response.data[i].ID = randomId;
+
                         response.data[i].NoOfWorkStation = 1;
                         response.data[i].PlanPercentage = $scope.ModelNewSPO.PlanPercentage;
                         response.data[i].Efficiency = $scope.ModelNewSPO.NetUtilizationPercentage;
@@ -2444,8 +2454,8 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                             }
 
                         }
-
                     }
+
 
                     $scope.sku1sku2List = response.data;
                 });

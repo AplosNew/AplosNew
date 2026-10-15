@@ -2054,6 +2054,7 @@
     <Content Include="Areas\Productions\Scripts\EmployeeWiseProductionReportController.js" />
     <Content Include="Areas\Productions\Scripts\MarkerCheckController.js" />
     <Content Include="Areas\Productions\Scripts\MarkerApproveController.js" />
+    <Content Include="Areas\Productions\Scripts\DefineLotController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionCuttingBookingController.js" />
     <Content Include="Areas\Productions\Scripts\SalesPurchaseTransactionTypeController.js" />
     <Content Include="Areas\Productions\Scripts\MasterPlanDetailsController.js" />
@@ -5161,6 +5162,7 @@
     <Content Include="Areas\OrderManagements\Views\MasterOrder\SKUUpload.cshtml" />
     <Content Include="Areas\OrderManagements\Views\MasterOrder\SKURP.cshtml" />
     <Content Include="Areas\OrderManagements\Views\MasterOrder\ReasonMaster.cshtml" />
+    <Content Include="Areas\Productions\Views\Packing\LotDef.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

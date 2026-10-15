@@ -1241,7 +1241,7 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                             ) AS POQ ON POQ.ProductionOrderId = PO.Id
                             LEFT JOIN
                             (SELECT SUM(PS.Quantity) TotalProductionQty, PS.ProductionOrderId, PS.SubProductionOrderId
-                            FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId+ @"'  GROUP BY PS.ProductionOrderId, PS.SubProductionOrderId
+                            FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId+ @"'  AND PS.SubProductionOrderId=" + SPOId + @" AND PS.ProductionOrderId = '" + POId + @"' GROUP BY PS.ProductionOrderId, PS.SubProductionOrderId
                             ) AS PRS ON PRS.ProductionOrderId = PO.Id 
                             WHERE PO.Id = '" + POId + @"' AND PQ.ID="+ SPOId + "";
                 return _sqlRepository.GetDataCollection(sql, null);

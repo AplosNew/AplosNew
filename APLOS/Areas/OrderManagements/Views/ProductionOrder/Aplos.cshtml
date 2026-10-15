@@ -1557,7 +1557,34 @@
     </p>
 </ej-dialog>
 
-<div class="row">
+<div class="modal fade site-modal in" id="BullPoUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Bulletin<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row">
+                    <div id="GridBull" ej-grid e-datasource="bulletinList" e-gridlines="vertical" e-templaterefresh="refreshTemplateOperation"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowResizing="true" e-recorddoubleclick="GetBulletin" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="Bulletin ID" e-headertext-color="black" e-textalign="left" e-width="40"></div>
+                            <div e-column e-field="BulletinName" e-headertext="Bulletin Name" e-width="80"></div>
+                            <div e-column e-field="AlternativeName" e-headertext="AlternativeName" e-width="80"></div>
+                            <div e-column e-field="ProductMaster" e-headertext="Product Master" e-width="50"></div>
+                            <div e-column e-field="SizeGroup" e-headertext="SizeGroup" e-width="20"></div>
+                            <div e-column e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
+                            <div e-column e-field="BuyerItemRefNo" e-headertext="Customer RefNo" e-width="50"></div>
+                            <div e-column e-field="OwnStyleRefNo" e-headertext="Own Style RefNo" e-width="50"></div>
+                            <div e-column e-field="Process" e-headertext="Process" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*<div class="row">
     <div class="form-group">
         <ej-dialog id="BullPoUp" title="Bulletin" e-enablemodal="true" e-position-y="0" e-showoninit="false"
                    e-close="onDialogClose" e-minwidth="1000" e-minheight="80" e-open="enableBtn" e-target="#ProductionEntity">
@@ -1580,9 +1607,9 @@
             </div>
         </ej-dialog>
     </div>
-</div>
+</div>*@
 
-<div class="row">
+@*<div class="row">
     <div class="form-group">
         <ej-dialog id="ProdBullPoUp" title="ProductionBulletin" e-enablemodal="true" e-position-y="0" e-showoninit="false"
                    e-close="onDialogClose" e-minwidth="1000" e-minheight="80" e-open="enableBtn" e-target="#ProductionEntity">
@@ -1612,7 +1639,42 @@
             </div>
         </ej-dialog>
     </div>
+</div>*@
+
+<div class="modal fade site-modal in" id="ProdBullPoUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Production Bulletin<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row">
+                    <div id="GridProdBull" ej-grid e-datasource="bulletinList" e-gridlines="vertical" e-templaterefresh="refreshTemplateOperation"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-allowscrolling="true"
+                         e-allowResizing="true" e-recorddoubleclick="SetProdBulletin" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="ProductionOrderId" e-headertext="ProductionOrderNo" e-width="80"></div>
+                            <div e-column e-field="BuyerRefNo" e-headertext="Customer Ord#" e-width="80"></div>
+                            <div e-column e-field="OwnRefNo" e-headertext="Own Ord#" e-width="80"></div>
+                            <div e-column e-field="Description" e-headertext="Description" e-width="80" e-textalign="right"></div>
+                            <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
+                            <div e-column e-field="LSD" e-headertext="LSD" e-width="80"></div>
+                            <div e-column e-field="CommitmentDate" e-headertext="Commitment Date" e-width="80"></div>
+                            <div e-column e-field="ProductionStatus" e-headertext="Production Status" e-width="80"></div>
+                            <div e-column e-field="StyleNo" e-headertext="Customer Item#" e-width="80"></div>
+                            <div e-column e-field="OwnStyleNo" e-headertext="Own Item#" e-width="80"></div>
+                            <div e-column e-field="ProductCategory" e-headertext="Product Category" e-width="80"></div>
+                            <div e-column e-field="Product" e-headertext="Product" e-width="80"></div>
+                            <div e-column e-field="Customer" e-headertext="Customer" e-width="80"></div>
+                            <div e-column e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
+                            <div e-column e-field="PONumber" e-headertext="PO Number" e-width="80"></div>
+                            <div e-column e-field="RequiredTimeUnit" e-headertext="Required Time Unit" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
 
 <!--Bulletin-->
 <!-- #region PRBPoUp -->
@@ -2593,7 +2655,7 @@
     </div>
 </div>
 
-<ej-dialog id="confirmBulletinSavePopUp" title="Confirmation" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#ProductionEntity" e-close="onDialogClose" e-minwidth="240" e-minheight="165" e-open="enableBtn">
+@*<ej-dialog id="confirmBulletinSavePopUp" title="Confirmation" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#ProductionEntity" e-close="onDialogClose" e-minwidth="240" e-minheight="165" e-open="enableBtn">
     <p>
         {{message_BulletinSave}}
     </p>
@@ -2603,9 +2665,9 @@
             <li><button ng-click="ConfirmBulletinSavePopUpClose();" class="btn"> No</button></li>
         </ul>
     </p>
-</ej-dialog>
+</ej-dialog>*@
 
-<ej-dialog id="confirmProdBulletinSavePopUp" title="Confirmation" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#ProductionEntity" e-close="onDialogClose" e-minwidth="240" e-minheight="165" e-open="enableBtn">
+@*<ej-dialog id="confirmProdBulletinSavePopUp" title="Confirmation" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#ProductionEntity" e-close="onDialogClose" e-minwidth="240" e-minheight="165" e-open="enableBtn">
     <p>
         {{message_BulletinSave}}
     </p>
@@ -2615,7 +2677,7 @@
             <li><button ng-click="ConfirmprodBulletinSavePopUpClose();" class="btn"> No</button></li>
         </ul>
     </p>
-</ej-dialog>
+</ej-dialog>*@
 
 <div class="modal fade site-modal in" id="MaterialSummaryPoUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -2750,7 +2812,8 @@
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterPopUp.cshtml")
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
 
-@*<confirm-archive-generic modalid="confirmBulletinSavePopUp" title="Confirmation" message={{message_BulletinSave}} data-ng-click-right-button="SaveBulletin();"></confirm-archive-generic>*@
+<confirm-archive-generic modalid="confirmBulletinSavePopUp" title="Confirmation" message={{message_BulletinSave}} data-ng-click-right-button="SaveBulletin();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmProdBulletinSavePopUp" title="Confirmation" message={{message_BulletinSave}} data-ng-click-right-button="SaveProdBulletin();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmPBProcessPopUp" title="Confirmation" message={{message_PBconfirmation}} data-ng-click-right-button="DeleteProductionBulletin();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmBoMDetailPopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteFPWCDetail();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmDiffArticlePopUp" title="Confirmation" message={{message_DiffArticleconfirmation}} data-ng-click-right-button="ConDiffArticle();"></confirm-archive-generic>

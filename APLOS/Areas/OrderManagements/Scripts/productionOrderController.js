@@ -2823,7 +2823,8 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                             if (baseService.arrayLength(response.data) > 0) {
                                 $scope.bulletinList = response.data;
                             }
-                            $scope.openBullPop(name);
+                            //$scope.openBullPop(name);
+                            angular.element(document.querySelector('#BullPoUp')).modal('show');
                         },
                         function errorCallback(response) {
                             ShowResult(response, 'failure');
@@ -2835,7 +2836,8 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                             if (baseService.arrayLength(response.data) > 0) {
                                 $scope.bulletinList = response.data;
                             }
-                            $scope.openBullPop(name);
+                           // $scope.openBullPop(name);
+                            angular.element(document.querySelector('#ProdBullPoUp')).modal('show');
                         },
                         function errorCallback(response) {
                             ShowResult(response, 'failure');
@@ -2981,24 +2983,24 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     }
 
     $scope.message_BulletinSave = null;
-    //$scope.GetBulletin = function (obj) {
-    //    $scope.bulletinTemplate = obj.data;
-    //    $scope.bulletinTemplateNew = Object.assign({}, $scope.bulletinTemplate);
-    //    if (!baseService.isUndefinedOrNull($scope.bulletinTemplateNew.Id))
-    //        $scope.message_BulletinSave = 'This Bulletin [ ' + $scope.bulletinTemplateNew.BulletinName + ' ] will be copied and you can change it, Are you sure to save it?';
-    //    angular.element(document.querySelector('#confirmBulletinSavePopUp')).modal('show');
-    //}
-
     $scope.GetBulletin = function (obj) {
         $scope.bulletinTemplate = obj.data;
         $scope.bulletinTemplateNew = Object.assign({}, $scope.bulletinTemplate);
         if (!baseService.isUndefinedOrNull($scope.bulletinTemplateNew.Id))
             $scope.message_BulletinSave = 'This Bulletin [ ' + $scope.bulletinTemplateNew.BulletinName + ' ] will be copied and you can change it, Are you sure to save it?';
+        angular.element(document.querySelector('#confirmBulletinSavePopUp')).modal('show');
+    }
 
-        var eDialog = $("#confirmBulletinSavePopUp").data("ejDialog");
-        eDialog.open();
-        $("#dialogAPI_wrapper").css({ 'position': 'fixed' }).css({ 'top': '200px' });
-    };
+    //$scope.GetBulletin = function (obj) {
+    //    $scope.bulletinTemplate = obj.data;
+    //    $scope.bulletinTemplateNew = Object.assign({}, $scope.bulletinTemplate);
+    //    if (!baseService.isUndefinedOrNull($scope.bulletinTemplateNew.Id))
+    //        $scope.message_BulletinSave = 'This Bulletin [ ' + $scope.bulletinTemplateNew.BulletinName + ' ] will be copied and you can change it, Are you sure to save it?';
+
+    //    var eDialog = $("#confirmBulletinSavePopUp").data("ejDialog");
+    //    eDialog.open();
+    //    $("#dialogAPI_wrapper").css({ 'position': 'fixed' }).css({ 'top': '200px' });
+    //};
     $scope.ConfirmBulletinSavePopUpClose = function () {
         var eDialog = $("#confirmBulletinSavePopUp").data("ejDialog");
         eDialog.close();
@@ -3033,16 +3035,25 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         }
     };
 
+    $scope.message_BulletinSave = null;
     $scope.SetProdBulletin = function (obj) {
         $scope.ProductionBulletinTemplateId = obj.data.ProductionBulletinTemplateId;
 
         if (!baseService.isUndefinedOrNull($scope.ProductionBulletinTemplateId))
             $scope.message_BulletinSave = 'This data will be copied and you can change it, Are you sure to save it?';
+        angular.element(document.querySelector('#confirmProdBulletinSavePopUp')).modal('show');
+    }
 
-        var eDialog = $("#confirmProdBulletinSavePopUp").data("ejDialog");
-        eDialog.open();
-        $("#dialogAPI_wrapper").css({ 'position': 'fixed' }).css({ 'top': '200px' });
-    };
+    //$scope.SetProdBulletin = function (obj) {
+    //    $scope.ProductionBulletinTemplateId = obj.data.ProductionBulletinTemplateId;
+
+    //    if (!baseService.isUndefinedOrNull($scope.ProductionBulletinTemplateId))
+    //        $scope.message_BulletinSave = 'This data will be copied and you can change it, Are you sure to save it?';
+
+    //    var eDialog = $("#confirmProdBulletinSavePopUp").data("ejDialog");
+    //    eDialog.open();
+    //    $("#dialogAPI_wrapper").css({ 'position': 'fixed' }).css({ 'top': '200px' });
+    //};
     $scope.ConfirmprodBulletinSavePopUpClose = function () {
         var eDialog = $("#confirmProdBulletinSavePopUp").data("ejDialog");
         eDialog.close();
@@ -3874,7 +3885,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         }
         return false;
     }
-    $scope.calculatedBulletinModel = { Id: Math.floor(Math.random() * 9) - 10, TotalSPT: 0, TotalManpower: 0, TotalWorkStation: 0, MCtotalspt: 0, MCtotalMP: 0, NonMCtotalspt: 0, NonMCtotalMP: 0, PitchTime: 0, ProductionEfficiencyPerHour: 0, MaxAllottedTime: 0, ProductionEfficiencyPerDay: 0, OrganizationEfficiency: 0, LineTargetPerHour: 0 };
+    $scope.calculatedBulletinModel = { Id: Math.floor(Math.random() * 1000) - 10, TotalSPT: 0, TotalManpower: 0, TotalWorkStation: 0, MCtotalspt: 0, MCtotalMP: 0, NonMCtotalspt: 0, NonMCtotalMP: 0, PitchTime: 0, ProductionEfficiencyPerHour: 0, MaxAllottedTime: 0, ProductionEfficiencyPerDay: 0, OrganizationEfficiency: 0, LineTargetPerHour: 0 };
 
     $scope.setIsLastOperation = function (data) {
         for (var i = 0; i <= $scope.operationList.length - 1; i++) {

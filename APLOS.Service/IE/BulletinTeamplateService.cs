@@ -764,7 +764,41 @@ namespace Library.Service.IEnumerable
                            --AND OV.Id NOT IN (SELECT BTD.OperationVariationId FROM [MST].[BulletinTemplateDetail] BTD
 					       --LEFT JOIN [MST].[BulletinTemplateMaster] BTM ON BTM.Id=BTD.BulletinTemplateMasterId
 					       --Where BTM.BulletinTemplateId='" + bulletinTemplateId + @"') 
-                            ORDER BY OV.UserName";
+                             UNION 
+ SELECT CONVERT (bit,0) Active
+   	,OV.Id OperationVariationId
+   	,OV.Code OperationCode
+   	,OV.[Sequence]
+   	,A.Id MachineVarientId
+	,MM.UserName MaterialMaster
+   	,A.StandardName Article
+	,OV.OperationMasterId SkillMasterId
+   	,OM.UserName SkillName
+   	,OV.UserName OperationVariation
+   	,OV.SubOperationSAM
+   	,OV.AdditionalSAM
+   	,OV.SPI,ISNULL(OV.VASSAMSOURCE,'') VASSAMSOURCE
+   	,ISNULL(OV.VASFINALSAM,OV.TotalSAM) TtalSAM
+	,TotalSAM=CASE WHEN ISNULL(OV.VASSAMSOURCE,'')='' THEN OV.TotalSAM ELSE OV.VASFINALSAM END
+   	,OV.Frequency
+ ,OT.Id OperationTypeId
+ ,OV.AdditionalSAMSymbol
+ ,OV.OperationId
+ ,OCT.Id OperationCategoryId
+	,OCT.UserName OperationCategory
+ ,SC.Id StitchCodeId ,SC.UserName StitchCode,OperationLength=ISNULL(O.OperationLength,0)* 2.54,OV.AreaCode
+FROM [MST].[OperationVariation] OV
+LEFT JOIN [MST].[MaterialMasterArticle] A ON A.Id = OV.ArticleId
+--LEFT JOIN [HKP].[Skill] S ON S.Id = OV.SkillId
+LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=A.MaterialMasterId --AND MM.SkillId=S.Id
+LEFT JOIN [MST].[Operation] O ON O.Id = OV.OperationId
+LEFT JOIN [MST].[OperationMaster] OM ON OM.Id = OV.OperationMasterId
+LEFT JOIN [HKP].[OperationType] OT ON OT.Id = O.OperationTypeId
+LEFT JOIN [HKP].[OperationCategory] OCT ON OCT.Id = O.OperationCategoryId
+LEFT JOIN [HKP].[StitchCode] SC ON SC.Id = A.StitchCodeId
+INNER JOIN (Select * from [MST].[OperationProcess] WHERE ProcessId='" + processId + @"')OP ON OP.OperationId=OV.OperationId
+WHERE OV.CompanyGroupId = '" + companyGroupId + @"'
+ ORDER BY OV.UserName";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

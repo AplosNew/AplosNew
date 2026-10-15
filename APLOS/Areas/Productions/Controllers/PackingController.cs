@@ -52,6 +52,10 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return View();
         }
+        public ActionResult LotDef()
+        {
+            return View();
+        }
 
         [HttpPost, Authorize]
         public ActionResult GetList(string ToDate, string FromDate, string type, string group, string column, string value, string Loc)
@@ -1842,5 +1846,122 @@ namespace Aplos.Areas.Productions.Controllers
             reportUtility.PageSetup(ref sheet1, 6, ExcelPageOrientation.Landscape);
             return workbook;
         }
+
+        #region DefineLot
+
+        [HttpGet, Authorize]
+        public ActionResult GetSUBPOData(string poId, string spoId)
+        {
+            try
+            {
+                return Json(det.GetSUBPOData(poId,spoId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new { Error = true, Message = e.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetDefineLot()
+        {
+            try
+            {
+                var jsondata = Json(det.GetDefineLot(), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+            }
+            catch (Exception e)
+            {
+                return Json(new { Error = true, Message = e.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetScanData(string MaterialMovementMasterId)
+        {
+            try
+            {
+                var jsondata = Json(det.GetScanData(MaterialMovementMasterId), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+            }
+            catch (Exception e)
+            {
+                return Json(new { Error = true, Message = e.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult CreateLot(Dictionary<string, object> data,List<Dictionary<string, object>>list)
+        {
+            try
+            {
+                det.CreateLot(data,list);
+                return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        public ActionResult Delete(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from dbo.DefineLot where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+
+
+        [HttpGet, Authorize]
+        public JsonResult GetAutoSequence()
+        {
+            return Json(GetSequence(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetLotNumber()
+        {
+            double seq = GetSequence();
+            string shortYear = DateTime.Now.ToString("yy");
+            string twoDigitMonth = DateTime.Now.ToString("MM");
+            string LotNumber= shortYear.ToString()+"-"+twoDigitMonth.ToString() + "-" + seq.ToString();
+            return Json(LotNumber, JsonRequestBehavior.AllowGet);
+        }
+        private double GetSequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM dbo.DefineLot");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+            return 1;
+        }
+
+        #endregion
+
+
     }
 }

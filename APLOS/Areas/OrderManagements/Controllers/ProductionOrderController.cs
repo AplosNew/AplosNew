@@ -3781,23 +3781,27 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND  TEMP.Sales
         {
             try
             {
+                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ConnectionManager.DAL.ConManager objCon;
-                DataSet dsSO = null;
+                DataSet dsSO, dsWCDD = null;
                 string sql = "SELECT * FROM dbo.PacketRegistrationDetail where packetRegistrationMasterId=" + packetRegistrationMasterId + "";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsSO, false, "1");
 
-                string SystemID = "";
+                objCon.OpenDataSetThroughAdapter("select count(Id) countId from dbo.PacketRegistrationDetail where packetRegistrationMasterId=" + packetRegistrationMasterId + "", out dsWCDD, false, "1");
+                int wccount = Convert.ToInt32(dsWCDD.Tables[0].Rows[0]["countId"].ToString());
+
                 for (int i = 0; i < details.Count; i++)
                 {
                     dsSO.Tables[0].DefaultView.RowFilter = "SalesOrderId='" + details[i]["SalesOrderId"] + "'";
                     if (dsSO.Tables[0].DefaultView.Count == 0)
                     {
+                        wccount++;
 
                         DataRow dr = dsSO.Tables[0].NewRow();
 
-                        dr["Id"] = packetRegistrationMasterId + "-" + (i + 1).ToString();
+                        dr["Id"] = materialCommonService.MakePK(packetRegistrationMasterId, wccount, 2);
                         dr["PacketRegistrationMasterId"] = packetRegistrationMasterId;
                         dr["SalesOrderId"] = details[i]["SalesOrderId"];
 
@@ -3976,21 +3980,26 @@ ORDER BY P.SortOrder";
         {
             try
             {
+                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ConnectionManager.DAL.ConManager objCon;
-                DataSet dspackCat = null;
+                DataSet dspackCat, dsWCDD = null;
                 string sql = "SELECT * FROM [dbo].[PacketRegistration] where PacketRegistrationTypeId='" + masterId + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dspackCat, false, "1");
+
+                objCon.OpenDataSetThroughAdapter("select count(Id) countId from dbo.PacketRegistration where PacketRegistrationTypeId='" + masterId + "'", out dsWCDD, false, "1");
+                int wccount = Convert.ToInt32(dsWCDD.Tables[0].Rows[0]["countId"].ToString());
 
                 for (int i = 0; i < packregilist.Count; i++)
                 {
                     dspackCat.Tables[0].DefaultView.RowFilter = "Id='" + packregilist[i]["Id"] + "'";
                     if (dspackCat.Tables[0].DefaultView.Count == 0)
                     {
+                        wccount++;
                         DataRow dr = dspackCat.Tables[0].NewRow();
 
-                        dr["Id"] = masterId + "-" + (i + 1).ToString();
+                        dr["Id"] = materialCommonService.MakePK(masterId, wccount, 2);
                         dr["PacketRegistrationTypeId"] = masterId;
                         dr["SalesOrderId"] = packregilist[i]["SalesOrderId"];
                         dr["SKU1Id"] = packregilist[i]["SKU1Id"];
@@ -4826,6 +4835,159 @@ ORDER BY P.SortOrder";
             }
         }
 
+        [Authorize]
+        public ActionResult GenerateLotQRCode(Dictionary<string, object> data)
+        {
+            try
+            {
+                string LotId = Convert.ToString(data["LotId"]);
+
+                Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+                DataTable dt = order.GetDefineLotQRData(LotId);
+
+                if (dt == null || dt.Rows.Count == 0)
+                {
+                    return Json(new { Error = true, Message = "No lot data found." });
+                }
+
+                List<QRCodeItem> qrCodeItems = dt.AsEnumerable().Select(row => new QRCodeItem
+                {
+                    LotNumber = Convert.ToString(row["LotNumber"])
+                }).ToList();
+
+                byte[] pdfBytes = BuildLotQRCodePdf(qrCodeItems);
+
+                // -----------------------------------------
+                // Save to a temp folder on the server, same
+                // way your other download-generating actions do
+                // -----------------------------------------
+                string fileName = $"QRCode_{LotId}.pdf";
+                //save the file to server temp folder
+                string fullPath = Path.Combine(HostingEnvironment.MapPath("~/") + fileName);
+                System.IO.File.WriteAllBytes(fullPath, pdfBytes);
+
+                return Json(new
+                {
+                    Error = false,
+                    Message = "QR Code generated successfully.",
+                    FileName = fullPath   // matches response.data.FileName your JS already expects
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        private byte[] BuildLotQRCodePdf(List<QRCodeItem> qrCodeItems)
+        {
+
+            const float cellPadding = 4f;
+            const float qrSize = 95f;
+            const float textFontSize = 8f;
+            const float textLineHeight = textFontSize + 3f;
+            float pageWidth = cellPadding + qrSize + cellPadding;   // content-sized width
+
+            using (PdfDocument document = new PdfDocument())
+            {
+
+                PdfFont font = new PdfStandardFont(PdfFontFamily.Courier, textFontSize, PdfFontStyle.Bold);
+                PdfBrush brush = PdfBrushes.Black;
+
+                PdfStringFormat leftFormat = new PdfStringFormat
+                {
+                    Alignment = PdfTextAlignment.Left,
+                    LineAlignment = PdfVerticalAlignment.Top
+                };
+
+                float textAreaWidth = pageWidth - (cellPadding * 2);   // now == qrSize
+
+                for (int pairStart = 0; pairStart < qrCodeItems.Count; pairStart += 2)
+                {
+                    List<QRCodeItem> pair = qrCodeItems.Skip(pairStart).Take(2).ToList();
+
+                    List<List<string>> wrappedLinesPerItem = new List<List<string>>();
+                    List<float> blockHeights = new List<float>();
+
+                    foreach (QRCodeItem item in pair)
+                    {
+                        string[] rawLines =
+                        {
+                $"{item.LotNumber}",
+                $""
+            };
+
+                        List<string> wrappedLines = new List<string>();
+                        foreach (string raw in rawLines)
+                        {
+                            wrappedLines.AddRange(WrapTextToWidth(raw, font, textAreaWidth));
+                        }
+                        wrappedLinesPerItem.Add(wrappedLines);
+
+                        float blockHeight =
+                            cellPadding + qrSize + 3f + (textLineHeight * wrappedLines.Count) + cellPadding;
+
+                        blockHeights.Add(blockHeight);
+                    }
+
+                    float pageHeight = blockHeights.Sum();
+
+                    PdfSection section = document.Sections.Add();
+                    section.PageSettings.Size = new SizeF(pageWidth, pageHeight);
+                    section.PageSettings.Margins.All = 0;
+
+                    PdfPage page = section.Pages.Add();
+                    PdfGraphics g = page.Graphics;
+
+                    float cursorY = 0f;
+
+                    for (int p = 0; p < pair.Count; p++)
+                    {
+                        QRCodeItem item = pair[p];
+                        List<string> wrappedLines = wrappedLinesPerItem[p];
+
+                        string qrData = string.Concat(item.LotNumber);
+
+                        CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
+
+                        using (Image barcodeImg = qrCode.Draw(qrData, 200, 2))
+                        using (MemoryStream imgStream = new MemoryStream())
+                        {
+                            barcodeImg.Save(imgStream, ImageFormat.Png);
+                            imgStream.Position = 0;
+
+                            PdfBitmap pdfImage = new PdfBitmap(imgStream);
+
+                            float qrX = cellPadding;
+                            float qrY = cursorY + cellPadding;
+                            g.DrawImage(pdfImage, qrX, qrY, qrSize, qrSize);
+
+                            float textAreaX = cellPadding;
+                            float textY = qrY + qrSize + 3f;
+
+                            for (int li = 0; li < wrappedLines.Count; li++)
+                            {
+                                RectangleF textRect = new RectangleF(
+                                    textAreaX, textY + li * textLineHeight, textAreaWidth, textLineHeight);
+
+                                g.DrawString(wrappedLines[li], font, brush, textRect, leftFormat);
+                            }
+                        }
+
+                        cursorY += blockHeights[p];
+                    }
+                }
+
+                using (MemoryStream output = new MemoryStream())
+                {
+                    document.Save(output);
+                    return output.ToArray();
+                }
+            }
+
+
+        }
+
         private byte[] BuildQRCodePdf(List<QRCodeItem> qrCodeItems)
         {
             //const float pageWidth = 4f * 72f;    // 288pt (4in wide)
@@ -5353,6 +5515,8 @@ public class QRCodeItem
     public string Size { get; set; }
     public string NoOfPcs { get; set; }
     public string CartonNo { get; set; }
+    public string LotNumber { get; set; }
+
 }
 
 // =====================================================================
