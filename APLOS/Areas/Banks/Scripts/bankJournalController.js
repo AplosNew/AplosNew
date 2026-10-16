@@ -267,6 +267,7 @@ function bankJournalController(bankService, accountService, cboService, commonMe
         }
         else {
             $scope.invalidPostingDate = false;
+            $scope.currencyExchangeRate = null;
             $scope.GetCurrencyExchangeRateList();
         }
         return manualValidation("div_PostingDate", $scope.invalidPostingDate, msg);
