@@ -1785,11 +1785,11 @@ WHERE R.PurposeId IN (" + purposeId + ") AND ISM.WorkDate between '" + fromDate 
  ,OrderQty=S.Qty
  ,PlanQty=CASE WHEN ISNULL(D.Qty,0)=0 THEN PO.PlannedQty ELSE D.Qty END
  ,DL.LotQty,BalanceQty=(CASE WHEN ISNULL(D.Qty,0)=0 THEN PO.PlannedQty ELSE D.Qty END)-DL.LotQty
- ,AvailableQty=(CASE WHEN ISNULL(D.Qty,0)=0 THEN PO.PlannedQty ELSE D.Qty END)-DL.LotQty
+ ,AvailableQty=(CASE WHEN ISNULL(D.Qty,0)=0 THEN PO.PlannedQty ELSE D.Qty END)-DL.LotQty,D.SKU1Id,D.SKU2Id
 FROM dbo.ProductionOrderSchedulingParametersType2  D
 INNER JOIN TRN.ProductionOrder PO ON PO.Id=D.ProductionOrderID
 LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = D.SKU1Id
-LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = SKU2Id
+LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = D.SKU2Id
 LEFT JOIN (Select SUM(SC.Qty) Qty,SC.CharacteristicsValueId SKU1Id,D.ProductionOrderId From [TRN].[FirstCharacteristics] SC
 LEFT JOIN TRN.SalesOrder S ON S.Id=SC.SalesOrderId
 LEFT JOIN TRN.ProductionOrderDetail D ON D.SalesOrderId=S.Id
@@ -1817,11 +1817,11 @@ WHERE D.ProductionOrderId = '" + poId + "' AND D.ID=" + spoId + "";
  ,OrderQty=S.Qty
  ,PlanQty=CASE WHEN ISNULL(D.Qty,0)=0 THEN PO.PlannedQty ELSE D.Qty END
  ,DL.LotQty,BalanceQty=(CASE WHEN ISNULL(D.Qty,0)=0 THEN PO.PlannedQty ELSE D.Qty END)-DL.LotQty
- ,AvailableQty=(CASE WHEN ISNULL(D.Qty,0)=0 THEN PO.PlannedQty ELSE D.Qty END)-DL.LotQty
+ ,AvailableQty=(CASE WHEN ISNULL(D.Qty,0)=0 THEN PO.PlannedQty ELSE D.Qty END)-DL.LotQty,D.SKU1Id,D.SKU2Id
 FROM dbo.ProductionOrderSchedulingParametersType2  D
 INNER JOIN TRN.ProductionOrder PO ON PO.Id=D.ProductionOrderID
 LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = D.SKU1Id
-LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = SKU2Id
+LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = D.SKU2Id
 LEFT JOIN (Select SUM(SC.Qty) Qty,SC.CharacteristicsValueId SKU2Id,D.ProductionOrderId From TRN.[SecondCharacteristics] SC
 LEFT JOIN TRN.SalesOrder S ON S.Id=SC.SalesOrderId
 LEFT JOIN TRN.ProductionOrderDetail D ON D.SalesOrderId=S.Id
@@ -1849,11 +1849,11 @@ WHERE D.ProductionOrderId = '" + poId + "' AND D.ID=" + spoId + "";
  ,OrderQty=S.Qty
  ,PlanQty=CASE WHEN ISNULL(D.Qty,0)=0 THEN PO.PlannedQty ELSE D.Qty END
  ,DL.LotQty,BalanceQty=(CASE WHEN ISNULL(D.Qty,0)=0 THEN PO.PlannedQty ELSE D.Qty END)-DL.LotQty
- ,AvailableQty=(CASE WHEN ISNULL(D.Qty,0)=0 THEN PO.PlannedQty ELSE D.Qty END)-DL.LotQty
+ ,AvailableQty=(CASE WHEN ISNULL(D.Qty,0)=0 THEN PO.PlannedQty ELSE D.Qty END)-DL.LotQty,D.SKU1Id,D.SKU2Id
 FROM dbo.ProductionOrderSchedulingParametersType2  D
 INNER JOIN TRN.ProductionOrder PO ON PO.Id=D.ProductionOrderID
 LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = D.SKU1Id
-LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = SKU2Id
+LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = D.SKU2Id
 LEFT JOIN (Select SUM(SC.Qty) Qty,FC.CharacteristicsValueId SKU1Id,SC.CharacteristicsValueId SKU2Id,D.ProductionOrderId From TRN.[SecondCharacteristics] SC 
 LEFT JOIN [TRN].[FirstCharacteristics] FC ON FC.Id=SC.FirstCharacteristicsId
 LEFT JOIN TRN.SalesOrder S ON S.Id=SC.SalesOrderId
@@ -1872,19 +1872,51 @@ WHERE D.ProductionOrderId = '" + poId + "' AND D.ID=" + spoId + "";
             }
         }
 
-        public IEnumerable<object> GetScanData(string MaterialMovementMasterId)
+        public IEnumerable<object> GetScanData(string MaterialMovementMasterId, string SONo, string SKU1Id, string SKU2Id)
         {
             try
             {
-                var str = @"Select C.*,CG.NoOfPcs,Flag=CAST(0 as bit) from dbo.ItemScanChild C
-JOIN dbo.ItemScan S ON S.Id=C.MasterId
-join [dbo].[CartonGeneration] CG ON CG.Id=C.RefNo
-Where S.LocMasterId='" + MaterialMovementMasterId + "' AND LotNo IS NULL";
+                // Numeric inputs are parsed, so nothing unsafe can reach the SQL text
+                if (!long.TryParse(SONo, out long salesOrderId))
+                    throw new ArgumentException("Invalid Sales Order: " + SONo);
+                if (!long.TryParse(SKU1Id, out long colorId))
+                    throw new ArgumentException("Invalid Color (SKU1Id): " + SKU1Id);
+                if (!long.TryParse(SKU2Id, out long sizeId))
+                    throw new ArgumentException("Invalid Size (SKU2): " + SKU2Id);
+
+                // Escape single quotes for the text value
+                string movementId = (MaterialMovementMasterId ?? "").Replace("'", "''");
+
+                var str = $@"
+SELECT C.*, CG.NoOfPcs, Flag = CAST(0 AS BIT),
+    SKUColor = COALESCE(FCV_PR.UserName, FCV_PC.UserName),
+    SKUSize  = COALESCE(SCV_PR.UserName, SCV_PC.UserName)
+FROM dbo.ItemScanChild C
+INNER JOIN dbo.ItemScan S          ON S.Id  = C.MasterId
+INNER JOIN dbo.CartonGeneration CG ON CG.Id = C.RefNo
+
+LEFT JOIN dbo.PacketRegistration PR
+       ON PR.Id = CG.PacketRegistrationId
+      AND PR.SalesOrderId = {salesOrderId}
+LEFT JOIN HKP.CharacteristicsValue FCV_PR ON FCV_PR.Id = PR.SKU1Id
+LEFT JOIN HKP.CharacteristicsValue SCV_PR ON SCV_PR.Id = PR.SKU2Id
+
+LEFT JOIN dbo.PackingComboSKUDetail PCSKU
+       ON PCSKU.PackingComboReferenceId = CG.PackingComboReferenceId
+      AND PCSKU.SalesOrderId = {salesOrderId}
+LEFT JOIN HKP.CharacteristicsValue FCV_PC ON FCV_PC.Id = PCSKU.SKU1Id
+LEFT JOIN HKP.CharacteristicsValue SCV_PC ON SCV_PC.Id = PCSKU.SKU2Id
+
+WHERE S.LocMasterId = '{movementId}'
+  AND C.LotNo IS NULL
+  AND COALESCE(PR.SKU1Id, PCSKU.SKU1Id) = {colorId}
+  AND COALESCE(PR.SKU2Id, PCSKU.SKU2Id) = {sizeId};";
+
                 return _sqlRepository.GetDataCollection(str);
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                throw e;
+                throw;
             }
         }
 

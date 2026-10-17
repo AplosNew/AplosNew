@@ -16623,7 +16623,7 @@ Group By C.ProductionOrderId,C.SalesOrderId,I.EntityId,I.DateTime,I.ShiftId,G.Gr
                             bplib.clsGenID objGenID = new bplib.clsGenID();
                             objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionSummary", out string sID);
 
-                            DataRow drProductionSummary = dsProductionSummary.Tables[0].NewRow();                           
+                            DataRow drProductionSummary = dsProductionSummary.Tables[0].NewRow();
 
                             drProductionSummary["Id"] = "PS" + sID;
                             ProductionSummaryId = "PS" + sID;
@@ -16736,7 +16736,7 @@ WHERE
             }
             catch (Exception ex)
             {
-             //   Console.WriteLine("");
+                //   Console.WriteLine("");
                 throw ex;
             }
         }
@@ -17757,7 +17757,7 @@ WHERE ENC.Id IS NULL;
             DataTable dtCarryForward = null;
             DataSet dsEsicEnum = null;
             dsSaveSummary = null;
-            string empId=null;
+            string empId = null;
 
             try
             {
@@ -17765,7 +17765,7 @@ WHERE ENC.Id IS NULL;
                 bplib.clsGenID genid = new bplib.clsGenID();
                 var _count = 0;
 
-               
+
                 string CalendarYearId;
                 string lvtId;
                 decimal currentYearAllocation = 0;
@@ -17818,14 +17818,14 @@ WHERE ENC.Id IS NULL;
                         //Console.Write("\r GetESICEnum" + new string(' ', 30));
                         GetESICEnum(DateTime.Now.ToString("dd-MMM-yyyy"), plantId, out dsEsicEnum);
 
-                       // Console.Write("\r LoadEmpLeaveSummaryData" + new string(' ', 30));
+                        // Console.Write("\r LoadEmpLeaveSummaryData" + new string(' ', 30));
                         LoadEmpLeaveSummaryData(CompanyGroupId, plantId, calendarYear, out dsSaveSummary, out Dictionary<string, DataRow> dicSaveSummary);
                         DataRow drSaveSummary = null;
                         //for HR porj ends
                         //Console.Write("\r GetLeaveMasterId" + new string(' ', 30));
                         var leaveMasterIds = GetLeaveMasterId(dtLeaveInfo);
 
-                       // Console.Write("\r LeavePolicyDetail" + new string(' ', 30));
+                        // Console.Write("\r LeavePolicyDetail" + new string(' ', 30));
                         dtLeavePolicyDetail = LeavePolicyDetail(leaveMasterIds);
 
                         //Console.Write("\r LeaveAllocationInfo" + new string(' ', 30));
@@ -17869,7 +17869,7 @@ WHERE ENC.Id IS NULL;
                             #region variables
                             decimal _CalculatedWorkingDays = 0;
                             empId = dtLeaveInfo.Rows[i]["EmployeeId"].ToString();
-                            if (empId == "25254953")
+                            if (empId == "25255145")
                             {
 
                             }
@@ -18350,7 +18350,15 @@ WHERE ENC.Id IS NULL;
                                 {
                                     drSaveSummary = dicSaveSummary[EmployeeLeaveKey];
                                     drSaveSummary.BeginEdit();
+                                    if (string.IsNullOrEmpty(LeaveFromDate))
+                                    {
+                                        DateTime firstDate = new DateTime(DateTime.Now.Year, 1, 1);
+                                        DateTime lastDate = new DateTime(DateTime.Now.Year, 12, 31);
 
+                                        LeaveFromDate = firstDate.ToString("dd-MMM-yyyy");
+                                        LeaveToDate = lastDate.ToString("dd-MMM-yyyy");
+
+                                    }
                                     drSaveSummary["FromDate"] = LeaveFromDate;
                                     drSaveSummary["ToDate"] = LeaveToDate;
 
