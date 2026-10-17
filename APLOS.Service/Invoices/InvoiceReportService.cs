@@ -516,12 +516,14 @@ namespace Library.Service.Invoices
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Voucher No");
             reportUtility.SetText(ref sheet, row, 2, header["VoucherNo"].ToString());
             reportUtility.SetMasterHeaderText(ref sheet, row,4, "Voucher Date");
-            reportUtility.SetText(ref sheet, row, 5, header["VoucherDate"].ToString());
+            reportUtility.SetText(ref sheet, row, 5, header["PostingDate"].ToString());
             sheet[row, 4].ColumnWidth = 15;
             sheet[row, 5].ColumnWidth = 15;
             row++;
-            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Posting Date");
-            reportUtility.SetText(ref sheet, row, 2, header["PostingDate"].ToString());
+            //reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Posting Date");
+            //reportUtility.SetText(ref sheet, row, 2, header["PostingDate"].ToString());
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Entity");
+            reportUtility.SetText(ref sheet, row, 2, header["EntityName"].ToString());
             reportUtility.SetMasterHeaderText(ref sheet, row, 4, "DocDate");
             reportUtility.SetText(ref sheet, row, 5, header["DocDate"].ToString());
             //sheet[row, 5].ColumnWidth = 15;
@@ -542,9 +544,7 @@ namespace Library.Service.Invoices
             reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");
             reportUtility.SetText(ref sheet, row, 5, header["Status"].ToString());
             //sheet[row, 5].ColumnWidth = 15;
-            row++;
-            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Entity");
-            reportUtility.SetText(ref sheet, row, 5, header["EntityName"].ToString());
+            
             row++;
             colLast = companyCurrencyId == transcationCurrency ? 5 : 7;
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Narration");
@@ -1379,23 +1379,24 @@ namespace Library.Service.Invoices
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Voucher No");
             reportUtility.SetText(ref sheet, row, 2, header["VoucherNo"].ToString());
             reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Voucher Date");
-            reportUtility.SetText(ref sheet, row, 5, header["VoucherDate"].ToString());
+            reportUtility.SetText(ref sheet, row, 5, header["PostingDate"].ToString());
             row++;
 
-            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Posting Date");
-            reportUtility.SetText(ref sheet, row, 2, header["PostingDate"].ToString());
+            //reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Posting Date");
+            //reportUtility.SetText(ref sheet, row, 2, header["PostingDate"].ToString());
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Vendor");
+            reportUtility.SetText(ref sheet, row, 2, header["Vendor"].ToString());
             reportUtility.SetMasterHeaderText(ref sheet, row, 4, "DocDate");
             reportUtility.SetText(ref sheet, row, 5, header["DocDate"].ToString());
             row++;
 
-            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Vendor");
-            reportUtility.SetText(ref sheet, row, 2, header["Vendor"].ToString());
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Vendor Plant");
+            reportUtility.SetText(ref sheet, row, 2, header["VendorPlant"].ToString());
             reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Doc Ref");
             reportUtility.SetText(ref sheet, row, 5, header["DocRefNo"].ToString());
             row++;
 
-            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Vendor Plant");
-            reportUtility.SetText(ref sheet, row, 2, header["VendorPlant"].ToString());
+            
             reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");
             reportUtility.SetText(ref sheet, row, 5, header["Status"].ToString());
 

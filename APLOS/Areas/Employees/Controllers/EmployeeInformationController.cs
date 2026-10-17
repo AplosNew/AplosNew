@@ -3538,11 +3538,11 @@ LEFT JOIN ShiftDefination SD ON SD.SystemId=DT.ShiftId
 LEFT JOIN [SCS].[WorkCenterMaster] wcm ON wcm.Id=DT.WorkCenterMasterId
 LEFT JOIN TRN.ProductionOrder PO ON PO.Id=DT.ProductionOrderId
 LEFT JOIN(
-    SELECT ProductionOrderId,WorkCenterMasterId,ProcessId,ProductionShiftId,SUM(Quantity) Quantity 
-    FROM TRN.ProductionSummary GROUP BY ProductionOrderId,WorkCenterMasterId,ProcessId,ProductionShiftId
+    SELECT ProductionOrderId,WorkCenterMasterId,ProcessId,ProductionShiftId,ProductionDate,SUM(Quantity) Quantity 
+    FROM TRN.ProductionSummary GROUP BY ProductionOrderId,WorkCenterMasterId,ProcessId,ProductionShiftId,ProductionDate
 ) PS ON PS.ProductionOrderId=PO.Id 
      AND PS.WorkCenterMasterId=DT.WorkCenterMasterId 
-     AND ps.ProcessId=DT.ProcessId
+     AND ps.ProcessId=DT.ProcessId  AND DT.TargetDate=PS.ProductionDate
      AND DT.ShiftId=PS.ProductionShiftId
 LEFT JOIN trn.ProductionBulletinTemplate pb ON DT.ProductionOrderId = pb.ProductionOrderId
 LEFT JOIN trn.ProductionBulletinTemplateMaster pbm ON pbm.ProductionBulletinTemplateId = pb.Id
@@ -3582,9 +3582,9 @@ ORDER BY ISNULL(SUM(PS.Quantity*DT.SPT) / NULLIF(SUM(ISNULL(PBC.NonMCtotalMP*(DT
     LEFT JOIN ShiftDefination  SD ON SD.SystemId=DT.ShiftId
     LEFT JOIN [SCS].[WorkCenterMaster] wcm on wcm.Id=DT.WorkCenterMasterId
     LEFT JOIN TRN.ProductionOrder PO ON PO.Id=DT.ProductionOrderId
-    LEFT JOIN(select ProductionOrderId,WorkCenterMasterId,ProcessId,ProductionShiftId,SUM(Quantity) Quantity 
-        from TRN.ProductionSummary group by ProductionOrderId,WorkCenterMasterId,ProcessId,ProductionShiftId) PS ON PS.ProductionOrderId=PO.Id 
-            and PS.WorkCenterMasterId=DT.WorkCenterMasterId and ps.ProcessId=DT.ProcessId
+    LEFT JOIN(select ProductionOrderId,WorkCenterMasterId,ProcessId,ProductionShiftId,ProductionDate,SUM(Quantity) Quantity 
+        from TRN.ProductionSummary group by ProductionOrderId,WorkCenterMasterId,ProcessId,ProductionShiftId,ProductionDate) PS ON PS.ProductionOrderId=PO.Id 
+            and PS.WorkCenterMasterId=DT.WorkCenterMasterId and ps.ProcessId=DT.ProcessId AND DT.TargetDate=PS.ProductionDate
             and DT.ShiftId=PS.ProductionShiftId
     LEFT JOIN trn.ProductionBulletinTemplate pb on DT.ProductionOrderId = pb.ProductionOrderId
     LEFT JOIN trn.ProductionBulletinTemplateMaster pbm on pbm.ProductionBulletinTemplateId = pb.Id
