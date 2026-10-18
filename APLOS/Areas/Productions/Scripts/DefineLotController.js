@@ -237,48 +237,13 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
 
     $scope.cartonDetail = [];
     $scope.inactiveCartons = [];
-    $scope.GetScanData = function () {
+    $scope.GetScanData = function (data) {
         try {
-            //if (parseFloat(e.data.quant) <= 0) {
-            //    throw "Please First Enter the Plan Qty";
-            //}
-            //if ($scope.cartonDetail.length > 0) {
-            //    if ($scope.cartonDetail[0]["LotNo"] === e.data.LotNo) {
-            //        $scope.cartonDetal = $scope.cartonDetail;
-            //        $scope.inactiveCartons = $scope.inactiveCartons;
-            //        angular.element(document.querySelector('#cartonDetailModal')).modal('show');
-            //    }
-            //    else {
-            //        $http({
-            //            method: 'GET',
-            //            url: "Productions/Packing/GetScanData?MaterialMovementMasterId=" + $scope.modalNew.MaterialMovementMasterId,
-            //            dataType: 'JSON'
-            //        }).then(function successCallback(response) {
-            //            $scope.cartonDetail = response.data.Data;
-
-            //            $scope.inactiveCartons = response.data.Inactive;
-            //            fillCartons();
-            //            angular.element(document.querySelector('#cartonDetailModal')).modal('show');
-            //        });
-
-            //    }
-            //}
-            //else {
-            //    $http({
-            //        method: 'GET',
-            //        url: $scope.path + "getCartonsDetails",
-            //        params: { 'LotNo': e.data.LotNo, 'ProductCode': e.data.ProductCode, 'PO': e.data.PO },
-            //        dataType: 'JSON'
-            //    }).then(function successCallback(response) {
-            //        $scope.cartonDetail = response.data.Data;
-            //        $scope.inactiveCartons = response.data.Inactive;
-            //        angular.element(document.querySelector('#cartonDetailModal')).modal('show');
-            //    });
-            //}
+            
 
             $http({
                 method: 'GET',
-                url: "Productions/Packing/GetScanData?MaterialMovementMasterId=" + $scope.modalNew.MaterialMovementMasterId,
+                url: "Productions/Packing/GetScanData?MaterialMovementMasterId=" + $scope.modalNew.MaterialMovementMasterId + "&SONo=" + data.data.SONo + "&SKU1Id=" + data.data.SKU1Id + "&SKU2Id=" + data.data.SKU2Id,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.cartonDetail = response.data;

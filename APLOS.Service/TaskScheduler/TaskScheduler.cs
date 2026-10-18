@@ -1864,7 +1864,7 @@ LEFT JOIN trn.SalesOrder AS so ON so.Id=pod.SalesOrderId
         }
         #region MasterOrderTaskTemplates
 
-        public void CopyTaskTemplate(string MasterOrderId)
+        public void _CopyTaskTemplate(string MasterOrderId)
         {
 
             DataTable dt = _sqlRepository.GetDataTable("SELECT * FROM trn.MasterOrder AS mo WHERE mo.Id='" + MasterOrderId + "'");
@@ -1881,7 +1881,7 @@ LEFT JOIN trn.SalesOrder AS so ON so.Id=pod.SalesOrderId
 
         }
 
-        public void CopyTask(string MasterOrderId, string TemplateMasterId)
+        public void _CopyTask(string MasterOrderId, string TemplateMasterId)
         {
             //copy with subtasks
             try
@@ -2072,10 +2072,321 @@ LEFT JOIN trn.SalesOrder AS so ON so.Id=pod.SalesOrderId
         }
 
 
-        #endregion MasterOrderTaskTemplates
+// ---------------------------------------------------------------------------
+// Incremental sync of task templates -> master order tasks.
+// Safe to call repeatedly: only template tasks that have not yet been copied
+// for this order (matched through MasterOrderTaskTemplate.RefTaskTemplateId)
+// are inserted. Existing rows are never overwritten.
+// ---------------------------------------------------------------------------
 
 
-        public void UpdateTaskStatus()
+
+    private static string Esc(string s)
+    {
+        return (s ?? "").Replace("'", "''");
+    }
+
+    public void CopyTaskTemplate(string MasterOrderId)
+    {
+        DataTable dt = _sqlRepository.GetDataTable(
+            "SELECT TaskTemplateMasterId FROM trn.MasterOrder WHERE Id='" + Esc(MasterOrderId) + "'");
+        if (dt.Rows.Count == 0)
+            return;
+
+        string templateMasterId = Convert.ToString(dt.Rows[0]["TaskTemplateMasterId"]);
+        if (string.IsNullOrEmpty(templateMasterId))
+            return;
+
+        // No more "Rows.Count == 0" guard: CopyTask only adds what is missing.
+        CopyTask(MasterOrderId, templateMasterId);
+    }
+
+    public void CopyTask(string MasterOrderId, string TemplateMasterId)
+    {
+        string orderId = Esc(MasterOrderId);
+        string tmplId = Esc(TemplateMasterId);
+
+        try
+        {
+            DataSet dsTaskSource, dsTaskDependencySource, dsSubTaskSource,
+                    dsTaskDestination, dsTaskDependencyDestination, dsSubTaskDestination;
+            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+            // -------------------------------------------------------------------
+            // 1. Load only template tasks NOT yet copied for this order
+            // -------------------------------------------------------------------
+            string newTasksFilter = @"
+            FROM TaskTemplate t
+            WHERE t.TaskTemplateMasterId='" + tmplId + @"'
+              AND NOT EXISTS (SELECT 1 FROM MasterOrderTaskTemplate m
+                              WHERE m.MasterOrderId='" + orderId + @"'
+                                AND m.RefTaskTemplateId = t.Id)";
+
+            con.OpenDataSetThroughAdapter("SELECT t.* " + newTasksFilter + " ORDER BY t.Id",
+                out dsTaskSource, false, "1");
+
+            if (dsTaskSource.Tables[0].Rows.Count == 0)
+                return; // nothing new, nothing to do
+
+            // Subtasks of the NEW tasks only
+            con.OpenDataSetThroughAdapter(
+                "SELECT * FROM TaskTemplateSubTasks WHERE TaskTemplateId IN (SELECT t.Id " + newTasksFilter + ")",
+                out dsSubTaskSource, false, "1");
+
+            // All dependencies of this template (needed because a new task may link to an old one)
+            con.OpenDataSetThroughAdapter(
+                @"SELECT * FROM TaskTemplateDependency
+              WHERE TaskTemplateId IN (SELECT Id FROM TaskTemplate WHERE TaskTemplateMasterId='" + tmplId + @"')
+                 OR PreTaskTemplateId IN (SELECT Id FROM TaskTemplate WHERE TaskTemplateMasterId='" + tmplId + @"')",
+                out dsTaskDependencySource, false, "1");
+
+            // Empty destination shells (schema only)
+            con.OpenDataSetThroughAdapter("select * from MasterOrderTaskTemplate where 1=2", out dsTaskDestination, false, "1");
+            con.OpenDataSetThroughAdapter("select * from MasterOrderTaskTemplateDependency where 1=2", out dsTaskDependencyDestination, false, "1");
+            con.OpenDataSetThroughAdapter("select * from MasterOrderTaskTemplateSubTasks where 1=2", out dsSubTaskDestination, false, "1");
+
+            // -------------------------------------------------------------------
+            // 2. Existing state of this order: template task Id -> order task Id
+            // -------------------------------------------------------------------
+            Dictionary<string, string> map = new Dictionary<string, string>(); // RefTaskTemplateId -> MasterOrderTaskTemplate.Id
+            DataTable dtExisting = _sqlRepository.GetDataTable(
+                "SELECT Id, RefTaskTemplateId FROM MasterOrderTaskTemplate WHERE MasterOrderId='" + orderId + "'");
+            foreach (DataRow r in dtExisting.Rows)
+                map[r["RefTaskTemplateId"].ToString()] = r["Id"].ToString();
+
+            // Existing dependencies of this order (for duplicate check + predecessor rebuild)
+            List<DepInfo> allDeps = new List<DepInfo>();
+            HashSet<string> depKeys = new HashSet<string>();
+            DataTable dtExistingDeps = _sqlRepository.GetDataTable(
+                @"SELECT PreTaskTemplateId, TaskTemplateId, Criteria, LagDays
+              FROM MasterOrderTaskTemplateDependency
+              WHERE TaskTemplateId IN (SELECT Id FROM MasterOrderTaskTemplate WHERE MasterOrderId='" + orderId + "')");
+            foreach (DataRow r in dtExistingDeps.Rows)
+            {
+                string pre = r["PreTaskTemplateId"].ToString();
+                string cur = r["TaskTemplateId"].ToString();
+                depKeys.Add(pre + "|" + cur);
+                allDeps.Add(new DepInfo
+                {
+                    PreTaskId = pre,
+                    TaskId = cur,
+                    Criteria = r["Criteria"].ToString(),
+                    LagDays = clsStaticInfo.dbl(r["LagDays"].ToString())
+                });
+            }
+
+            // -------------------------------------------------------------------
+            // 3. Copy the new tasks (+ their subtasks)
+            // -------------------------------------------------------------------
+            #region Master
+            string _TaskMId = "";
+            bplib.clsGenID genid = new bplib.clsGenID();
+            genid.GenIDYearly(DateTime.Now.ToShortDateString(), "Task Template Task Creation", out _TaskMId);
+            _TaskMId = _TaskMId.Replace("-", "");
+
+            HashSet<string> newRefIds = new HashSet<string>(); // template ids of the tasks being added now
+            DataTable src = dsTaskSource.Tables[0];
+            DataRow dr = null;
+
+            for (int i = 0; i < src.Rows.Count; i++)
+            {
+                string refId = src.Rows[i]["Id"].ToString();
+                string currentId = _TaskMId + (i + 1).ToString();
+
+                newRefIds.Add(refId);
+                map[refId] = currentId;
+
+                dr = dsTaskDestination.Tables[0].NewRow();
+                dr["Id"] = currentId;
+                dr["RefTaskTemplateId"] = refId;
+                dr["TaskDescription"] = src.Rows[i]["TaskDescription"].ToString();
+                dr["MasterOrderId"] = MasterOrderId;
+                dr["TaskMasterId"] = src.Rows[i]["TaskMasterId"].ToString();
+
+                dr["Active"] = bplib.clsWebLib.GetBoolData(src.Rows[i]["Active"].ToString());
+                dr["Remarks"] = src.Rows[i]["Remarks"].ToString();
+                dr["Sequence"] = clsStaticInfo.dbl(src.Rows[i]["Sequence"].ToString());
+                dr["IsFirstTask"] = bplib.clsWebLib.GetBoolData(src.Rows[i]["IsFirstTask"].ToString());
+                dr["IsLastTask"] = bplib.clsWebLib.GetBoolData(src.Rows[i]["IsLastTask"].ToString());
+
+                dr["ForNewOrder"] = bplib.clsWebLib.GetBoolData(src.Rows[i]["ForNewOrder"].ToString());
+                dr["IsMandatory"] = bplib.clsWebLib.GetBoolData(src.Rows[i]["IsMandatory"].ToString());
+                dr["TaskType"] = src.Rows[i]["TaskType"].ToString();
+                dr["IsTaskMilestone"] = bplib.clsWebLib.GetBoolData(src.Rows[i]["IsTaskMilestone"].ToString());
+                dr["TaskDependentDatesId"] = src.Rows[i]["TaskDependentDatesId"].ToString();
+                dr["TaskAppliedOnId"] = src.Rows[i]["TaskAppliedOnId"].ToString();
+                dr["WillSendEmail"] = bplib.clsWebLib.GetBoolData(src.Rows[i]["WillSendEmail"].ToString());
+                dr["WillSendSMS"] = bplib.clsWebLib.GetBoolData(src.Rows[i]["WillSendSMS"].ToString());
+                dr["ResponsiblePersonCategory"] = src.Rows[i]["ResponsiblePersonCategory"].ToString();
+                dr["predecessor"] = src.Rows[i]["predecessor"].ToString(); // rebuilt below
+                dr["EmployeeId"] = bplib.clsWebLib.RetValidLen(src.Rows[i]["EmployeeId"].ToString());
+
+                dr["LagDays"] = clsStaticInfo.dbl(src.Rows[i]["LagDays"].ToString());
+                dr["Duration"] = clsStaticInfo.dbl(src.Rows[i]["Duration"].ToString());
+                dr["startDate"] = src.Rows[i]["startDate"].ToString();
+                dr["endDate"] = src.Rows[i]["startDate"].ToString(); // NOTE: same as original; confirm this is intended
+
+                dr["AddedBy"] = "Scheduler";
+                dr["AddedDate"] = DateTime.Now.ToString();
+                dr["AddedFromIP"] = "";
+                dr["UpdatedBy"] = "Scheduler";
+                dr["UpdatedDate"] = DateTime.Now.ToString();
+                dr["UpdatedFromIP"] = "";
+
+                dsTaskDestination.Tables[0].Rows.Add(dr);
+
+                #region subtasks
+                DataView dvSub = dsSubTaskSource.Tables[0].DefaultView;
+                dvSub.RowFilter = "TaskTemplateId='" + refId.Replace("'", "''") + "'";
+                for (int j = 0; j < dvSub.Count; j++)
+                {
+                    dr = dsSubTaskDestination.Tables[0].NewRow();
+                    dr["MasterOrderTaskTemplateId"] = currentId;
+                    dr["SubTaskDescription"] = dvSub[j]["SubTaskDescription"].ToString();
+
+                    dr["AddedBy"] = "Scheduler";
+                    dr["AddedDate"] = DateTime.Now.ToString();
+                    dr["AddedFromIP"] = "";
+                    dr["UpdatedBy"] = "Scheduler";
+                    dr["UpdatedDate"] = DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = "";
+
+                    dsSubTaskDestination.Tables[0].Rows.Add(dr);
+                }
+                dvSub.RowFilter = null;
+                #endregion subtasks
+            }
+            #endregion Master
+
+            // -------------------------------------------------------------------
+            // 4. Dependencies: only those touching at least one NEW task,
+            //    and only if not already present
+            // -------------------------------------------------------------------
+            #region Task Dependencies
+            HashSet<string> affectedExistingTasks = new HashSet<string>(); // old tasks that gained a predecessor
+
+            foreach (DataRow s in dsTaskDependencySource.Tables[0].Rows)
+            {
+                string preRef = s["PreTaskTemplateId"].ToString();
+                string curRef = s["TaskTemplateId"].ToString();
+
+                // both ends already copied earlier -> already handled in a previous run
+                if (!newRefIds.Contains(preRef) && !newRefIds.Contains(curRef))
+                    continue;
+
+                string newPre, newCur;
+                if (!map.TryGetValue(preRef, out newPre) || !map.TryGetValue(curRef, out newCur))
+                    continue; // one end is not part of this order
+
+                if (!depKeys.Add(newPre + "|" + newCur))
+                    continue; // already exists
+
+                dr = dsTaskDependencyDestination.Tables[0].NewRow();
+                dr["PreTaskTemplateId"] = newPre;
+                dr["TaskTemplateId"] = newCur;
+                dr["Criteria"] = s["Criteria"].ToString();
+                dr["LagDays"] = s["LagDays"].ToString();
+
+                dr["AddedBy"] = "Scheduler";
+                dr["AddedDate"] = DateTime.Now.ToString();
+                dr["AddedFromIP"] = "";
+                dr["UpdatedBy"] = "Scheduler";
+                dr["UpdatedDate"] = DateTime.Now.ToString();
+                dr["UpdatedFromIP"] = "";
+
+                dsTaskDependencyDestination.Tables[0].Rows.Add(dr);
+
+                allDeps.Add(new DepInfo
+                {
+                    PreTaskId = newPre,
+                    TaskId = newCur,
+                    Criteria = s["Criteria"].ToString(),
+                    LagDays = clsStaticInfo.dbl(s["LagDays"].ToString())
+                });
+
+                // dependent task already existed -> its predecessor text must be refreshed
+                if (!newRefIds.Contains(curRef))
+                    affectedExistingTasks.Add(newCur);
+            }
+
+            // Predecessor string for the new tasks
+            for (int i = 0; i < dsTaskDestination.Tables[0].Rows.Count; i++)
+            {
+                DataRow row = dsTaskDestination.Tables[0].Rows[i];
+                row.BeginEdit();
+                row["predecessor"] = BuildPredecessor(allDeps, row["Id"].ToString());
+                row.EndEdit();
+            }
+            #endregion Task Dependencies
+
+            // -------------------------------------------------------------------
+            // 5. Save new rows
+            // -------------------------------------------------------------------
+            dsTaskDestination.Tables[0].DefaultView.RowFilter = null;
+            dsTaskDependencyDestination.Tables[0].DefaultView.RowFilter = null;
+            dsSubTaskDestination.Tables[0].DefaultView.RowFilter = null;
+
+            clsStaticInfo _info = new clsStaticInfo();
+            _info.SaveDataSets(dsTaskDestination, dsTaskDependencyDestination, dsSubTaskDestination);
+
+            // Refresh predecessor text on OLD tasks that gained a new predecessor
+            foreach (string taskId in affectedExistingTasks)
+            {
+                string pred = BuildPredecessor(allDeps, taskId);
+                _sqlRepository.ExecuteSqlCommand(  // <-- adapt to whatever your repository exposes for UPDATE
+                    "UPDATE MasterOrderTaskTemplate SET predecessor='" + Esc(pred) + "', UpdatedBy='Scheduler', UpdatedDate=GETDATE() " +
+                    "WHERE Id='" + Esc(taskId) + "'");
+            }
+
+            UpdateTaskStatus();
+
+            // -------------------------------------------------------------------
+            // 6. TNA for the master order
+            // -------------------------------------------------------------------
+            string sql = @"SELECT MO.* FROM trn.MasterOrder AS mo WHERE mo.Id='" + orderId +
+                         "' AND ISNULL(mo.TaskTemplateMasterId,'')='" + tmplId + "'";
+
+            DataTable dtMasterReferenceData = _sqlRepository.GetDataTable(sql);
+            for (int i = 0; i < dtMasterReferenceData.Rows.Count; i++)
+            {
+                try
+                {
+                    string moId = dtMasterReferenceData.Rows[i]["Id"].ToString();
+                    DataTable dtTna = GetDataSourceMasterOrderNew(moId, TaskAppliedOnEnum.MasterOrder);
+                    if (dtTna.Rows.Count > 0)
+                        MakeTNAMaster(dtTna, moId, TaskAppliedOnEnum.MasterOrder);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Trace.TraceError("CopyTask TNA failed for order " + MasterOrderId + ": " + ex);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Trace.TraceError("CopyTask failed for order " + MasterOrderId + ": " + ex);
+            throw; // don't hide failures; remove if your scheduler must never see exceptions
+        }
+    }
+
+    // Builds "PreId" + Criteria [+/- lag] joined by ",", for one dependent task
+    private static string BuildPredecessor(List<DepInfo> deps, string taskId)
+    {
+        List<string> parts = new List<string>();
+        foreach (DepInfo d in deps.Where(x => x.TaskId == taskId))
+        {
+            string s = d.PreTaskId + d.Criteria;
+            if (d.LagDays > 0) s += "+" + Math.Abs(d.LagDays);
+            if (d.LagDays < 0) s += "-" + Math.Abs(d.LagDays);
+            parts.Add(s);
+        }
+        return string.Join(",", parts);
+    }
+
+    #endregion MasterOrderTaskTemplates
+
+
+    public void UpdateTaskStatus()
         {
             try
 
@@ -3264,5 +3575,13 @@ LEFT JOIN trn.SalesOrder AS so ON so.Id=pod.SalesOrderId
 
         }
         public static bool isLogOut = false;
+    }
+
+    public class DepInfo
+    {
+        public string TaskId;      // MasterOrderTaskTemplate.Id of the dependent task
+        public string PreTaskId;   // MasterOrderTaskTemplate.Id of the predecessor
+        public string Criteria;
+        public double LagDays;
     }
 }

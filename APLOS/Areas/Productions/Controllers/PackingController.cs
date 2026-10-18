@@ -371,7 +371,7 @@ namespace Aplos.Areas.Productions.Controllers
             string Article = "";
 
             #region Grid Headers
-            sheet.Range[ROW, COL + 3].Text = "Invoice No:" + " " +  data.Rows[0]["InvoiceNo"].ToString();
+            sheet.Range[ROW, COL + 3].Text = "Invoice No:" + " " + data.Rows[0]["InvoiceNo"].ToString();
             sheet.Range[ROW, COL, ROW, COL + 3].Merge();
             sheet.Range[ROW, COL, ROW, COL + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet.Range[ROW, COL, ROW, COL + 3].BorderAround(ExcelLineStyle.Thin);
@@ -389,7 +389,8 @@ namespace Aplos.Areas.Productions.Controllers
             /*sheet.Range[ROW, COL + 2].Text = data.Rows[0]["InvoiceDate"].ToString();
             sheet.Range[ROW, COL + 2, ROW, COL + 6].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet.Range[ROW, COL + 2, ROW, COL + 6].Merge();
-            sheet.Range[ROW, COL + 2, ROW, COL + 6].BorderAround(ExcelLineStyle.Thin)*/;
+            sheet.Range[ROW, COL + 2, ROW, COL + 6].BorderAround(ExcelLineStyle.Thin)*/
+            ;
             ROW++;
 
             sheet.Range[ROW, COL + 3].Text = "Name of Consignee:" + " " + data.Rows[0]["ConsigneeBilltoName"].ToString();
@@ -404,7 +405,7 @@ namespace Aplos.Areas.Productions.Controllers
             ROW++;
 
             int ArtRow = ROW;
-            
+
             ROW = 10;
             report.SetHeaderText(ref sheet, ROW, COL, "S.No", 5, ExcelHAlign.HAlignCenter);
             int SNo = COL;
@@ -591,7 +592,7 @@ namespace Aplos.Areas.Productions.Controllers
                         //ReplaceInfo[text] = document.Replace(text, dsOrderMaster.Tables[0].Rows[0][columns[text.ToUpper()]].ToString(), false, false);
                         document.Replace(text, dsOrderMaster.Rows[0][columns[text.ToUpper()]].ToString(), false, false);
 
-                        
+
                     }
                     if (text == "{PRINTEDBY}")
                     {
@@ -613,7 +614,7 @@ namespace Aplos.Areas.Productions.Controllers
                 //document.EndnoteNumberFormat = FootEndNoteNumberFormat.LowerCaseRoman;               
                 //paragraph = footnote.TextBody.AddParagraph();
                 //paragraph.AppendText(fn);
-               
+
 
                 foreach (var item in ReplaceInfo.Keys)
                 {
@@ -630,8 +631,8 @@ namespace Aplos.Areas.Productions.Controllers
                 PdfDocument pdfDocument = converter.ConvertToPDF(document);
                 pdfDocument.PageSettings.Width = 1200;
                 pdfDocument.PageSettings.Orientation = PdfPageOrientation.Landscape;
-                
-               
+
+
                 //Releases all resources used by DocToPDFConverter
                 converter.Dispose();
 
@@ -1111,7 +1112,7 @@ namespace Aplos.Areas.Productions.Controllers
                 return Json(new { Error = true, Message = e.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-        
+
 
         [HttpGet, Authorize]
         public ActionResult openPackingLineItemModal(string PackingId)
@@ -1854,7 +1855,7 @@ namespace Aplos.Areas.Productions.Controllers
         {
             try
             {
-                return Json(det.GetSUBPOData(poId,spoId), JsonRequestBehavior.AllowGet);
+                return Json(det.GetSUBPOData(poId, spoId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
@@ -1878,11 +1879,11 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetScanData(string MaterialMovementMasterId)
+        public ActionResult GetScanData(string MaterialMovementMasterId, string SONo, string SKU1Id, string SKU2Id)
         {
             try
             {
-                var jsondata = Json(det.GetScanData(MaterialMovementMasterId), JsonRequestBehavior.AllowGet);
+                var jsondata = Json(det.GetScanData(MaterialMovementMasterId, SONo, SKU1Id, SKU2Id), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
                 return jsondata;
             }
@@ -1893,11 +1894,11 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost]
-        public JsonResult CreateLot(Dictionary<string, object> data,List<Dictionary<string, object>>list)
+        public JsonResult CreateLot(Dictionary<string, object> data, List<Dictionary<string, object>> list)
         {
             try
             {
-                det.CreateLot(data,list);
+                det.CreateLot(data, list);
                 return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Success });
 
             }
@@ -1949,7 +1950,7 @@ namespace Aplos.Areas.Productions.Controllers
             double seq = GetSequence();
             string shortYear = DateTime.Now.ToString("yy");
             string twoDigitMonth = DateTime.Now.ToString("MM");
-            string LotNumber= shortYear.ToString()+"-"+twoDigitMonth.ToString() + "-" + seq.ToString();
+            string LotNumber = shortYear.ToString() + "-" + twoDigitMonth.ToString() + "-" + seq.ToString();
             return Json(LotNumber, JsonRequestBehavior.AllowGet);
         }
         private double GetSequence()
