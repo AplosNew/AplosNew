@@ -1851,11 +1851,11 @@ namespace Aplos.Areas.Productions.Controllers
         #region DefineLot
 
         [HttpGet, Authorize]
-        public ActionResult GetSUBPOData(string poId, string spoId)
+        public ActionResult GetSUBPOData()
         {
             try
             {
-                return Json(det.GetSUBPOData(poId, spoId), JsonRequestBehavior.AllowGet);
+                return Json(det.GetSUBPOData(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
@@ -1871,6 +1871,19 @@ namespace Aplos.Areas.Productions.Controllers
                 var jsondata = Json(det.GetDefineLot(), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
                 return jsondata;
+            }
+            catch (Exception e)
+            {
+                return Json(new { Error = true, Message = e.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetScanFromToDate()
+        {
+            try
+            {
+                return Json(det.GetScanFromToDate(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

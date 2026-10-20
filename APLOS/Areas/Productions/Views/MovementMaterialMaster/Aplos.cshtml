@@ -29,11 +29,24 @@
         </div>
 
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">To Location<sup>*</sup></label>
+            <label class="col-sm-4 control-label">Movement Purpose<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Location" ng-model="selectedValues.ToLocation" class="form-control" maxlength="200" required tabindex="5">
+                <div class="select-style">
+                    <select class="form-control" ng-model="selectedValues.PurposeId" ng-change="getLocation();" name="Movement Purpose"
+                            ng-options="item.Value as item.Text for item in CatergoryList" required tabindex="6">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
             </div>
         </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">From Location<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Location" ng-model="selectedValues.FromLocation" class="form-control" maxlength="200" required tabindex="4">
+            </div>
+        </div>
+
 
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">From Storage Location</label>
@@ -62,7 +75,12 @@
     </div>
 
     <div class="col-xs-12 col-sm-6 col-md-6">
-
+        <div class="form-group">
+            <label class="col-sm-4 control-label"></label>
+            <div class="col-sm-8">
+            </div>
+        </div>
+        <br />
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Plant<sup>*</sup> </label>
             <div class="col-sm-8 show-message">
@@ -75,24 +93,20 @@
             </div>
         </div>
 
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Process</label>
+            <div class="col-sm-8">
+                <input type="text" name="Process" disabled ng-model="selectedValues.Process" class="form-control" maxlength="200" required tabindex="5">
+            </div>
+        </div>
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">From Location<sup>*</sup></label>
+            <label class="col-sm-4 control-label">To Location<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Location" ng-model="selectedValues.FromLocation" class="form-control" maxlength="200" required tabindex="4">
+                <input type="text" name="Location" ng-model="selectedValues.ToLocation" class="form-control" maxlength="200" required tabindex="5">
             </div>
         </div>
 
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Movement Purpose<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select class="form-control" ng-model="selectedValues.PurposeId" name="Movement Purpose"
-                            ng-options="item.Value as item.Text for item in CatergoryList" required tabindex="6">
-                        <option value="">--Select--</option>
-                    </select>
-                </div>
-            </div>
-        </div>
+
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">To Storage Location</label>
             <div class="col-sm-8 show-message">

@@ -142,6 +142,15 @@ function MovementMaterialMasterController(cboService, commonMessage, $scope, $ro
     }
     $scope.getPurposeCategory();
 
+    $scope.getLocation = function () {
+        if (!baseService.isUndefinedOrNull($scope.selectedValues.PurposeId)) {
+            var paymentTerm = $.grep($scope.CatergoryList, function (item) { return item.Value === $scope.selectedValues.PurposeId; })[0];
+            $scope.selectedValues.ProcessId = paymentTerm.ProcessId;
+            $scope.selectedValues.Process = paymentTerm.Process;
+
+        }
+    };
+
     $scope.GetStorageLoc = function () {
         $http({
             method: 'POST',
@@ -202,6 +211,7 @@ function MovementMaterialMasterController(cboService, commonMessage, $scope, $ro
     }
     $scope.Action = "Save";
 
+    
 
     $scope.loadAll = function () {
 

@@ -1313,12 +1313,13 @@ namespace Library.Service.Productions
                 var sql = @"select top 100 * from (SELECT m.Id,m.FromLocation ,m.ToLocation,m.FromStorageLocId,m.ToStorageLocId,ms.UserName as FromStorageLoc, mss.UserName as ToStorageLoc,
                 m.Inventorycheck,c.Id as CompanyId,
                 c.UserName as Company,p.Id as PlantId,P.UserName as Plant,m.EntityId,mp.Username as MovementCategory,mp.id as PurposeId,
-                e.UserName as Entity,m.AddedDate,
+                e.UserName as Entity,m.AddedDate,PR.UserName Process,
                 m.ItemId,mi.Item from mst.MaterialMovementMaster m 
                 left join org.Entity e on e.Id=m.EntityId
                 left join dbo.MovementItems mi on mi.Id=m.ItemId
 				left join org.Plant p on p.Id=e.PlantId 
                 left join HKP.MaterialMovementPurpose mp on mp.Id = m.PurposeId
+                LEFT JOIN HKP.Process PR ON PR.Id=MP.ProcessId
 				left join org.Company c on c.Id=p.CompanyId
 				left join hkp.MaterialStorage ms on ms.Id=m.FromStorageLocId
 				left join hkp.MaterialStorage mss on mss.Id=m.ToStorageLocId) as Temp where " + strkey + " order by Temp.AddedDate desc";
@@ -1386,7 +1387,7 @@ namespace Library.Service.Productions
         {
             try
             {
-                var _sql = @"Select P.UserName AS Text,P.Id as Value,PR.UserName Process FROM HKP.MaterialMovementPurpose P
+                var _sql = @"Select P.UserName AS Text,P.Id as Value,PR.UserName Process,P.ProcessId FROM HKP.MaterialMovementPurpose P
 LEFT JOIN HKP.Process PR ON PR.Id=P.ProcessId";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
