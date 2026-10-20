@@ -73,7 +73,7 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
     $scope.purposeList = [];
     $http({
         method: 'GET',
-        url: "Productions/MovementMaterialMaster/getPurposeCategory",
+        url: "Productions/MovementMaterialMaster/getPurposeCbo",
         dataType: 'JSON'
     }).then(function successCallback(response) {
         $scope.purposeList = response.data;

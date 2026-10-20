@@ -93,6 +93,19 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
+        [Authorize, HttpGet]
+        public ActionResult getPurposeCbo()
+        {
+            try
+            {
+                return Json(det.getPurposeCbo(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
 
 
 
@@ -272,6 +285,136 @@ namespace Aplos.Areas.Productions.Controllers
 
             return workbook;
         }
+
+        #region Responsible Person
+        [HttpPost, Authorize]
+        public JsonResult SaveRPEmployee(List<Dictionary<string, object>> data, string masterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsEntity;
+            try
+            {
+
+                #region Entity 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MovementMasterResponsiblePerson where  MovementMasterId='" + masterId + "'", out dsEntity, false, "1");
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsEntity.Tables[0]);
+                        dv.RowFilter = "Id='" + Convert.ToInt64(item["Id"]) + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            AddNewRow(dsEntity.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsEntity);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetResponsiblePerson(string masterId)
+        {
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            var jsondata = Json(order.GetResponsiblePerson(masterId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult DeleteEmployee(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from [dbo].[MovementMasterResponsiblePerson] where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+
+        #endregion
+
+
+
 
     }
 }

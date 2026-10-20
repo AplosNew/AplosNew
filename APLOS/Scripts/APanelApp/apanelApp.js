@@ -460,7 +460,6 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('FinalSettlementDeductionHeadController', FinalSettlementDeductionHeadController)
     .controller('ScanItemController', ScanItemController)
     .controller("MovementItemsController", MovementItemsController)
-    .controller("MovementMaterialMasterController", MovementMaterialMasterController)
     .controller("NoticePeriodSettingController", NoticePeriodSettingController)
     .controller("LeaveYearDefinationController", LeaveYearDefinationController)
     .controller("AnnualLeaveProcessController", AnnualLeaveProcessController)
