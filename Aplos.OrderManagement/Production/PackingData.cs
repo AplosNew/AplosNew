@@ -1757,66 +1757,95 @@ WHERE R.PurposeId IN (" + purposeId + ") AND ISM.WorkDate between '" + fromDate 
         {
             try
             {
-                string str = @"Select Flag=CAST(0 as bit), D.ID SubProductionOrderID,D.ProductionOrderID
-,SONo=STUFF((select distinct ','+sox.Id from trn.SalesOrder AS sox   
-        INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
-        where podx.ProductionOrderId=D.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-,Customer= REPLACE(REPLACE(
-        STUFF((select distinct ','+XP.UserName from 
-            trn.SalesOrder XSO 
-            JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-            left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
-            left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-            left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
-            where d.ProductionOrderId=Xpod.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-        ,'&amp;','&'), 'amp;', '')
-,FCV.UserName AS SKUColor,SCV.UserName AS SKUSize
-,OrderQty=S.Qty
-,PlanQty=CASE WHEN ISNULL(D.Qty,0)=0 THEN PO.PlannedQty ELSE D.Qty END
-,DL.LotQty,BalanceQty=(CASE WHEN ISNULL(D.Qty,0)=0 THEN PO.PlannedQty ELSE D.Qty END)-DL.LotQty
-,AvailableQty=(CASE WHEN ISNULL(D.Qty,0)=0 THEN PO.PlannedQty ELSE D.Qty END)-DL.LotQty,D.SKU1Id,D.SKU2Id
-FROM dbo.ProductionOrderSchedulingParametersType2 D
-INNER JOIN TRN.ProductionOrder PO ON PO.Id=D.ProductionOrderID
-LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = D.SKU1Id
-LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = D.SKU2Id
-LEFT JOIN (
-    -- 1) SKU1 only
-    Select SUM(SC.Qty) Qty, SC.CharacteristicsValueId SKU1Id, CAST(NULL AS INT) SKU2Id, D.ProductionOrderId
-    From [TRN].[FirstCharacteristics] SC
-    LEFT JOIN TRN.SalesOrder S ON S.Id=SC.SalesOrderId
-    LEFT JOIN TRN.ProductionOrderDetail D ON D.SalesOrderId=S.Id
-    
-    Group By SC.CharacteristicsValueId, D.ProductionOrderId
-
-    UNION ALL
-
-    -- 2) SKU1 + SKU2
-    Select SUM(SC.Qty), FC.CharacteristicsValueId, SC.CharacteristicsValueId, D.ProductionOrderId
-    From TRN.[SecondCharacteristics] SC
-    LEFT JOIN [TRN].[FirstCharacteristics] FC ON FC.Id=SC.FirstCharacteristicsId
-    LEFT JOIN TRN.SalesOrder S ON S.Id=SC.SalesOrderId
-    LEFT JOIN TRN.ProductionOrderDetail D ON D.SalesOrderId=S.Id
-    
-    Group By FC.CharacteristicsValueId, SC.CharacteristicsValueId, D.ProductionOrderId
-
-    UNION ALL
-
-    -- 3) SKU2 only
-    Select SUM(SC.Qty), CAST(NULL AS INT), SC.CharacteristicsValueId, D.ProductionOrderId
-    From TRN.[SecondCharacteristics] SC
-    LEFT JOIN TRN.SalesOrder S ON S.Id=SC.SalesOrderId
-    LEFT JOIN TRN.ProductionOrderDetail D ON D.SalesOrderId=S.Id
-    
-    Group By SC.CharacteristicsValueId, D.ProductionOrderId
-) S ON S.ProductionOrderId=D.ProductionOrderID
-   AND (S.SKU1Id=D.SKU1Id OR (S.SKU1Id IS NULL AND D.SKU1Id IS NULL))
-   AND (S.SKU2Id=D.SKU2Id OR (S.SKU2Id IS NULL AND D.SKU2Id IS NULL))
-LEFT JOIN (
-    Select SUM(LotQty) LotQty, ProductionOrderId, SubProductionOrderId
-    from dbo.DefineLot
-    
-    Group By ProductionOrderId, SubProductionOrderId
-) DL ON DL.ProductionOrderId=D.ProductionOrderID AND DL.SubProductionOrderId=D.ID";
+                string str = @" ;WITH Keys AS (                                    -- one row per PO + color/size (removes PacketRegistration duplicates)
+    SELECT DISTINCT D.ProductionOrderId, PR.SKU1Id, PR.SKU2Id
+    FROM dbo.PacketRegistration PR
+    JOIN TRN.ProductionOrderDetail D ON D.SalesOrderId = PR.SalesOrderId
+),
+POs AS (
+    SELECT DISTINCT ProductionOrderId FROM Keys
+),
+Info AS (                                          -- Customer / SONo built once per PO, not once per row
+    SELECT P.ProductionOrderId,
+        SONo = STUFF((SELECT DISTINCT ',' + sox.Id
+                      FROM TRN.SalesOrder sox
+                      JOIN TRN.ProductionOrderDetail podx ON podx.SalesOrderId = sox.Id
+                      WHERE podx.ProductionOrderId = P.ProductionOrderId
+                      FOR XML PATH(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+        Customer = STUFF((SELECT DISTINCT ',' + XP.UserName
+                          FROM TRN.SalesOrder XSO
+                          JOIN TRN.ProductionOrderDetail Xpod ON Xpod.SalesOrderId = XSO.Id
+                          LEFT JOIN TRN.MasterOrderItem XMOI ON XMOI.Id = XSO.MasterOrderItemId
+                          LEFT JOIN TRN.MasterOrder XMO ON XMO.Id = XMOI.MasterOrderId
+                          LEFT JOIN HKP.Party XP ON XP.Id = XMO.PartyId
+                          WHERE Xpod.ProductionOrderId = P.ProductionOrderId
+                          FOR XML PATH(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+    FROM POs P
+),
+Ord AS (                                           -- order qty per PO + SKU shape
+    SELECT D.ProductionOrderId, FC.CharacteristicsValueId SKU1Id, SC.CharacteristicsValueId SKU2Id, SUM(SC.Qty) OrderQty
+    FROM TRN.SecondCharacteristics SC
+    JOIN TRN.FirstCharacteristics FC ON FC.Id = SC.FirstCharacteristicsId
+    JOIN TRN.ProductionOrderDetail D ON D.SalesOrderId = SC.SalesOrderId
+    JOIN POs ON POs.ProductionOrderId = D.ProductionOrderId
+    GROUP BY D.ProductionOrderId, FC.CharacteristicsValueId, SC.CharacteristicsValueId
+    UNION ALL                                      -- SKU1 only
+    SELECT D.ProductionOrderId, FC.CharacteristicsValueId, NULL, SUM(FC.Qty)
+    FROM TRN.FirstCharacteristics FC
+    JOIN TRN.ProductionOrderDetail D ON D.SalesOrderId = FC.SalesOrderId
+    JOIN POs ON POs.ProductionOrderId = D.ProductionOrderId
+    GROUP BY D.ProductionOrderId, FC.CharacteristicsValueId
+    UNION ALL                                      -- SKU2 only
+    SELECT D.ProductionOrderId, NULL, SC.CharacteristicsValueId, SUM(SC.Qty)
+    FROM TRN.SecondCharacteristics SC
+    JOIN TRN.ProductionOrderDetail D ON D.SalesOrderId = SC.SalesOrderId
+    JOIN POs ON POs.ProductionOrderId = D.ProductionOrderId
+    GROUP BY D.ProductionOrderId, SC.CharacteristicsValueId
+),
+Lots AS (
+    SELECT L.ProductionOrderId, L.SubProductionOrderId, SUM(L.LotQty) LotQty
+    FROM dbo.DefineLot L
+    JOIN POs ON POs.ProductionOrderId = L.ProductionOrderId
+    GROUP BY L.ProductionOrderId, L.SubProductionOrderId
+),
+Base AS (
+    SELECT K.SKU1Id, K.SKU2Id,
+           ST.ProductionOrderID, SubProductionOrderID = ST.ID,
+           O.OrderQty,
+           ST.PlanPercentage,
+           LotQty = ISNULL(L.LotQty, 0),
+           I.Customer, I.SONo
+    FROM Keys K
+    OUTER APPLY (                                  -- one best scheduling row instead of 3 joins
+        SELECT TOP (1) T.ProductionOrderID, T.ID, T.SKU1Id, T.SKU2Id, T.PlanPercentage
+        FROM dbo.ProductionOrderSchedulingParametersType2 T
+        WHERE T.ProductionOrderID = K.ProductionOrderId
+          AND ( (T.SKU1Id = K.SKU1Id AND T.SKU2Id = K.SKU2Id)
+             OR (T.SKU1Id = K.SKU1Id AND T.SKU2Id IS NULL)
+             OR (T.SKU1Id IS NULL    AND T.SKU2Id = K.SKU2Id) )
+        ORDER BY CASE WHEN T.SKU1Id IS NOT NULL AND T.SKU2Id IS NOT NULL THEN 0 ELSE 1 END
+    ) ST
+    LEFT JOIN Lots L ON L.ProductionOrderId = ST.ProductionOrderID AND L.SubProductionOrderId = ST.ID
+    -- order qty is matched on the SHAPE of the scheduling row (color-only, size-only or both)
+    LEFT JOIN Ord O ON O.ProductionOrderId = ST.ProductionOrderID
+                   AND (O.SKU1Id = ST.SKU1Id OR (O.SKU1Id IS NULL AND ST.SKU1Id IS NULL))
+                   AND (O.SKU2Id = ST.SKU2Id OR (O.SKU2Id IS NULL AND ST.SKU2Id IS NULL))
+    LEFT JOIN Info I ON I.ProductionOrderId = K.ProductionOrderId
+    WHERE ST.ID IS NOT NULL                        -- remove to also see packets with no scheduling row
+)
+SELECT Flag = CAST(0 AS BIT),
+       B.ProductionOrderID, B.SubProductionOrderID,
+       B.SKU1Id, B.SKU2Id,
+       SKUColor = FCV.UserName, SKUSize = SCV.UserName,
+       B.LotQty, P.PlanQty, B.OrderQty,
+       BalanceQty   = P.PlanQty - B.LotQty,
+       AvailableQty = P.PlanQty - B.LotQty,
+       B.Customer, B.SONo
+FROM Base B
+CROSS APPLY (SELECT PlanQty = B.OrderQty * (ISNULL(B.PlanPercentage, 0) + 100) / 100) P
+LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = B.SKU1Id
+LEFT JOIN HKP.CharacteristicsValue SCV ON SCV.Id = B.SKU2Id
+ORDER BY B.ProductionOrderID, B.SubProductionOrderID";
 
 
                 return _sqlRepository.GetDataCollection(str);
@@ -1827,27 +1856,39 @@ LEFT JOIN (
             }
         }
 
-        public IEnumerable<object> GetScanData(string MaterialMovementMasterId, string SONo, string SKU1Id, string SKU2Id)
+        public IEnumerable<object> GetScanData(string MaterialMovementMasterId, string SONo, string SKU1Id, string SKU2Id, string fromDate, string toDate)
         {
-            try
+            // Returns null for null/empty/"null"; throws only for non-numeric text
+            long? ParseNullableId(string value, string name)
             {
-                // Numeric inputs are parsed, so nothing unsafe can reach the SQL text
-                if (!long.TryParse(SONo, out long salesOrderId))
-                    throw new ArgumentException("Invalid Sales Order: " + SONo);
-                if (!long.TryParse(SKU1Id, out long colorId))
-                    throw new ArgumentException("Invalid Color (SKU1Id): " + SKU1Id);
-                if (!long.TryParse(SKU2Id, out long sizeId))
-                    throw new ArgumentException("Invalid Size (SKU2): " + SKU2Id);
+                if (string.IsNullOrWhiteSpace(value) ||
+                    value.Trim().Equals("null", StringComparison.OrdinalIgnoreCase))
+                    return null;
 
-                // Escape single quotes for the text value
-                string movementId = (MaterialMovementMasterId ?? "").Replace("'", "''");
+                if (!long.TryParse(value, out long id))
+                    throw new ArgumentException($"Invalid {name}: {value}");
 
-                var str = $@"
+                return id;
+            }
+
+            // Builds either "expr = 5" or "expr IS NULL"
+            string NullSafeEquals(string expr, long? id) =>
+                id.HasValue ? $"{expr} = {id.Value}" : $"{expr} IS NULL";
+
+            if (!long.TryParse(SONo, out long salesOrderId))
+                throw new ArgumentException("Invalid Sales Order: " + SONo);
+
+            long? colorId = ParseNullableId(SKU1Id, "Color (SKU1Id)");
+            long? sizeId = ParseNullableId(SKU2Id, "Size (SKU2Id)");
+
+            string movementId = (MaterialMovementMasterId ?? "").Replace("'", "''");
+
+            var str = $@"
 SELECT C.*, CG.NoOfPcs, Flag = CAST(0 AS BIT),
     SKUColor = COALESCE(FCV_PR.UserName, FCV_PC.UserName),
     SKUSize  = COALESCE(SCV_PR.UserName, SCV_PC.UserName)
 FROM dbo.ItemScanChild C
-INNER JOIN dbo.ItemScan S          ON S.Id  = C.MasterId
+INNER JOIN dbo.ItemScan S ON S.Id  = C.MasterId
 INNER JOIN dbo.CartonGeneration CG ON CG.Id = C.RefNo
 
 LEFT JOIN dbo.PacketRegistration PR
@@ -1864,15 +1905,10 @@ LEFT JOIN HKP.CharacteristicsValue SCV_PC ON SCV_PC.Id = PCSKU.SKU2Id
 
 WHERE S.LocMasterId = '{movementId}'
   AND C.LotNo IS NULL
-  AND COALESCE(PR.SKU1Id, PCSKU.SKU1Id) = {colorId}
-  AND COALESCE(PR.SKU2Id, PCSKU.SKU2Id) = {sizeId};";
+  AND ({NullSafeEquals("COALESCE(PR.SKU1Id, PCSKU.SKU1Id)", colorId)}
+  OR {NullSafeEquals("COALESCE(PR.SKU2Id, PCSKU.SKU2Id)", sizeId)}) AND S.WorkDate between '"+ fromDate + @"' AND '" + toDate + @"'";
 
-                return _sqlRepository.GetDataCollection(str);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            return _sqlRepository.GetDataCollection(str);
         }
 
         public IEnumerable<object> GetDefineLot()

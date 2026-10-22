@@ -279,19 +279,19 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
     $scope.inactiveCartons = [];
     $scope.GetScanData = function (data) {
         try {
-
-
-            $http({
-                method: 'GET',
-                url: "Productions/Packing/GetScanData?MaterialMovementMasterId=" + $scope.modalNew.MaterialMovementMasterId + "&SONo=" + data.data.SONo + "&SKU1Id=" + data.data.SKU1Id + "&SKU2Id=" + data.data.SKU2Id,
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                $scope.cartonDetail = response.data;
-
-                // $scope.inactiveCartons = response.data.Inactive;
-                //fillCartons();
-                angular.element(document.querySelector('#cartonDetailModal')).modal('show');
-            });
+            if (data.data.Flag) {
+                $http({
+                    method: 'GET',
+                    url: "Productions/Packing/GetScanData?MaterialMovementMasterId=" + $scope.modalNew.MaterialMovementMasterId + "&SONo=" + data.data.SONo + "&SKU1Id=" + data.data.SKU1Id + "&SKU2Id=" + data.data.SKU2Id + "&fromDate=" + $scope.modalNew.FromDate + "&toDate=" + $scope.modalNew.ToDate,
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    $scope.cartonDetail = response.data;
+                    angular.element(document.querySelector('#cartonDetailModal')).modal('show');
+                });
+            }
+            else {
+                throw "Select a row.";
+            }
         } catch (e) {
             ShowResult(e, 'failure');
         }
@@ -399,6 +399,9 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
+                        $scope.cartonList = [];
+                        $scope.skuList = [];
+                        $scope.cartonDetail = [];
                         ClearFields(response.data.Sequence);
                         $scope.getData();
 

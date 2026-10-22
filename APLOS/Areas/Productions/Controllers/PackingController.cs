@@ -1892,11 +1892,11 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetScanData(string MaterialMovementMasterId, string SONo, string SKU1Id, string SKU2Id)
+        public ActionResult GetScanData(string MaterialMovementMasterId, string SONo, string SKU1Id, string SKU2Id, string fromDate, string toDate)
         {
             try
             {
-                var jsondata = Json(det.GetScanData(MaterialMovementMasterId, SONo, SKU1Id, SKU2Id), JsonRequestBehavior.AllowGet);
+                var jsondata = Json(det.GetScanData(MaterialMovementMasterId, SONo, SKU1Id, SKU2Id, fromDate, toDate), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
                 return jsondata;
             }
