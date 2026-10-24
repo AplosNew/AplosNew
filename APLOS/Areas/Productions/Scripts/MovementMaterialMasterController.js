@@ -9,8 +9,15 @@ function MovementMaterialMasterController(cboService, commonMessage, $scope, $ro
     $scope.saveurl = $scope.path + 'Save';
 
     $scope.searchBy = ""; $scope.search = "";
-    $scope.searchByList = [{ value: 'MovementCategory', name: "Movement Category" }, { value: 'Entity', name: "Entity" }, { value: 'Item', name: "Item" }];
+    $scope.searchByList = [{ value: 'MovementCategory', name: "Movement Purpose" }, { value: 'Entity', name: "Entity" }, { value: 'Item', name: "Item" }];
 
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
 
     $scope.getData = function () {
         $http({
@@ -66,6 +73,7 @@ function MovementMaterialMasterController(cboService, commonMessage, $scope, $ro
             PurposeId: null
         };
         $scope.Action = "Save";
+        $scope.ResponsiblePersonList = [];
     }
 
     $scope.companyList = [];
@@ -134,6 +142,15 @@ function MovementMaterialMasterController(cboService, commonMessage, $scope, $ro
     }
     $scope.getPurposeCategory();
 
+    $scope.getLocation = function () {
+        if (!baseService.isUndefinedOrNull($scope.selectedValues.PurposeId)) {
+            var paymentTerm = $.grep($scope.CatergoryList, function (item) { return item.Value === $scope.selectedValues.PurposeId; })[0];
+            $scope.selectedValues.ProcessId = paymentTerm.ProcessId;
+            $scope.selectedValues.Process = paymentTerm.Process;
+
+        }
+    };
+
     $scope.GetStorageLoc = function () {
         $http({
             method: 'POST',
@@ -181,7 +198,7 @@ function MovementMaterialMasterController(cboService, commonMessage, $scope, $ro
 
     $scope.editdoubleclick = function (args) {
         $scope.selectedValues = Object.assign({}, args.data);
-
+     
         $scope.Action = "Update";
 
         $scope.getPlant();
@@ -194,6 +211,7 @@ function MovementMaterialMasterController(cboService, commonMessage, $scope, $ro
     }
     $scope.Action = "Save";
 
+    
 
     $scope.loadAll = function () {
 
@@ -209,6 +227,7 @@ function MovementMaterialMasterController(cboService, commonMessage, $scope, $ro
             else {
                 $scope.selectedValues = {};
                 $scope.selectedValues = response.data.master[0];
+                $scope.getSavedEmpData();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -294,6 +313,167 @@ function MovementMaterialMasterController(cboService, commonMessage, $scope, $ro
     }
 
     $scope.downloadgriddataUrl = 'GridReports/Download';
+
+
+    $scope.popUpDataList = [];
+    $scope.getEmpPopUpData = function () {
+        try {
+            $scope.popUpDataList = [];
+            $http({
+                method: 'GET',
+                url: 'employees/authorizationconfig/getallemployeedata'
+
+            }).then(function successCallback(response) {
+                $scope.popUpDataList = response.data;
+            });
+            angular.element(document.querySelector('#popUp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.closePopUp = function () {
+        MakeData();
+        $scope.SaveRPEmployee();
+        angular.element(document.querySelector('#popUp')).modal('hide');
+    };
+
+    // #region checkbox all
+
+    $scope.refreshTemplaterp = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+    };
+
+    function CheckBoxSelectAllEmolyeeWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridRPEMP").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.popUpDataList.length; i++) {
+                $scope.popUpDataList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridRPEMP").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    // #endregion checkbox all
+
+    $scope.ResponsiblePersonList = [];
+    function MakeData() {
+        for (var i = 0; i < $scope.popUpDataList.length; i++) {
+            if ($scope.popUpDataList[i].Flag == true) {
+                if (checkExists($scope.ResponsiblePersonList, $scope.popUpDataList[i].SystemID) === false) {
+                    var ob = {};
+                    ob.Id = -(Math.floor(Math.random() * 1000000) + 1);
+                    ob.MovementMasterId = $scope.selectedValues.Id;
+                    ob.EmpSystemId = $scope.popUpDataList[i].SystemId;
+                    ob.EmployeeCode = $scope.popUpDataList[i].EmployeeCode;
+                    ob.EmployeeName = $scope.popUpDataList[i].EmployeeName;
+                    ob.LegalDesignation = $scope.popUpDataList[i].LegalDesignation;
+                    ob.Department = $scope.popUpDataList[i].Department;
+                    ob.Company = $scope.popUpDataList[i].Company;
+                    ob.Plant = $scope.popUpDataList[i].Plant;
+                    ob.Section = $scope.popUpDataList[i].Section;
+                    ob.SubSection = $scope.popUpDataList[i].SubSection;
+                    ob.Line = $scope.popUpDataList[i].Line;
+
+                    $scope.ResponsiblePersonList.push(ob);
+                }
+            }
+        }
+
+    }
+
+    function checkExists(list, id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].EmpSystemId === id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.SaveRPEmployee = function () {
+        try {
+            if (baseService.arrayLength($scope.ResponsiblePersonList) < 0) {
+                throw "Select Employee.";
+            }
+            $http({
+                method: 'POST',
+                url: 'Productions/MovementMaterialMaster/SaveRPEmployee',
+                data: { 'data': $scope.ResponsiblePersonList, 'masterId': $scope.selectedValues.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getSavedEmpData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.ResponsiblePersonList = [];
+    $scope.getSavedEmpData = function () {
+        $http({
+            method: 'GET',
+            url: 'Productions/MovementMaterialMaster/GetResponsiblePerson?masterId=' + $scope.selectedValues.Id
+        }).then(function successCallback(response) {
+            $scope.ResponsiblePersonList = response.data;
+
+        });
+
+    };
+
+    $scope.message_confirmation = "";
+    $scope.removeEmp = function (data) {
+        $scope.runobj = data.data;
+        $scope.message_confirmation = 'Are you sure want to delete [ ' + $scope.runobj.EmployeeCode + ' ]';
+        angular.element(document.querySelector('#confirmRunDelPopUp')).modal('show');
+    };
+    $scope.DeleteEmployee = function () {
+        if (!baseService.isUndefinedOrNull($scope.runobj.Id)) {
+            $http({
+                method: 'POST',
+                url: 'Productions/MovementMaterialMaster/DeleteEmployee?id=' + $scope.runobj.Id
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getSavedEmpData();
+                }
+            }, function () {
+                ShowResult(commonMessage.NetworkError, 'failure');
+            }).finally(function () {
+            });
+        }
+
+    };
+
+
+
+
+
+
+
 
 }
 

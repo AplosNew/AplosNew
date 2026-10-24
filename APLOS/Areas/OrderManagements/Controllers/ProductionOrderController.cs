@@ -4853,6 +4853,9 @@ ORDER BY P.SortOrder";
                 List<QRCodeItem> qrCodeItems = dt.AsEnumerable().Select(row => new QRCodeItem
                 {
                     LotNumber = Convert.ToString(row["LotNumber"])
+                    ,LotWeight = Convert.ToString(row["LotWeight"])
+                    ,PerUnitWeight = Convert.ToString(row["PerUnitWeight"])
+                    ,NoOfUnit = Convert.ToString(row["NoOfUnit"])
                 }).ToList();
 
                 byte[] pdfBytes = BuildLotQRCodePdf(qrCodeItems);
@@ -4914,6 +4917,9 @@ ORDER BY P.SortOrder";
                         string[] rawLines =
                         {
                 $"{item.LotNumber}",
+                $"{item.LotWeight}",
+                $"{item.PerUnitWeight}",
+                $"{item.NoOfUnit}",
                 $""
             };
 
@@ -5516,6 +5522,10 @@ public class QRCodeItem
     public string NoOfPcs { get; set; }
     public string CartonNo { get; set; }
     public string LotNumber { get; set; }
+    public string LotQty { get; set; }
+    public string LotWeight { get; set; }
+    public string NoOfUnit { get; set; }
+    public string PerUnitWeight { get; set; }
 
 }
 

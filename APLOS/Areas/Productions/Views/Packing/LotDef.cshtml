@@ -7,91 +7,9 @@
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Lot Number<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" disabled name="LotNumber" ng-model="modalNew.LotNumber" required class="form-control text-right" tabindex="13">
+                    <input type="text" disabled name="LotNumber" ng-model="modalNew.LotNumber" required class="form-control text-left" tabindex="13">
                 </div>
             </div>
-
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="From Date" ng-model="modalNew.FromDate" datepicker class="form-control" tabindex="4">
-
-                </div>
-            </div>
-
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Movement Purpose<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select class="form-control" ng-model="modalNew.PurposeId" name="Movement Purpose" ng-change="getLocation()"
-                                ng-options="item.Value as item.Text for item in purposeList" required tabindex="6">
-                            <option value="">--Select--</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Lot Weight<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" n-decimals="2" name="Total Qty" ng-model="modalNew.LotWeight" class="form-control text-right" required tabindex="13">
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Customer<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="input-group">
-                        <input type="text" name="Customer" ng-model="modalNew.Customer" required class="form-control" readonly>
-                        <span class="input-group-btn">
-                            <button ng-click="selectCustomer();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Production Order<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="input-group">
-                        <input type="text" name="Production Order" ng-model="modalNew.ProductionOrderId" required class="form-control" readonly>
-                        <span class="input-group-btn">
-                            <button ng-click="getProductionOrderPopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Sales Order</label>
-                <div class="col-sm-8">
-                    <input type="text" name="SalesOrder" disabled ng-model="modalNew.SalesOrder" class="form-control" maxlength="200" tabindex="4">
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Remarks</label>
-                <div class="col-sm-8">
-                    <textarea class="form-control" rows="3" ng-model="modalNew.Remarks" maxlength="250" tabindex="8"></textarea>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Process<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select name="Process" class="form-control" ng-model="modalNew.ProcessId" ng-options="item.Value as item.Text for item in ProcessList" required>
-                            <option value="">--Select--</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="To Date" ng-model="modalNew.ToDate" datepicker required class="form-control" tabindex="4">
-
-                </div>
-            </div>
-
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Location<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
@@ -99,26 +17,25 @@
                 </div>
             </div>
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Per Unit Weight<sup>*</sup></label>
+                <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" n-decimals="2" name="PerUnitWeight" ng-model="modalNew.PerUnitWeight" required class="form-control text-right" tabindex="13">
+                    <input type="text" name="From Date" ng-model="modalNew.FromDate" datepicker class="form-control" disabled required tabindex="4">
+
                 </div>
+            </div>
+
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Lot Weight<sup>*</sup></label>
+                <div class="col-sm-6 show-message">
+                    <input type="text" n-decimals="2" name="Total Qty" ng-model="modalNew.LotWeight" ng-blur="CalNoOfUnit()" class="form-control text-right" required tabindex="13">
+                </div>
+                <label class="col-sm-2 control-label">in Kg</label>
             </div>
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">No Of Unit<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" n-decimals="2" name="NoOfUnit" ng-model="modalNew.NoOfUnit" required class="form-control text-right" tabindex="13">
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">SubProduction Order<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="input-group">
-                        <input type="text" name="Customer" ng-model="modalNew.SubProductionOrderId" required class="form-control" readonly>
-                        <span class="input-group-btn">
-                            <button ng-click="GetSPOata();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                        </span>
-                    </div>
+                    <input type="text" n-decimals="2" name="NoOfUnit" disabled ng-model="modalNew.NoOfUnit" required class="form-control text-right" tabindex="13">
                 </div>
             </div>
             <div class="form-group" show-errors>
@@ -138,12 +55,102 @@
                     </ul>
                 </div>
             </div>
+            @*<div class="form-group">
+                    <label class="col-sm-4 control-label">Customer</label>
+                    <div class="col-sm-8 show-message">
+                        <div class="input-group">
+                            <input type="text" name="Customer" ng-model="modalNew.Customer" required class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <button ng-click="selectCustomer();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>*@
+
+            @*<div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Production Order<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="input-group">
+                            <input type="text" name="Production Order" ng-model="modalNew.ProductionOrderId" required class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <button ng-click="getProductionOrderPopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Sales Order</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="SalesOrder" disabled ng-model="modalNew.SalesOrder" class="form-control" maxlength="200" tabindex="4">
+                    </div>
+                </div>*@
+
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Movement Purpose<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="modalNew.PurposeId" name="Movement Purpose" ng-change="getLocation();"
+                                ng-options="item.Value as item.Text for item in purposeList" required tabindex="6">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select name="Process" class="form-control" ng-model="modalNew.ProcessId" ng-options="item.Value as item.Text for item in ProcessList" required>
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="To Date" ng-model="modalNew.ToDate" datepicker required class="form-control" tabindex="4">
+
+                </div>
+            </div>
+
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Per Unit Weight<sup>*</sup></label>
+                <div class="col-sm-6 show-message">
+                    <input type="text" n-decimals="2" name="PerUnitWeight" ng-model="modalNew.PerUnitWeight" ng-blur="CalNoOfUnit()" required class="form-control text-right" tabindex="13">
+                </div>
+                <label class="col-sm-2 control-label">in gram</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="3" ng-model="modalNew.Remarks" maxlength="250" tabindex="8"></textarea>
+                </div>
+            </div>
+            @*<div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">SubProduction Order<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="input-group">
+                            <input type="text" name="Customer" ng-model="modalNew.SubProductionOrderId" required class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <button ng-click="GetSPOata();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>*@
+
+
         </div>
         <div class="col-xs-12">
             <div style="color:black;" id="GridDL" ej-grid e-datasource="skuList" e-allowscrolling="true"
                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="GetScanData"
                  e-allowselection="true" e-filtersettings-filterType="excel">
                 <div e-columns>
+                    <div e-column e-template="#pcselect" e-headertext="" e-width="20"></div>
                     <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
                     <div e-column e-type="string" e-field="ProductionOrderID" e-headertext="POId" e-width="80"></div>
                     <div e-column e-type="string" e-field="SubProductionOrderID" e-headertext="SPOId" e-width="80"></div>
@@ -158,6 +165,14 @@
 
                 </div>
             </div>
+            <script type="text/template" id="pcselect">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="data.Flag" ng-checked="data.Flag" ng-change="$parent.selectSinglePackingCategory(data)">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </script>
             <script type="text/template" id="LotQty">
                 <div class="col-sm-10" style="padding:0px; width:70px;">
                     <input type="text" ng-model="data.LotQty" n-decimals="2" disabled ng-click="GetScanData();" style="color:black;" class="form-control" />
@@ -400,11 +415,13 @@
                     <div id="CartonDetails" ej-grid e-datasource="cartonDetail" e-templaterefresh="refreshTemplate"
                          e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
                          e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
-                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-summaryrows="summaryRows">
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
                         <div e-columns>
                             <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
                             <div e-column e-field="RefNo" e-type="string" e-headertext="Carton No" e-width="40"></div>
                             <div e-column e-field="NoOfPcs" e-type="string" e-headertext="NoOfPcs" e-width="40"></div>
+                            <div e-column e-field="SKUColor" e-type="string" e-headertext="Color" e-width="40"></div>
+                            <div e-column e-field="SKUSize" e-type="string" e-headertext="Size" e-width="40"></div>
                         </div>
                     </div>
                     <script type="text/template" id="checkboxTemplate">
@@ -420,52 +437,52 @@
                     </div>
                 </div>
                 @*<div class="row" style="margin: 20px; font-style:italic"> </div>
-        <p style="margin:10px;">
-            The Cartons Details
-        <p>
-            <div class="row">
-                <div class="common-btn" style="margin:10px;">
-                    <ul class="common-btn list-inline text-right">
-                        <li><button ng-click="selectAllCartons()" class="btn "><i class="glyphicon glyphicon-plus-sign"></i> Select All</button></li>
-                        <li><button ng-click="DeselectAllCartons()" class="btn "><i class="glyphicon glyphicon-minus-sign"></i> DeSelect All</button></li>
-                    </ul>
-                </div>
-            </div>
-        <p style="margin: 20px;"><b>Available Cartons.</b></p>
-        <div class="row">
-            <div id="getCartonDetails" ej-grid e-datasource="cartonDetail" e-templaterefresh="refreshTemplate"
-                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                 e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
-                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-summaryrows="summaryRows">
-                <div e-columns>
-                    <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                    <p style="margin:10px;">
+                        The Cartons Details
+                    <p>
+                        <div class="row">
+                            <div class="common-btn" style="margin:10px;">
+                                <ul class="common-btn list-inline text-right">
+                                    <li><button ng-click="selectAllCartons()" class="btn "><i class="glyphicon glyphicon-plus-sign"></i> Select All</button></li>
+                                    <li><button ng-click="DeselectAllCartons()" class="btn "><i class="glyphicon glyphicon-minus-sign"></i> DeSelect All</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    <p style="margin: 20px;"><b>Available Cartons.</b></p>
+                    <div class="row">
+                        <div id="getCartonDetails" ej-grid e-datasource="cartonDetail" e-templaterefresh="refreshTemplate"
+                             e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                             e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-summaryrows="summaryRows">
+                            <div e-columns>
+                                <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
 
-                    <div e-column e-field="ProductCode" e-type="number" e-headertext="Product Code" e-width="80"></div>
-                    <div e-column e-field="POId" e-type="number" e-headertext="Production Order Id" e-width="120"></div>
-                    <div e-column e-field="LotNo" e-type="number" e-headertext="Lot No" e-width="120"></div>
-                    <div e-column e-field="RefNo" e-type="number" e-headertext="Carton No" e-width="120"></div>
-                    <div e-column e-field="NetWeight" e-type="number" e-headertext="Net Weight" e-width="120"></div>
-                    <div e-column e-field="GWeight" e-type="number" e-headertext="Gross Weight" e-width="120"></div>
-                </div>
-            </div>
-        </div>
-        <p style="margin: 20px;"><b>Already Booked Cartons.</b></p>
-        <div class="row">
+                                <div e-column e-field="ProductCode" e-type="number" e-headertext="Product Code" e-width="80"></div>
+                                <div e-column e-field="POId" e-type="number" e-headertext="Production Order Id" e-width="120"></div>
+                                <div e-column e-field="LotNo" e-type="number" e-headertext="Lot No" e-width="120"></div>
+                                <div e-column e-field="RefNo" e-type="number" e-headertext="Carton No" e-width="120"></div>
+                                <div e-column e-field="NetWeight" e-type="number" e-headertext="Net Weight" e-width="120"></div>
+                                <div e-column e-field="GWeight" e-type="number" e-headertext="Gross Weight" e-width="120"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="margin: 20px;"><b>Already Booked Cartons.</b></p>
+                    <div class="row">
 
-            <div id="getInactiveCartonDetails" ej-grid e-datasource="inactiveCartons" e-templaterefresh="refreshTemplate"
-                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                 e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
-                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-summaryrows="summaryRows">
-                <div e-columns>
-                    <div e-column e-field="ProductCode" e-type="number" e-headertext="Product Code" e-width="80"></div>
-                    <div e-column e-field="POId" e-type="number" e-headertext="Production Order Id" e-width="120"></div>
-                    <div e-column e-field="LotNo" e-type="number" e-headertext="Lot No" e-width="120"></div>
-                    <div e-column e-field="RefNo" e-type="number" e-headertext="Carton No" e-width="120"></div>
-                    <div e-column e-field="NetWeight" e-type="number" e-headertext="Net Weight" e-width="120"></div>
-                    <div e-column e-field="GWeight" e-type="number" e-headertext="Gross Weight" e-width="120"></div>
-                </div>
-            </div>
-        </div>*@
+                        <div id="getInactiveCartonDetails" ej-grid e-datasource="inactiveCartons" e-templaterefresh="refreshTemplate"
+                             e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                             e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-summaryrows="summaryRows">
+                            <div e-columns>
+                                <div e-column e-field="ProductCode" e-type="number" e-headertext="Product Code" e-width="80"></div>
+                                <div e-column e-field="POId" e-type="number" e-headertext="Production Order Id" e-width="120"></div>
+                                <div e-column e-field="LotNo" e-type="number" e-headertext="Lot No" e-width="120"></div>
+                                <div e-column e-field="RefNo" e-type="number" e-headertext="Carton No" e-width="120"></div>
+                                <div e-column e-field="NetWeight" e-type="number" e-headertext="Net Weight" e-width="120"></div>
+                                <div e-column e-field="GWeight" e-type="number" e-headertext="Gross Weight" e-width="120"></div>
+                            </div>
+                        </div>
+                    </div>*@
 
 
 

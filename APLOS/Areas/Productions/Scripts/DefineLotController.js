@@ -14,12 +14,11 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
         FromDate: null,
         ToDate: null,
         ProcessId: null,
-        CustomerId: null,
         LotQty: null,
         LotWeight: null,
         NoOfUnit: null,
         PerUnitWeight: null,
-        LotStatus: null,
+        LotStatus: "Active",
         Remarks: null,
         AddedBy: null,
         AddedDate: null,
@@ -60,6 +59,18 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
     };
     $scope.GetLotNumber();
 
+    $scope.GetScanFromToDate = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetScanFromToDate",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.modalNew.FromDate = response.data[0].FromDate;
+            $scope.modalNew.ToDate = response.data[0].ToDate;
+        });
+    };
+    $scope.GetScanFromToDate();
+
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {
             $scope.modal.Sequence = data;
@@ -73,7 +84,7 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
     $scope.purposeList = [];
     $http({
         method: 'GET',
-        url: "Productions/MovementMaterialMaster/getPurposeCategory",
+        url: "Productions/MovementMaterialMaster/getPurposeCbo",
         dataType: 'JSON'
     }).then(function successCallback(response) {
         $scope.purposeList = response.data;
@@ -84,7 +95,16 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
             var paymentTerm = $.grep($scope.purposeList, function (item) { return item.Value === $scope.modalNew.PurposeId; })[0];
             $scope.modalNew.Location = paymentTerm.FromToLocation;
             $scope.modalNew.MaterialMovementMasterId = paymentTerm.MaterialMovementMasterId;
+            $scope.modalNew.ProcessId = paymentTerm.ProcessId;
 
+        }
+    };
+
+    $scope.CalNoOfUnit = function () {
+        if (!baseService.isUndefinedOrNull($scope.modalNew.LotWeight) && !baseService.isUndefinedOrNull($scope.modalNew.PerUnitWeight)) {
+            $scope.modalNew.NoOfUnit = Math.ceil(
+                ($scope.modalNew.LotWeight * 1000) / $scope.modalNew.PerUnitWeight
+            );
         }
     };
 
@@ -131,12 +151,32 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
         $scope.$broadcast('show-errors-check-validity');
         $http({
             method: 'GET',
-            url: "Productions/Packing/GetSUBPOData?poId=" + $scope.modalNew.ProductionOrderId + "&spoId=" + $scope.modalNew.SubProductionOrderId,
+            url: "Productions/Packing/GetSUBPOData",
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.skuList = response.data;
         });
     }
+
+    $scope.selectSinglePackingCategory = function (selectedItem) {
+        try {
+            if (selectedItem.Flag) {
+                var alreadySelected = false;
+                angular.forEach($scope.skuList, function (item) {
+                    if (item !== selectedItem && item.Flag) {
+                        alreadySelected = true;
+                    }
+                });
+
+                if (alreadySelected) {
+                    selectedItem.Flag = false; // revert the new click
+                    throw "Please only one row.";
+                }
+            }
+        } catch (e) {
+            ShowResult(e, 'failure')
+        }
+    };
 
     $scope.ProductionOrderList = [];
     $scope.getProductionOrderPopUp = function () {
@@ -239,19 +279,19 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
     $scope.inactiveCartons = [];
     $scope.GetScanData = function (data) {
         try {
-            
-
-            $http({
-                method: 'GET',
-                url: "Productions/Packing/GetScanData?MaterialMovementMasterId=" + $scope.modalNew.MaterialMovementMasterId + "&SONo=" + data.data.SONo + "&SKU1Id=" + data.data.SKU1Id + "&SKU2Id=" + data.data.SKU2Id,
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                $scope.cartonDetail = response.data;
-
-                // $scope.inactiveCartons = response.data.Inactive;
-                //fillCartons();
-                angular.element(document.querySelector('#cartonDetailModal')).modal('show');
-            });
+            if (data.data.Flag) {
+                $http({
+                    method: 'GET',
+                    url: "Productions/Packing/GetScanData?MaterialMovementMasterId=" + $scope.modalNew.MaterialMovementMasterId + "&SONo=" + data.data.SONo + "&SKU1Id=" + data.data.SKU1Id + "&SKU2Id=" + data.data.SKU2Id + "&fromDate=" + $scope.modalNew.FromDate + "&toDate=" + $scope.modalNew.ToDate,
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    $scope.cartonDetail = response.data;
+                    angular.element(document.querySelector('#cartonDetailModal')).modal('show');
+                });
+            }
+            else {
+                throw "Select a row.";
+            }
         } catch (e) {
             ShowResult(e, 'failure');
         }
@@ -359,6 +399,9 @@ function DefineLotController(cboService, commonMessage, $scope, $rootScope, base
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
+                        $scope.cartonList = [];
+                        $scope.skuList = [];
+                        $scope.cartonDetail = [];
                         ClearFields(response.data.Sequence);
                         $scope.getData();
 

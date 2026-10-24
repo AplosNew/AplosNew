@@ -1851,11 +1851,11 @@ namespace Aplos.Areas.Productions.Controllers
         #region DefineLot
 
         [HttpGet, Authorize]
-        public ActionResult GetSUBPOData(string poId, string spoId)
+        public ActionResult GetSUBPOData()
         {
             try
             {
-                return Json(det.GetSUBPOData(poId, spoId), JsonRequestBehavior.AllowGet);
+                return Json(det.GetSUBPOData(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
@@ -1879,11 +1879,24 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetScanData(string MaterialMovementMasterId, string SONo, string SKU1Id, string SKU2Id)
+        public ActionResult GetScanFromToDate()
         {
             try
             {
-                var jsondata = Json(det.GetScanData(MaterialMovementMasterId, SONo, SKU1Id, SKU2Id), JsonRequestBehavior.AllowGet);
+                return Json(det.GetScanFromToDate(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new { Error = true, Message = e.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetScanData(string MaterialMovementMasterId, string SONo, string SKU1Id, string SKU2Id, string fromDate, string toDate)
+        {
+            try
+            {
+                var jsondata = Json(det.GetScanData(MaterialMovementMasterId, SONo, SKU1Id, SKU2Id, fromDate, toDate), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
                 return jsondata;
             }

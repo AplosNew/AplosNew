@@ -86,12 +86,6 @@ function SKUUploadController(commonMessage, $scope, $rootScope, baseService, $ro
     $scope.recipeMaterialParameters.search = "";
     $scope.recipeMaterialPopUp = function () {
         angular.element(document.querySelector('#recipeMaterialPopUp')).modal('show');
-        //$("#recipeMaterialPopUp").ejDialog("setTitle", "Sales Order");
-        //var eDialog = $("#recipeMaterialPopUp").data("ejDialog");
-        //eDialog.open();
-
-        //var gridObj = $("#recipeMaterialPopUp").data("ejGrid");
-        //gridObj.clearFiltering(); 
         $scope.serachSoMaterial();
 
     };
@@ -116,7 +110,7 @@ function SKUUploadController(commonMessage, $scope, $rootScope, baseService, $ro
         }
         $http({
             method: 'GET',
-            url: $scope.path + 'GetSalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search + "&productionorderid=" + $scope.model.Id + "&EntityId=" + $scope.model.EntityId + "&ProcessId=" + $scope.model.PlanningTypeProcessId + "&moentity=" + $scope.MOEntityId
+            url: 'OrderManagements/ProductionOrder/GetSalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search +  "&moentity=" + $scope.MOEntityId
         }).then(function successCallback(response) {
 
             for (var i = 0; i < response.data.length; i++) {

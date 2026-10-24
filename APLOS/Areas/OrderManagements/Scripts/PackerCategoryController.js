@@ -114,6 +114,7 @@ function PackerCategoryController(cboService, commonMessage, $scope, $rootScope,
     $scope.Clear = function () {
         ClearFields($scope.GetSequence());
         return true;
+        $scope.packerEmployeeList = [];
     };
 
     function ClearFields(seq) {
@@ -180,7 +181,7 @@ function PackerCategoryController(cboService, commonMessage, $scope, $rootScope,
             if ($scope.popUpDataList[i].Flag == true) {
                 if (checkExists($scope.packerEmployeeList, $scope.popUpDataList[i].SystemID) === false) {
                     var ob = {};
-                    ob.Id = -(Math.floor(Math.random() * 100) + 1);
+                    ob.Id = -(Math.floor(Math.random() * 1000000) + 1);
                     ob.PackerCategoryId = $scope.ModelNew.Id;
                     ob.EmpSystemId = $scope.popUpDataList[i].SystemId;
                     ob.EmployeeCode = $scope.popUpDataList[i].EmployeeCode;
@@ -217,7 +218,7 @@ function PackerCategoryController(cboService, commonMessage, $scope, $rootScope,
             $http({
                 method: 'POST',
                 url: 'OrderManagements/ProductionOrder/SavePackerEmployee',
-                data: { 'data': $scope.packerEmployeeList},
+                data: { 'data': $scope.packerEmployeeList, 'masterId': $scope.ModelNew.Id},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
