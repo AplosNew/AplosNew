@@ -2812,6 +2812,7 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                 throw ex;
             }
         }
+         
 
         public DataTable GetDailyTargetData(string entityId, string targetDate, string processId, string shiftId)
         {
