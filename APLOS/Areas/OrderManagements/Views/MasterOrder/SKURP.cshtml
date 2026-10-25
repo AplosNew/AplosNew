@@ -1,32 +1,13 @@
 ﻿<div class="site-tab">
     <ul class="nav nav-tabs" role="tablist">
         <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);" href="" data-toggle="tab">Order Monitors</a></li>
-        <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);" href="" data-toggle="tab">SKU</a></li>
+        <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);loadfilters();" href="" data-toggle="tab">SKU Control</a></li>
     </ul>
 </div>
 <div class="tab-content">
     <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
         <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
             <input type="hidden" ng-model="ModelNew.Id">
-            @*<div class="col-xs-12 col-sm-6 col-md-6">
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Status<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <div class="select-style">
-                                <select name="Status" class="form-control" ng-model="ModelNew.Status" ng-options="item.Value as item.Text for item in StatusList" required>
-                                    <option value="">--Select--</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Target Date<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="TargetDate" ng-model="ModelNew.TargetDate" class="form-control" datepicker required tabindex="3">
-                        </div>
-                    </div>
-
-                </div>*@
         <div class="row">
             <div class="col-xs-12 col-sm-6 col-md-6">
                 <div class="form-group">
@@ -101,7 +82,38 @@
         </div>
     </div>
     <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+        <div class="row">
+            <div class="col-xs-12">
 
+                <div id="filters">
+                </div>
+                <div class="common-btn" ng-show="filters.length>0">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="GetSalesOrder();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> Go</button></li>
+                    </ul>
+                </div>
+
+                <div style="color:black;" id="SalesOrderGrid" ej-grid e-datasource="SalesOrderItemList" e-allowscrolling="true"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="selectSalesOrderItem"
+                     e-allowselection="false" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-type="string" e-template="#SKUs" e-headertext="Actions" e-width="30"></div>
+                        <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="120"></div>
+                        <div e-column e-type="string" e-field="SONo" e-headertext="Sales Order No" e-width="60"></div>
+                        <div e-column e-type="string" e-field="LineItemReference" e-headertext="LineItemReference" e-width="80"></div>
+                        <div e-column e-type="string" e-field="MOIId" e-headertext="Line Item No" e-width="60"></div>
+                        <div e-column e-field="DeliveryDate" e-headertext="Delivery Date" e-width="60"></div>
+                        <div e-column e-type="number" e-format="{0:0.00}" e-field="PlannedQty" e-headertext="SO Qty" e-textalign="right" e-width="60"></div>
+                        <div e-column e-type="string" e-field="ProductCode" e-headertext="Product Code" e-width="60"></div>
+                    </div>
+                </div>
+                <script type="text/template" id="SKUs">
+                    <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
+                        <button ng-click="$parent.GetSKUData(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
+                    </div>
+                </script>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -145,3 +157,94 @@
 
 </div>
 <confirm-archive-generic modalid="confirmRunDelPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteEmployee();"></confirm-archive-generic>
+
+<div class="modal fade site-modal in" id="SKUPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">SKU Information<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridPopUp" ej-grid e-datasource="SKUItemList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="SKUColor" e-headertext="SKUColor" e-width="75"></div>
+                            <div e-column e-template="#SKUProcess" e-headertext="Process" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#ResponsiblePerson1Id" e-headertext="ResponsiblePerson1Id" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#ResponsiblePerson2Id" e-headertext="ResponsiblePerson2Id" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#ResponsiblePerson3Id" e-headertext="ResponsiblePerson3Id" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#TargetDate" e-headertext="TargetDate" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#SKUStatus" e-headertext="SKUStatus" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#ClosingDate" e-headertext="ClosingDate" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="80" style="height: 20px;"></div>
+
+                        </div>
+                        <script type="text/template" id="SKUProcess">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="data.ProcessId" name="Process">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in $parent.processCboList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </script>
+
+                        <script type="text/template" id="ResponsiblePerson1Id">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="data.ResponsiblePerson1Id" name="ResponsiblePerson1Id">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in $parent.ResponsiblePerson1CboList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </script>
+
+                        <script type="text/template" id="ResponsiblePerson2Id">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="data.ResponsiblePerson2Id" name="ResponsiblePerson1Id">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in $parent.ResponsiblePerson2CboList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </script>
+                        <script type="text/template" id="ResponsiblePerson3Id">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="data.ResponsiblePerson3Id" name="ResponsiblePerson3Id">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in $parent.ResponsiblePerson3CboList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </script>
+
+                        <script type="text/template" id="TargetDate">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.TargetDate" datepicker style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="ClosingDate">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.ClosingDate" datepicker style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="SKUStatus">
+                            <div class="select-style">
+                                <select name="Status" class="form-control" ng-model="data.SKUStatus" ng-options="item.Value as item.Text for item in $parent.StatusList">
+                                    <option value="">--Select--</option>
+                                </select>
+                            </div>
+                        </script>
+                        <script type="text/template" id="Remarks">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.Remarks" ng-maxlength="100" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                    </div>
+                    <div class="common-btn" style="padding-right: 15px;">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="closePopUp();" class="btn">Close</button></li>
+                            <li> <button ng-click="SaveSKU();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-floppy-disk"></i></button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

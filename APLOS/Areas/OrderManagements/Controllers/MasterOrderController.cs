@@ -3345,7 +3345,7 @@ WHERE PP.PartyId='" + partyId + @"' ORDER BY 2";
             }
         }
 
-
+        [HttpPost]
         public ActionResult DeleteSKUResPerson(string id)
         {
 
@@ -3373,85 +3373,161 @@ WHERE PP.PartyId='" + partyId + @"' ORDER BY 2";
 
         }
 
-        [HttpPost, Authorize]
-        public JsonResult SavePackerEmployee(List<Dictionary<string, object>> data, string masterId)
+        //[HttpPost, Authorize]
+        //public JsonResult SavePackerEmployee(List<Dictionary<string, object>> data, string masterId)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    ConnectionManager.DAL.ConManager objCon;
+        //    DataSet dsEntity;
+        //    try
+        //    {
+
+        //        #region Entity 
+        //        objCon = new ConnectionManager.DAL.ConManager("1");
+        //        objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.PackerCategoryEmployee where  PackerCategoryId='" + masterId + "'", out dsEntity, false, "1");
+        //        if (data != null)
+        //        {
+        //            foreach (var item in data)
+        //            {
+        //                DataView dv = new DataView(dsEntity.Tables[0]);
+        //                dv.RowFilter = "Id='" + Convert.ToInt64(item["Id"]) + "'";
+
+        //                if (dv.Count == 0)
+        //                {
+        //                    AddNewRow(dsEntity.Tables[0], item);
+        //                }
+        //                else
+        //                {
+        //                    DataRow drmo = dv[0].Row;
+        //                    EditRow(drmo, item);
+        //                }
+        //            }
+        //        }
+
+        //        #endregion
+
+        //        clsStaticInfo obj = new clsStaticInfo();
+        //        obj.SaveDataSets(dsEntity);
+
+        //        return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { Error = true, Message = ex.Message });
+        //    }
+        //}
+
+        //[HttpGet, Authorize]
+        //public ActionResult GetPackerEmployee(string masterId)
+        //{
+        //    Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+        //    var jsondata = Json(order.GetPackerEmployee(masterId), JsonRequestBehavior.AllowGet);
+        //    jsondata.MaxJsonLength = int.MaxValue;
+        //    return jsondata;
+        //}
+
+        //[HttpPost]
+        //public ActionResult DeleteEmployee(string id)
+        //{
+
+        //    try
+        //    {
+
+        //        if (string.IsNullOrEmpty(id))
+        //            throw new Exception("Select entry first");
+
+        //        ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+        //        con.BeginTransaction();
+        //        con.executeQuery("delete from [dbo].[PackerCategoryEmployee] where Id='" + id + "'");
+        //        con.CommitTransaction();
+
+        //        return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+
+        //        return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+        //    }
+        //}
+
+
+        [HttpGet, Authorize]
+        public ActionResult getPOFilters()
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ConnectionManager.DAL.ConManager objCon;
-            DataSet dsEntity;
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            JsonResult json = Json(order.Productionfilters(), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult GetSalesOrder(Dictionary<string, string> parameters)
+        {
+
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            JsonResult json = Json(order.GetSalesOrder(parameters), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult GetSKUData(string salesOrderId)
+        {
+
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            JsonResult json = Json(order.GetSKUData(salesOrderId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetRP1Data()
+        {
             try
             {
-
-                #region Entity 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.PackerCategoryEmployee where  PackerCategoryId='" + masterId + "'", out dsEntity, false, "1");
-                if (data != null)
-                {
-                    foreach (var item in data)
-                    {
-                        DataView dv = new DataView(dsEntity.Tables[0]);
-                        dv.RowFilter = "Id='" + Convert.ToInt64(item["Id"]) + "'";
-
-                        if (dv.Count == 0)
-                        {
-                            AddNewRow(dsEntity.Tables[0], item);
-                        }
-                        else
-                        {
-                            DataRow drmo = dv[0].Row;
-                            EditRow(drmo, item);
-                        }
-                    }
-                }
-
-                #endregion
-
-                clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsEntity);
-
-                return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
-
+                Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+                return Json(order.GetResponsiblePerson1Cbo(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-                return Json(new { Error = true, Message = ex.Message });
+
+                throw ex;
             }
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetPackerEmployee(string masterId)
+        public ActionResult GetRP2Data()
         {
-            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
-            var jsondata = Json(order.GetPackerEmployee(masterId), JsonRequestBehavior.AllowGet);
-            jsondata.MaxJsonLength = int.MaxValue;
-            return jsondata;
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult DeleteEmployee(string id)
-        {
-
             try
             {
-
-                if (string.IsNullOrEmpty(id))
-                    throw new Exception("Select entry first");
-
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from [dbo].[PackerCategoryEmployee] where Id='" + id + "'");
-                con.CommitTransaction();
-
-                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-
+                Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+                return Json(order.GetResponsiblePerson2Cbo(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
 
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-
+                throw ex;
             }
         }
+
+        [HttpGet, Authorize]
+        public ActionResult GetRP3Data()
+        {
+            try
+            {
+                Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+                return Json(order.GetResponsiblePerson3Cbo(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
 
 
         #endregion

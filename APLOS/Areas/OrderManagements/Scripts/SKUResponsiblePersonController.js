@@ -229,15 +229,169 @@ function SKUResponsiblePersonController(commonMessage, $scope, $rootScope, baseS
     };
   
 
-    $scope.Clear = function () {
-        ClearFields();
-        return true;
-    };
+    $scope.loadfilters = function () {
+        try {
+            $scope.filters = [];
+            $http({
+                method: 'GET',
+                url:'OrderManagements/MasterOrder/getPOFilters',
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
 
-    function ClearFields() {
-        $scope.Action = 'Save';
-        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $scope.filters = response.data;
+                    var columnList = [
+                        { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
+                        { field: 'ProductionStatus', width: 20, headerText: "PO Status", type: "string" },
+                        { field: 'POId', width: 20, headerText: "POId", type: "string" }
+
+                    ];
+                    $("#filters").ejGrid({
+                        dataSource: $scope.filters,
+                        minWidth: 450, minHeight: 400,
+                        allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
+                        filterSettings: { filterType: "excel" },
+                        columns: columnList
+                    });
+
+                    var gridObj = $("#filters").data("ejGrid");
+                    gridObj.refreshContent(true);
+                    gridObj.refreshTemplate();
+                    $("#filters").children('.e-pager.e-js.e-pager').hide();
+                    $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
+                    $("#filters").children('.e-gridcontent').hide();
+                }
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
+
+    $scope.parameters = [];
+    $scope.filterComplete = function () {
+
+        var g = $("#filters").data("ejGrid");
+        var fl = g.getFilteredRecords();
+        if (fl.length == 0) {
+            fl = $scope.filters;
+        }
+
+
+        var parameters = [];
+        parameters.push({ "Key": "CustomerId", "Value": getString(fl, "CustomerId") });
+        parameters.push({ "Key": "ProductionStatusId", "Value": getString(fl, "ProductionStatusId") });
+        parameters.push({ "Key": "POId", "Value": getString(fl, "POId") });
+        $scope.parameters = parameters;
+
+    }
+
+    var getString = function (data, column) {
+        var string = "''";
+        var collection = [];
+
+        for (var i = 0; i < data.length; i++) {
+            if (collection.includes(data[i][column]) == false) {
+                /* var replace = data[i][column].replace(",", "','");*/
+                string += ",'" + data[i][column] + "'";
+                collection.push(data[i][column]);
+            }
+        }
+        return string;
+    }
+
+    $scope.SalesOrderItemList = [];
+    $scope.GetSalesOrder = function () {
+        $scope.filterComplete();
+        $http({
+            method: 'POST',
+            url: "OrderManagements/MasterOrder/GetSalesOrder",
+            data: { 'parameters': $scope.parameters },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $scope.SalesOrderItemList = response.data;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
+    $scope.SKUItemList = [];
+    $scope.GetSKUData = function (data) {
+        $http({
+            method: 'POST',
+            url: "OrderManagements/MasterOrder/GetSKUData",
+            data: { 'salesOrderId': data.SalesOrderId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $scope.SKUItemList = response.data;
+                angular.element(document.querySelector('#SKUPopUp')).modal('show');
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
+    $scope.ResponsiblePerson1CboList = [];
+    $scope.GetRP1Data = function () {
+        try {
+            $scope.popUpDataList = [];
+            $http({
+                method: 'GET',
+                url: 'OrderManagements/MasterOrder/GetRP1Data'
+
+            }).then(function successCallback(response) {
+                $scope.ResponsiblePerson1CboList = response.data;
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+    $scope.GetRP1Data();
+
+    $scope.ResponsiblePerson2CboList = [];
+    $scope.GetRP2Data = function () {
+        try {
+            $scope.popUpDataList = [];
+            $http({
+                method: 'GET',
+                url: 'OrderManagements/MasterOrder/GetRP2Data'
+
+            }).then(function successCallback(response) {
+                $scope.ResponsiblePerson2CboList = response.data;
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+    $scope.GetRP2Data();
+
+    $scope.ResponsiblePerson3CboList = [];
+    $scope.GetRP3Data = function () {
+        try {
+            $scope.popUpDataList = [];
+            $http({
+                method: 'GET',
+                url: 'OrderManagements/MasterOrder/GetRP3Data'
+
+            }).then(function successCallback(response) {
+                $scope.ResponsiblePerson3CboList = response.data;
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+    $scope.GetRP3Data();
 
 
 }
