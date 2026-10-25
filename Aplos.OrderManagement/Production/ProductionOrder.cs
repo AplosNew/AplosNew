@@ -1841,10 +1841,12 @@ SELECT P.Id POId,PS.UserName ProductionStatus,P.ProductionStatusId
         {
             try
             {
-                string sql = @"SELECT SC.*,FC.SalesOrderId,FC.Id FirstCharacteristicsId,FC.CharacteristicsValueId,CV.UserName SKUColor FROM [TRN].[FirstCharacteristics] FC
+                string sql = @"SELECT SC.Id,SC.ProcessId,SC.ResponsiblePerson1Id,SC.ResponsiblePerson2Id,SC.ResponsiblePerson3Id,FORMAT(SC.TargetDate,'dd-MMM-yyyy')TargetDate
+,SC.SKUStatus,FORMAT(SC.ClosingDate,'dd-MMM-yyyy')ClosingDate,SC.CloseBy,SC.Remarks,SC.AddedBy,SC.AddedDate,SC.AddedFromIP
+,SC.UpdatedBy,SC.UpdatedDate,SC.UpdatedFromIP,FC.SalesOrderId,FC.Id FirstCharacteristicsId,FC.CharacteristicsValueId,CV.UserName SKUColor FROM [TRN].[FirstCharacteristics] FC
 							LEFT JOIN HKP.CharacteristicsValue CV ON CV.Id=FC.CharacteristicsValueId
 							LEFT JOIN dbo.SKUControl SC ON SC.SalesOrderId=FC.SalesOrderId AND SC.FirstCharacteristicsId=FC.Id AND SC.CharacteristicsValueId=FC.CharacteristicsValueId
-							Where FC.SalesOrderId='"+ salesOrderId + "'";
+							Where FC.SalesOrderId='" + salesOrderId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

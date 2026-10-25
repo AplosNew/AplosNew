@@ -322,12 +322,14 @@ function SKUResponsiblePersonController(commonMessage, $scope, $rootScope, baseS
         });
     }
 
+    $scope.SOId = null;
     $scope.SKUItemList = [];
     $scope.GetSKUData = function (data) {
+        $scope.SOId = data.data.SOId;
         $http({
             method: 'POST',
             url: "OrderManagements/MasterOrder/GetSKUData",
-            data: { 'salesOrderId': data.SalesOrderId },
+            data: { 'salesOrderId': $scope.SOId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
@@ -393,6 +395,53 @@ function SKUResponsiblePersonController(commonMessage, $scope, $rootScope, baseS
     };
     $scope.GetRP3Data();
 
+    $scope.SaveSKU = function () {
+        try {
+            if (baseService.arrayLength($scope.SKUItemList) > 0) {
+
+            $http({
+                method: 'POST',
+                url: 'OrderManagements/MasterOrder/CreateSKUControl',
+                data: { 'data': $scope.SKUItemList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetSavedSKUData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.GetSavedSKUData = function () {
+        $http({
+            method: 'POST',
+            url: "OrderManagements/MasterOrder/GetSKUData",
+            data: { 'salesOrderId': $scope.SOId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $scope.SKUItemList = response.data;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
+    $scope.closeSkuPopUp = function () {
+        angular.element(document.querySelector('#SKUPopUp')).modal('hide');
+    };
 
 }
 
