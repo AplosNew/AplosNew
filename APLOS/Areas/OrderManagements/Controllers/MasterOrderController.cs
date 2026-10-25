@@ -3256,45 +3256,31 @@ WHERE PP.PartyId='" + partyId + @"' ORDER BY 2";
         #region SKUResPerson
 
 
-        [HttpPost, Authorize]
-        public ActionResult GetSKUResPersonList(string column, string value)
+        [HttpGet, Authorize]
+        public ActionResult GetSKUResPersonList()
         {
-            string strkey = "1=1";
-            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                strkey = column + " like '%" + value + "%'";
-
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT S.Id,S.ResponsiblePersonId,FORMAT(S.TargetDate,'dd-MMM-yyyy')TargetDate,S.Status,E.EmployeeName ResponsiblePersonName
-FROM dbo.SKUResponsiblePerson S
-LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=S.ResponsiblePersonId) AS TEMP WHERE " + strkey + "";
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            var jsondata = Json(order.GetSKUEmployee(), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
-       
         [HttpPost]
-        public JsonResult CreateSKUResPerson(Dictionary<string, object> data)
+        public JsonResult UpdateSKUResPerson(Dictionary<string, object> data)
         {
             try
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-               
+
                 con.OpenDataSetThroughAdapter("select * from dbo.SKUResponsiblePerson where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
 
                 #region data update
-                if (dsMaster.Tables[0].Rows.Count == 0)
+                if (dsMaster.Tables[0].Rows.Count > 0)
                 {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("SKUResponsiblePerson", out _Id);
-
-                    data["Id"] = _Id;
-                    AddNewRow(dsMaster.Tables[0], data);
-                }
-                else
-                {
+                   
                     _Id = data["Id"].ToString();
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
@@ -3303,7 +3289,7 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=S.ResponsiblePersonId) AS TEMP
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
 
-                return Json(new { Error = false, Data = data,Message = AplosMessage.Success });
+                return Json(new { Error = false, Message = AplosMessage.Success });
 
             }
             catch (Exception ex)
@@ -3313,6 +3299,52 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=S.ResponsiblePersonId) AS TEMP
 
             }
         }
+
+        [HttpPost]
+        public JsonResult CreateSKUResPerson(List<Dictionary<string, object>> data)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsEntity;
+            try
+            {
+
+                #region Entity 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.SKUResponsiblePerson", out dsEntity, false, "1");
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsEntity.Tables[0]);
+                        dv.RowFilter = "Id='" + Convert.ToInt64(item["Id"]) + "' AND EmpSystemId='"+item["EmpSystemId"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            AddNewRow(dsEntity.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsEntity);
+
+                return Json(new { Error = false, Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
 
         public ActionResult DeleteSKUResPerson(string id)
         {
