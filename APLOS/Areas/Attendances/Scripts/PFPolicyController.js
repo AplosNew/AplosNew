@@ -165,13 +165,15 @@ function PFPolicyController($window, cboService, commonMessage, $scope, $rootSco
 
             $scope.PFPolicyDetailsMaster.FormulaDesEmp = $scope.salaryRuleGeneralEmployee.FormulaDescriptionEmployee;
             $scope.PFPolicyDetailsMaster.FormulaDesIDEmp = $scope.salaryRuleGeneralEmployee.FormulaIDDescriptionEmployee;
-            $scope.PFPolicyDetailsMaster.FormulaDesIDEmpDis = "( " + $scope.salaryRuleGeneralEmployee.FormulaIDDescriptionEmployee + " ) * " + $scope.PFPolicyDetailsMaster.EmpCntValPer + " / 100";
+            //$scope.PFPolicyDetailsMaster.FormulaDesIDEmpDis = "( " + $scope.salaryRuleGeneralEmployee.FormulaIDDescriptionEmployee + " ) * " + $scope.PFPolicyDetailsMaster.EmpCntValPer + " / 100";
             $scope.PFPolicyDetailsMaster.SalaryHeadIDEmp = $scope.salaryRuleGeneralEmployee.FormulaIDDescriptionEmployee;
+            $scope.PFPolicyDetailsMaster.FormulaDesIDEmpDis = $scope.salaryRuleGeneralEmployee.FormulaIDDescriptionEmployee;
 
             $scope.PFPolicyDetailsMaster.FormulaDesEmployer = $scope.salaryRuleGeneralEmployer.FormulaDescriptionEmployer;
             $scope.PFPolicyDetailsMaster.FormulaDesIDEmployer = $scope.salaryRuleGeneralEmployer.FormulaIDDescriptionEmployer;
-            $scope.PFPolicyDetailsMaster.FormulaDesIDEmployerDis = "( " + $scope.salaryRuleGeneralEmployer.FormulaIDDescriptionEmployer + " ) * " + $scope.PFPolicyDetailsMaster.EmployerCntValPer + " / 100";
+            //$scope.PFPolicyDetailsMaster.FormulaDesIDEmployerDis = "( " + $scope.salaryRuleGeneralEmployer.FormulaIDDescriptionEmployer + " ) * " + $scope.PFPolicyDetailsMaster.EmployerCntValPer + " / 100";
             $scope.PFPolicyDetailsMaster.SalaryHeadIDEmployer = $scope.salaryRuleGeneralEmployer.FormulaIDDescriptionEmployer;
+            $scope.PFPolicyDetailsMaster.FormulaDesIDEmployerDis = $scope.salaryRuleGeneralEmployer.FormulaIDDescriptionEmployer;
 
             ValidationDetails();
             $scope.$broadcast('show-errors-check-validity');
