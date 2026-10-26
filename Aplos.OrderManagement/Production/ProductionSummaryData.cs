@@ -3665,7 +3665,7 @@ SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, 
         {
             try
             {
-                var sql = @"SELECT Id as Value,UserName as Text FROM SCS.WorkCenterMaster WHERE Active = 1 and ProcessId='" + ProcessId + "' AND PlantId='" + plantId + "' AND EntityId='" + EntityId + "' Order  by Sequence";
+                var sql = @"SELECT Id as Value,UserName as Text FROM SCS.WorkCenterMaster WHERE Active = 1 AND PlantId='" + plantId + "' AND EntityId='" + EntityId + "' Order  by Sequence";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
 
