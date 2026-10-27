@@ -246,7 +246,6 @@ function PackerCategoryController(cboService, commonMessage, $scope, $rootScope,
             $scope.packerEmployeeList = response.data;
 
         });
-
     };
 
     $scope.message_confirmation = "";

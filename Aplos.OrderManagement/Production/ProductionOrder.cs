@@ -1702,6 +1702,202 @@ WHERE CG.Id = '" + masterId + @"' AND CG.PackingComboReferenceId IS NOT NULL   -
             }
         }
 
+        public IEnumerable<object> GetSKUEmployee()
+        {
+            try
+            {
+
+                string CmdText = @"SELECT SSU.*,EI.EmployeeName,EI.CompanyId,EI.PlantId,EI.GroupId,EI.EmployeeCode
+                                      ,EI.BudgetCode,E.UserName EntityName,D.UserName Designation,
+                                      PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,SS.UserName SubSection
+                                      ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,EI.EmpPicPath,EI.EmployeeStatus,C.UserName Company
+									  FROM dbo.SKUResponsiblePerson SSU
+									  LEFT JOIN dbo.EmployeeInformation EI on ei.SystemId=ssu.EmpSystemId
+                                      LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                                      LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                      LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                                      LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                      LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
+                                      LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
+                                      LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                                      LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
+                                      LEFT JOIN ORG.Company C ON C.Id=EI.CompanyId
+                                      LEFT JOIN ORG.Line L ON L.Id=PMB.LineId
+                                      LEFT JOIN HKP.Designation DEG ON EI.GivenDesignationId=DEG.Id
+                                      LEFT JOIN HKP.LegalDesignation LDEG ON EI.LegalDesignationId=LDEG.Id
+									  ORDER BY EI.EmployeeStatus";
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> Productionfilters()
+        {
+            try
+            {
+               
+                var sql = @"
+SELECT P.Id POId,PS.UserName ProductionStatus,P.ProductionStatusId 
+,Customer= REPLACE(REPLACE(
+	STUFF((select distinct ','+XP.UserName from 
+		trn.SalesOrder XSO 
+		JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			where P.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+			,'&amp;','&'), 'amp;', '')
+,CustomerId= REPLACE(REPLACE(
+	STUFF((select distinct ','+XP.Id from 
+		trn.SalesOrder XSO 
+		JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			where P.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+			,'&amp;','&'), 'amp;', '')
+ FROM TRN.ProductionOrder P 
+ LEFT JOIN HKP.ProductionStatus PS ON PS.Id=P.ProductionStatusId
+ Where PS.UserName<>'Closed'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> GetSalesOrder(Dictionary<string, string> parameters)
+        {
+            try
+            {
+
+                var sql = @"SELECT DISTINCT mo.MasterOrderNo
+	                                ,ISNULL(so.Id,'') SOId
+                                    ,ISNULL(moi.Id,'') MOIId
+									,Format(so.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate
+									,PM.Code as ProductCode
+	                                ,SO.CustomerPOId
+	                                ,CPO.PONumber
+	                                ,mm.Id MaterialMasterId
+	                                ,mm.UserName MaterialMaster
+	                                ,ISNULL(mma.StandardName, '') Article
+	                                ,b.UserName Customer
+	                                ,mo.TotalQty MOQty
+	                                ,ISNULL(u.UserName, '') UOM
+	                                ,moi.ExtraOrderPercentage [ExtraP]
+	                                ,moi.OrderWastagePercentage [WastageP]
+	                                ,ISNULL(mma.Id, '') ArticleId
+	                                ,mmc.CharCount
+	                                ,ISNULL(POD.ProductionOrderId, '') POId
+	                                ,B.UserName Buyer
+	                                ,PM.UserName AS ProductMasterName
+	                                ,CEILING(SO.PlannedQty) PlannedQty
+                                    ,SO.SONo,SO.Description,SO.LineItemReference,MO.BuyerReferenceNo BuyerOrder,MO.OwnReferenceNo OwnOrder,moi.BuyerReferenceNo BuyerItem,moi.OwnReferenceNo OwnItem
+                                FROM TRN.ProductionOrderDetail POD
+                               LEFT JOIN (
+	                                SELECT SUM((isnull(qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) AS PlannedQty
+		                                ,s.Id SONo,s.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description,s.DeliveryDate,S.LineItemReference
+	                                FROM trn.SalesOrder AS s
+	                                INNER JOIN trn.MasterOrderItem AS moi ON moi.Id = s.MasterOrderItemId
+	                                GROUP BY S.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description,s.DeliveryDate,S.LineItemReference
+	                                ) so ON POD.SalesOrderId = SO.Id
+                                LEFT JOIN TRN.[MasterOrderItem] moi ON moi.id = so.MasterOrderItemId
+                                LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
+                                
+                                LEFT JOIN HKP.Party b ON b.id = mo.PartyId
+                                LEFT JOIN SCS.UnitOfMeasurement u ON u.id = mo.TotalQtyUOMId
+                                LEFT JOIN MST.MaterialMaster mm ON mm.id = moi.MaterialMasterId
+                                LEFT JOIN MST.MaterialMasterArticle mma ON mma.id = moi.ArticleId
+                                LEFT JOIN (SELECT COUNT(Id) CharCount, MaterialMasterId	FROM [MST].[MaterialMasterCharacteristics] GROUP BY MaterialMasterId
+	                                ) mmc ON mmc.MaterialMasterId = mm.id
+                                LEFT JOIN HKP.Buyer BU ON BU.Id = mo.BuyerId
+                                LEFT JOIN [TRN].ProductDefinition AS PD ON PD.MaterialMasterId = MM.Id
+                                LEFT JOIN [MST].[ProductMaster] AS PM ON PD.ProductMasterId = PM.Id
+                                LEFT JOIN (SELECT PS.UserName, PO.Id ProductionOrderId FROM [HKP].[ProductionStatus] PS
+	                                INNER JOIN TRN.ProductionOrder PO ON PO.ProductionStatusId = PS.Id
+	                                ) OS ON OS.ProductionOrderId = POD.ProductionOrderId
+                                LEFT JOIN TRN.ProductionOrder PO ON PO.Id = POD.ProductionOrderId
+                                LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id = PO.ProductionStatusId
+                                LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
+                                
+                                LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
+                                LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
+                                WHERE POD.ProductionOrderId IN (" + parameters["POId"] + @") 
+                                AND mo.PartyId IN (" + parameters["CustomerId"] + @") 
+                                AND PO.ProductionStatusId IN (" + parameters["ProductionStatusId"] + @") ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> GetSKUData(string salesOrderId)
+        {
+            try
+            {
+                string sql = @"SELECT SC.Id,SC.ProcessId,SC.ResponsiblePerson1Id,SC.ResponsiblePerson2Id,SC.ResponsiblePerson3Id,FORMAT(SC.TargetDate,'dd-MMM-yyyy')TargetDate
+,SC.SKUStatus,FORMAT(SC.ClosingDate,'dd-MMM-yyyy')ClosingDate,SC.CloseBy,SC.Remarks,SC.AddedBy,SC.AddedDate,SC.AddedFromIP
+,SC.UpdatedBy,SC.UpdatedDate,SC.UpdatedFromIP,FC.SalesOrderId,FC.Id FirstCharacteristicsId,FC.CharacteristicsValueId,CV.UserName SKUColor FROM [TRN].[FirstCharacteristics] FC
+							LEFT JOIN HKP.CharacteristicsValue CV ON CV.Id=FC.CharacteristicsValueId
+							LEFT JOIN dbo.SKUControl SC ON SC.SalesOrderId=FC.SalesOrderId AND SC.FirstCharacteristicsId=FC.Id AND SC.CharacteristicsValueId=FC.CharacteristicsValueId
+							Where FC.SalesOrderId='" + salesOrderId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetResponsiblePerson1Cbo()
+        {
+            try
+            {
+                string sql = @"select Value=S.EmpSystemId,Text=(E.EmployeeCode +'-'+E.EmployeeName) from [dbo].[SKUResponsiblePerson] S
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=S.EmpSystemId
+Where S.RPLevel='Level1'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        public IEnumerable<object> GetResponsiblePerson2Cbo()
+        {
+            try
+            {
+                string sql = @"select Value=S.EmpSystemId,Text=(E.EmployeeCode +'-'+E.EmployeeName) from [dbo].[SKUResponsiblePerson] S
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=S.EmpSystemId
+Where S.RPLevel='Level2'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        public IEnumerable<object> GetResponsiblePerson3Cbo()
+        {
+            try
+            {
+                string sql = @"select Value=S.EmpSystemId,Text=(E.EmployeeCode +'-'+E.EmployeeName) from [dbo].[SKUResponsiblePerson] S
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=S.EmpSystemId
+Where S.RPLevel='Level3'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
     }
 
 
