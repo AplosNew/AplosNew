@@ -3668,6 +3668,637 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=S.ResponsiblePersonId) AS TEMP
 
 
         #endregion
+
+        #region SKU Upload
+        [Authorize, HttpGet]
+        public ActionResult GetSalesOrderListSearch(string column, string value, string moentity)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+            string Entity = "'" + moentity.Replace(",", "','") + "'";//replaced with ""
+
+            string activeStatus = "";
+            string plantSql = @"select * from scs.PlantConfig where plantid='" + identity.PlantId + "'";
+            DataTable dtPlantConfig = _sqlRepository.GetDataTable(plantSql);
+            if (dtPlantConfig.Rows.Count > 0)
+                if (bplib.clsWebLib.GetBoolData(dtPlantConfig.Rows[0]["IsProductionOrderCreatedAfterConfirmationOfSO"].ToString()))
+                    activeStatus = " AND isnull(SO.IsConfirm,0)=1 ";
+
+
+            string sql = @"SELECT 
+                             MO.Type,isnull(moi.Consignment,0) AS Consignment,
+                             CASE WHEN ISNULL(eout.Id,'')<>'' OR ISNULL(TOUT.Id,'')<>'' THEN CONCAT(POWN.UserName,'(',EOWN.UserName,')') ELSE '' END AS OrderOwner
+                            ,TEMP.* FROM (SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Checked,null AS Id,null AS ProductionOrderId
+	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
+	                            , SO.Id AS SalesOrderId, P.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping 
+	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
+	                            , MOI.ArticleId, ART.StandardName AS ArticleName
+	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
+	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), CommitmentDate, 106),' ','-')
+	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
+	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
+	                            , SO.Qty, SO.Rate,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
+	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription
+                       FROM [TRN].[SalesOrder] AS SO 
+                       JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
+                       JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
+                       LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
+					   LEFT JOIN trn.ProductDefinition AS pd ON pd.MaterialMasterId=moi.MaterialMasterId
+					   LEFT JOIN [MST].[ProductMaster] PM ON pm.Id=pd.ProductMasterId
+                       LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
+                       LEFT JOIN [HKP].[Party] AS P ON MO.PartyId = P.Id
+					   LEFT JOIN HKP.BUYER b on b.Id=MO.BuyerId
+                       LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
+                       LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
+                       LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+                       LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
+                       LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
+                       LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
+
+                       WHERE   
+                       (
+                            --if there is no jobwork, i can create my own production order
+                       	    (ISNULL(moi.JobWorkType,'')='' AND MO.PlantId='" + identity.PlantId + @"' )
+                                OR 
+                       	    (ISNULL(moi.JobWorkType,'')<>'' AND EOUT.PlantId='" + identity.PlantId + @"' )
+                       )
+                       AND (OS.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' " + activeStatus + @" and  SO.Id not IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderDetail])) AND MOI.ArticleId<>''
+                        
+						UNION
+						
+						SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Checked,POD.Id,POD.ProductionOrderId
+	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,moi.BuyerReferenceNo,moi.OwnReferenceNo,mo.BuyerReferenceNo BuyerOrderNo,mo.OwnReferenceNo AS OwnOrderNo
+	                            , SO.Id AS SalesOrderId, P.UserName AS Customer,B.UserName AS Buyer,PM.Id AS ProductID,isnull(MOI.ProductionGrouping,'') AS ProductionGrouping
+	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName,PM.UserName AS ProductName
+	                            , MOI.ArticleId, ART.StandardName AS ArticleName
+	                            , DeliveryDate = REPLACE(CONVERT(CHAR(11), DeliveryDate, 106),' ','-')
+	                            , CommitmentDate = REPLACE(CONVERT(CHAR(11), CommitmentDate, 106),' ','-')
+	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
+	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
+	                            , SO.Qty, SO.Rate,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
+	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription
+                       FROM [TRN].[SalesOrder] AS SO 
+                        left outer join [TRN].[ProductionOrderDetail] POD on POD.SalesOrderId=SO.Id 
+                       JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
+                       JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
+                       LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
+					   LEFT JOIN trn.ProductDefinition AS pd ON pd.MaterialMasterId=moi.MaterialMasterId
+					   LEFT JOIN [MST].[ProductMaster] PM ON pm.Id=pd.ProductMasterId
+                       LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
+                       LEFT JOIN [HKP].[Party] AS P ON MO.PartyId = P.Id
+					   LEFT JOIN HKP.BUYER b on b.Id=MO.BuyerId
+                       LEFT JOIN [MST].[Destination] AS DEST ON SO.DestinationId = DEST.Id
+                       LEFT JOIN [MST].[ShipMode] AS SHP ON SO.ShipmentModeId = SHP.Id
+                       LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+                       LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
+                       LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
+                       --WHERE  SO.Id IN (SELECT DISTINCT SalesOrderId FROM [TRN].[ProductionOrderDetail] WHERE ProductionOrderID='')
+                        
+						
+						
+						) AS TEMP 
+
+                            LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON TEMP.MasterOrderItemId=MOI.Id
+                            LEFT JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
+							LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
+							LEFT JOIN org.Plant AS POUT ON POUT.Id=EOUT.PlantId
+							LEFT JOIN hkp.Party AS TOUT ON tout.Id=moi.PartyId
+							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
+							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
+
+WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId IN (" + Entity + @")  ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEMP.ArticleId";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSKUSampleFile(ReportFormat reportFormat, string salesOrderId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            IWorkbook workbook = GetWorkBookSKUSampleFile(identity.Name, salesOrderId);
+            var reportFileName = "SKU Upload Sample File";
+
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+        private void GetSKU1(out System.Data.DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"SELECT CV.UserName+'_#'+CV.Id Text FROM [HKP].[Characteristics] C 
+                            LEFT JOIN [HKP].[CharacteristicsValue] CV on CV.CharacteristicsId=C.Id
+                            WHERE CV.CharacteristicsId=1";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        private void GetSKU2(out System.Data.DataSet dsRef)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                strSQL = @"SELECT CV.UserName+'_#'+CV.Id Text FROM [HKP].[Characteristics] C 
+                            LEFT JOIN [HKP].[CharacteristicsValue] CV on CV.CharacteristicsId=C.Id
+                            WHERE CV.CharacteristicsId=2";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        public void CreateSource(DataSet ds, int Col, string Header, ref IWorksheet sheetSource)
+        {
+            try
+            {
+                ReportUtility ru = new ReportUtility();
+                ru.SetText(ref sheetSource, 1, Col, Header);
+                for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+                {
+                    var un = ds.Tables[0].Rows[i]["Text"].ToString();
+                    int k = i + 2;
+                    ru.SetText(ref sheetSource, k, Col, un);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+
+        public IWorkbook GetWorkBookSKUSampleFile(string Name, string salesOrderId)
+        {
+            #region declare
+            DataSet dsSKU1;
+            DataSet dsSKU2;
+
+            #endregion
+            try
+            {
+                ReportUtility ru = new ReportUtility();
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                var workbook = ru.GetWorkbook(ref excelEngine, 1);
+                workbook.Version = ExcelVersion.Excel2013;
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(2);
+                GetSKU1(out dsSKU1);
+                GetSKU2(out dsSKU2);
+                int xlsRow = 1, xlsCol = 1;
+                int endXlsCol = 1;
+
+                IWorksheet sheet1 = null;
+                sheet1 = workbook.Worksheets[0];
+                IWorksheet sheetSource = null;
+                sheetSource = workbook.Worksheets[1];
+
+                xlsRow = 1;
+                CreateSource(dsSKU1, 1, "SKU1", ref sheetSource); int SKU1Col = 2;
+                CreateSource(dsSKU2, 4, "SKU2", ref sheetSource); int SKU2Col = 4;
+
+                int maxRow = 5001;
+                #region ------------------Column Header------------------
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SalesOrderId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colSalesOrderId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SKU1", ExcelKnownColors.Red); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colSKU1Id = xlsCol;// xlsCol += 1;
+                ru.SetList(ref sheet1, xlsRow, maxRow, xlsCol, sheetSource, SKU1Col, dsSKU1.Tables[0].Rows.Count); xlsCol += 1;
+
+                //ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SKU1ValueId", ExcelKnownColors.Red); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colSKU1ValueId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FirstCharacteristicsId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colFirstCharacteristicsId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SKU2", ExcelKnownColors.Red); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12; int colSKU2Id = xlsCol; //xlsCol += 1;
+                ru.SetList(ref sheet1, xlsRow, maxRow, xlsCol, sheetSource, SKU2Col, dsSKU2.Tables[0].Rows.Count); xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Qty"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12; int colQty = xlsCol; xlsCol += 1;
+
+                endXlsCol = xlsCol;
+
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
+
+                xlsRow++;
+
+                #endregion ------------------Column Header------------------
+
+                DataTable dtData = GetSKUSampleData(salesOrderId);
+                for (int i = 0; i < dtData.Rows.Count; i++)
+                {
+                    sheet1[xlsRow, colSalesOrderId].Text = dtData.Rows[i]["SalesOrderId"].ToString();
+                    sheet1[xlsRow, SKU1Col].Text = dtData.Rows[i]["SKU1"].ToString();
+                    sheet1[xlsRow, colFirstCharacteristicsId].Text = dtData.Rows[i]["FirstCharacteristicsId"].ToString();
+                    sheet1[xlsRow, SKU2Col].Text = dtData.Rows[i]["SKU2"].ToString();
+                    sheet1[xlsRow, colQty].Text = dtData.Rows[i]["Qty"].ToString();
+                    xlsRow++;
+                }
+
+                #region UsedRange Alignment
+
+                sheet1.UsedRange.WrapText = true;
+                sheet1.UsedRange.CellStyle.Font.Size = 10;
+                sheet1.Range["A1"].CellStyle.Font.Size = 10;
+                sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+
+                #endregion UsedRange Alignment
+
+                #region Page Setup
+                sheet1.PageSetup.TopMargin = 0.5;
+                sheet1.PageSetup.BottomMargin = 0.7;
+                sheet1.PageSetup.PrintTitleRows = "$1:$1";
+                sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + Name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:mm tt").ToString();
+                sheet1.PageSetup.LeftMargin = 0.5;
+                sheet1.PageSetup.RightMargin = 0.2;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet1.PageSetup.FitToPagesTall = 0;
+                sheet1.PageSetup.FitToPagesWide = 1;
+                sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet1.IsDisplayZeros = false;
+                sheet1.Name = "Sheet1";
+                #endregion Page Setup
+
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetSKUSampleData(string salesOrderId)
+        {
+            var cmdText = @"SELECT FC.Id,CV.UserName+'_#'+CV.Id SKU1,FC.CharacteristicsValueId SKU1Value
+                ,FC.SalesOrderId,CV2.UserName+'_#'+CV2.Id SKU2,SC.CharacteristicsValueId SKU2Value,SC.FirstCharacteristicsId
+                ,FC.Qty SKU1Qty,SC.Qty 
+                from [TRN].[FirstCharacteristics] FC 
+                LEFT JOIN [TRN].[SecondCharacteristics] SC ON SC.FirstCharacteristicsId=FC.Id
+				LEFT JOIN [HKP].[Characteristics] C ON C.Id=FC.CharacteristicsId
+				LEFT JOIN [HKP].[CharacteristicsValue] CV on CV.CharacteristicsId=C.Id and CV.Id=FC.CharacteristicsValueId
+				LEFT JOIN [HKP].[Characteristics] C2 ON C2.Id=SC.CharacteristicsId
+				LEFT JOIN [HKP].[CharacteristicsValue] CV2 on CV2.CharacteristicsId=C2.Id  and CV2.Id=SC.CharacteristicsValueId
+                where FC.SalesOrderId='" + UploadSqlEsc(salesOrderId) + @"'
+                ORDER BY FC.Id";
+
+            return _sqlRepository.GetDataTable(cmdText);
+        }
+
+        private static string UploadSqlEsc(string s)
+        {
+            return (s ?? "").Replace("'", "''");
+        }
+
+        // numeric literal for DataView filters on int/decimal columns (never trusts the raw text)
+        private static string UploadNum(object v)
+        {
+            decimal d;
+            return decimal.TryParse(Convert.ToString(v), System.Globalization.NumberStyles.Any,
+                System.Globalization.CultureInfo.InvariantCulture, out d)
+                ? d.ToString(System.Globalization.CultureInfo.InvariantCulture) : "0";
+        }
+
+        private static object UploadVal(object v)
+        {
+            return v == null ? (object)DBNull.Value : v;
+        }
+
+        // view model returned to the grid after import; property names match the excel headers
+        public class UploadedSku1ViewModel
+        {
+            public string Id { get; set; }
+            public string SalesOrderId { get; set; }
+            public string SKU1Id { get; set; }
+            public string SKU1ValueId { get; set; }
+            public string SKU2Id { get; set; }
+            public string SKU2ValueId { get; set; }
+            public string FirstCharacteristicsId { get; set; }
+            public decimal Qty { get; set; }
+        }
+        [HttpPost, Authorize]
+        public JsonResult ImportSKUData(FormCollection form)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                List<UploadedSku1ViewModel> data = new List<UploadedSku1ViewModel>();
+
+                var file = Request.Files["file"];
+
+                if (file != null)
+                {
+                    var extension = Path.GetExtension(file.FileName);
+                    if (extension.ToLower() != ".xlsx" && extension.ToLower() != ".xls")
+                        throw new CustomException(Resources.ExcelUploadError);
+                }
+                else
+                {
+                    throw new CustomException(Resources.ExcelUploadError);
+                }
+                string path = Path.Combine(ResourcesPathReader.GetAttendanceRawData(), file.FileName);
+                if (System.IO.File.Exists(path))
+                {
+                    System.IO.File.Delete(path);
+                }
+                file.SaveAs(path);
+
+                FileInfo docFile;
+                try
+                {
+                    ExcelEngine excelEngine = new ExcelEngine();
+                    IApplication application = excelEngine.Excel;
+                    IWorkbook workbook = excelEngine.Excel.Workbooks.Open(path);
+
+                    DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
+
+                    // the file is only needed to read it once
+                    docFile = new FileInfo(path);
+                    if (docFile.Exists)
+                    {
+                        docFile.Delete();
+                    }
+
+                    if (dt.Rows.Count == 0)
+                        throw new Exception("Please Select File");
+
+                    // fail early when the uploaded file is not based on the sample file
+                    foreach (var h in new string[] { "SalesOrderId", "SKU1", "FirstCharacteristicsId", "SKU2", "Qty" })
+                    {
+                        if (!dt.Columns.Contains(h))
+                            throw new Exception("Column '" + h + "' not found in the uploaded file. Please download the sample file again.");
+                    }
+
+                    objCon = new ConnectionManager.DAL.ConManager("1");
+
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        DataRow row = dt.Rows[i];
+                        // rows without a value in the main column are blank lines of the sheet
+                        if (string.IsNullOrWhiteSpace(row["SKU1"].ToString()))
+                            continue;
+
+                        UploadedSku1ViewModel vm = new UploadedSku1ViewModel();
+                        string cSKU1Id = row["SKU1"].ToString().Trim();
+                        string cSKU2Id = row["SKU2"].ToString().Trim();
+
+                        vm.SalesOrderId = row["SalesOrderId"].ToString();
+                        vm.FirstCharacteristicsId = row["FirstCharacteristicsId"].ToString();
+                        if (cSKU1Id == "") throw new Exception("Row " + (i + 2) + ": SKU1Id is required. Please check !!");
+                        vm.SKU1Id = row["SKU1"].ToString();
+
+                        if (cSKU2Id == "") throw new Exception("Row " + (i + 2) + ": SKU2Id is required. Please check !!");
+                        vm.SKU2Id = row["SKU2"].ToString();
+
+                        vm.Qty = ParseDecimalOrFormula(row["Qty"]);
+
+                        data.Add(vm);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    docFile = new FileInfo(path);
+                    if (docFile.Exists)
+                    {
+                        docFile.Delete();
+                    }
+                    throw (ex);
+                }
+                JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        private static string MakePK(string masterId, int currentId, int padLeft)
+        {
+            if (string.IsNullOrWhiteSpace(masterId))
+                throw new ArgumentException("masterId is required.", nameof(masterId));
+
+            if (currentId < 0)
+                throw new ArgumentOutOfRangeException(nameof(currentId), "currentId cannot be negative.");
+
+            if (padLeft < 0)
+                throw new ArgumentOutOfRangeException(nameof(padLeft), "padLeft cannot be negative.");
+
+            // Pad only the numeric part with leading zeros, then append it to the master ID
+            return masterId.Trim() + currentId.ToString().PadLeft(padLeft, '0');
+        }
+        [HttpPost, Authorize]
+        public JsonResult SaveUploadedData(List<Dictionary<string, object>> sku1List, List<Dictionary<string, object>> dataList, string salesOrderId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsSKU1;
+            DataSet dsSKU2;
+            try
+            {
+                #region Entity
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[FirstCharacteristics] where SalesOrderId='" + UploadSqlEsc(salesOrderId) + "'", out dsSKU1, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[SecondCharacteristics] where SalesOrderId='" + UploadSqlEsc(salesOrderId) + "'", out dsSKU2, false, "1");
+
+                if (dataList != null)
+                {
+                    var maxnumbersku1 = _masterOrderService.GetSKU1MaxNumber(salesOrderId);
+                    var maxnumbersku2 = _masterOrderService.GetSKU2MaxNumber(salesOrderId);
+
+                    foreach (var sku1 in sku1List)
+                    {
+                        sku1["SalesOrderId"] = salesOrderId;
+                        string characteristisValId = GetCboPK(sku1["SKU1Id"].ToString());
+                        dsSKU1.Tables[0].DefaultView.RowFilter = "[CharacteristicsValueId]=" + UploadNum(characteristisValId) + " AND [SalesOrderId]=" + UploadNum(sku1["SalesOrderId"]) + "";
+
+                        if (dsSKU1.Tables[0].DefaultView.Count == 0)
+                        {
+                            maxnumbersku1++;
+                            sku1["Id"] = MakePK(sku1["SalesOrderId"].ToString(), maxnumbersku1, 2);
+                            sku1["CharacteristicsId"] = 1;
+                            sku1["CharacteristicsValueId"] = characteristisValId;
+                            AddNewRow(dsSKU1.Tables[0], sku1);
+                        }
+                        else
+                        {
+                            DataRow dr = dsSKU1.Tables[0].DefaultView[0].Row;      // fix 1: dsSKU1
+                            sku1["Id"] = dr["Id"].ToString();                      // fix 1: keep existing Id for children
+                            dr.BeginEdit();
+                            dr["SalesOrderId"] = UploadVal(sku1["SalesOrderId"]);
+                            dr["CharacteristicsId"] = 1;
+                            dr["CharacteristicsValueId"] = characteristisValId;
+                            dr["Qty"] = UploadVal(sku1["Qty"]);
+                            dr["UpdatedBy"] = identity.Name;
+                            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                            dr["UpdatedFromIP"] = identity.IPAddress;
+                            dr.EndEdit();
+                        }
+
+                        foreach (var item in dataList.Where(r => Equals(r["SKU1Id"], sku1["SKU1Id"])))
+                        {
+                            item["SalesOrderId"] = salesOrderId;
+                            string characteristisValId2 = GetCboPK(item["SKU2Id"].ToString());
+
+                            // fix 3: also filter by parent SKU1 row
+                            dsSKU2.Tables[0].DefaultView.RowFilter =
+                                "[CharacteristicsValueId]=" + UploadNum(characteristisValId2) +
+                                " AND [SalesOrderId]=" + UploadNum(item["SalesOrderId"]) +
+                                " AND [FirstCharacteristicsId]='" + UploadSqlEsc(sku1["Id"].ToString()) + "'";
+
+                            if (dsSKU2.Tables[0].DefaultView.Count == 0)
+                            {
+                                maxnumbersku2++;                                                    // fix 2
+                                item["Id"] = MakePK(sku1["Id"].ToString(), maxnumbersku2, 2);
+                                item["CharacteristicsId"] = 2;
+                                item["CharacteristicsValueId"] = characteristisValId2;              // main fix
+                                item["FirstCharacteristicsId"] = sku1["Id"].ToString();
+                                item["ValueFreeText"] = UploadVal(item["Qty"]);
+                                item["Sequence"] = 1;
+                                AddNewRow(dsSKU2.Tables[0], item);
+                            }
+                            else
+                            {
+                                DataRow dr2 = dsSKU2.Tables[0].DefaultView[0].Row;
+                                dr2.BeginEdit();
+                                dr2["SalesOrderId"] = UploadVal(item["SalesOrderId"]);
+                                dr2["CharacteristicsId"] = 2;
+                                dr2["CharacteristicsValueId"] = characteristisValId2;
+                                dr2["Qty"] = UploadVal(item["Qty"]);
+                                dr2["ValueFreeText"] = UploadVal(item["Qty"]);
+                                dr2["UpdatedBy"] = identity.Name;
+                                dr2["UpdatedDate"] = System.DateTime.Now.ToString();
+                                dr2["UpdatedFromIP"] = identity.IPAddress;
+                                dr2.EndEdit();
+                            }
+                        }
+                    }
+
+                }
+                #endregion
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsSKU1, dsSKU2);
+                return Json(new { Error = false, Data = dataList, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+
+
+        string GetCboPK(string colvalue)
+        {
+            string r = string.Empty;
+            string token = "_#";
+            if (colvalue != null)
+            {
+                var _index = colvalue.IndexOf(token);
+                if (_index != -1)
+                {
+                    r = colvalue.Substring(_index + token.Length).Trim().Replace("\n", "").Replace("\r", "");
+                }
+            }
+            return r;
+        }
+
+        private decimal ParseDecimalOrFormula(object cellValue)
+        {
+            if (cellValue == null || cellValue == DBNull.Value)
+                return 0;
+
+            string text = cellValue.ToString().Trim();
+            if (string.IsNullOrWhiteSpace(text))
+                return 0;
+
+            // Direct number (covers the normal case, e.g. "25", "25.5")
+            if (decimal.TryParse(text, System.Globalization.NumberStyles.Any,
+                    System.Globalization.CultureInfo.InvariantCulture, out decimal directValue))
+                return directValue;
+
+            // Strip a leading "=" if the cell was entered as an Excel formula string, e.g. "=200/4"
+            if (text.StartsWith("="))
+                text = text.Substring(1).Trim();
+
+            // Simple two-operand expression: 200/4, 200*4, 200+4, 200-4
+            var match = System.Text.RegularExpressions.Regex.Match(
+                text, @"^(-?\d+(\.\d+)?)\s*([\+\-\*/])\s*(-?\d+(\.\d+)?)$");
+
+            if (match.Success)
+            {
+                decimal left = decimal.Parse(match.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture);
+                decimal right = decimal.Parse(match.Groups[4].Value, System.Globalization.CultureInfo.InvariantCulture);
+                char op = match.Groups[3].Value[0];
+
+                switch (op)
+                {
+                    case '/':
+                        return right == 0 ? 0 : left / right;
+                    case '*':
+                        return left * right;
+                    case '+':
+                        return left + right;
+                    case '-':
+                        return left - right;
+                }
+            }
+
+            // Couldn't parse as a number or a simple formula - default to 0
+            return 0;
+        }
+
+        private int ParseIntOrDefault(object cellValue)
+        {
+            if (cellValue == null || cellValue == DBNull.Value)
+                return 0;
+
+            string text = cellValue.ToString().Trim();
+            if (string.IsNullOrWhiteSpace(text))
+                return 0;
+
+            // handles "25", "25.0" style cells (Excel numeric cells often round-trip as double text)
+            if (int.TryParse(text, out int intVal))
+                return intVal;
+
+            if (decimal.TryParse(text, System.Globalization.NumberStyles.Any,
+                    System.Globalization.CultureInfo.InvariantCulture, out decimal decVal))
+                return (int)decVal;
+
+            return 0;
+        }
+        #endregion
     }
 
     public class CharValue
