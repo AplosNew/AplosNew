@@ -89,6 +89,10 @@ function SKUUploadController(commonMessage, $scope, $rootScope, baseService, $ro
         $scope.serachSoMaterial();
 
     };
+    $scope.SelectSalesOrder = function (obj) {
+        $scope.SalesOrder = obj.data.SalesOrderId
+        angular.element(document.querySelector('#recipeMaterialPopUp')).modal('hide');
+    }
 
     $scope.summaryRows = [{
         title: "Total Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Qty", dataMember: "Qty", format: "{0:N0}" }],
@@ -110,7 +114,7 @@ function SKUUploadController(commonMessage, $scope, $rootScope, baseService, $ro
         }
         $http({
             method: 'GET',
-            url: 'OrderManagements/ProductionOrder/GetSalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search +  "&moentity=" + $scope.MOEntityId
+            url: 'OrderManagements/MasterOrder/GetSalesOrderListSearch?column=' + $scope.recipeMaterialParameters.searchBy + '&value=' + $scope.recipeMaterialParameters.search +  "&moentity=" + $scope.MOEntityId
         }).then(function successCallback(response) {
 
             for (var i = 0; i < response.data.length; i++) {
@@ -225,15 +229,23 @@ function SKUUploadController(commonMessage, $scope, $rootScope, baseService, $ro
     };
 
     // #endregion Recipe Material and SO
-
-    $scope.GetSKUSampleFile = function () {
-        var ReportFormat = 'Excel';
-        location.href = 'OrderManagements/MasterOrder/DownloadTemplate?salesOrderId=' + 263810102;
-    };
-
     $("#uploadSOImage").change(function () {
         $scope.picdata = this.files[0];
     });
+    $scope.getFile = function () {
+        $scope.progress = 0;
+        fileReader.readAsDataUrl($scope.file, $scope)
+            .then(function (result) {
+                $scope.imageSrc = result;
+            });
+    };
+
+    $scope.GetSKUSampleFile = function () {
+        var ReportFormat = 'Excel';
+        location.href = 'OrderManagements/MasterOrder/GetSKUSampleFile?reportFormat=' + ReportFormat + '&salesOrderId=' + $scope.SalesOrder;
+    };
+
+    
 
     $scope.soData = [];
     $scope.ImportSOData = function () {
@@ -243,7 +255,7 @@ function SKUUploadController(commonMessage, $scope, $rootScope, baseService, $ro
                 var picData = new FormData();
                 $http({
                     method: 'POST',
-                    url: 'OrderManagements/MasterOrder/ImportSOData',
+                    url: 'OrderManagements/MasterOrder/ImportSKUData',
                     headers: { 'Content-Type': undefined },
                     transformRequest: function (data) {
                         picData.append("fileNew", angular.toJson(data.fileNew));
@@ -279,16 +291,40 @@ function SKUUploadController(commonMessage, $scope, $rootScope, baseService, $ro
         }
     };
 
+    
+    $scope.SKU1List = [];
+    function groupSoBySku1(data) {
+        var map = {};
+        var result = [];
+
+        angular.forEach(data, function (row) {
+            var key = row.SalesOrderId + '|' + row.SKU1Id;
+
+            if (!map[key]) {
+                map[key] = { SalesOrderId: row.SalesOrderId, SKU1Id: row.SKU1Id, Qty: 0 };
+                result.push(map[key]);
+            }
+
+            map[key].Qty += Number(row.Qty) || 0;
+        });
+
+        return result;
+    }
+
+    // Usage
+   
     $scope.SaveSOData = function () {
         try {
-            if (baseService.isUndefinedOrNull($scope.fileNew.ItemNo)) {
-                throw "ItemNo is required.";
+            if (baseService.isUndefinedOrNull($scope.SalesOrder)) {
+                throw "SalesOrder is required.";
             }
+            $scope.SKU1List = [];
+            $scope.SKU1List = groupSoBySku1($scope.soData);
             $scope.ShowSaveBtn = true;
             $http({
                 method: 'POST',
-                url: 'OrderManagements/MasterOrder/SaveSOData',
-                data: { 'dataList': $scope.soData, 'masterId': $scope.fileNew.ItemNo },
+                url: 'OrderManagements/MasterOrder/SaveUploadedData',
+                data: { 'sku1List': $scope.SKU1List,'dataList': $scope.soData, 'salesOrderId': $scope.SalesOrder },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

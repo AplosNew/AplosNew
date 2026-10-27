@@ -102,5 +102,7 @@ namespace Library.Service.OrderManagements
         void UpdateSOStatus(SalesOrderMaster salesOrderMaster);
         void SaveMOIData(IEnumerable<MasterOrderItem> dataList, string masterId);
         void SaveSOData(IEnumerable<SalesOrderMaster> dataList, string masterId);
+        int GetSKU1MaxNumber(string salesOrderId);
+        int GetSKU2MaxNumber(string salesOrderId);
     }
 }

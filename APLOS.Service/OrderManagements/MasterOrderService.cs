@@ -2603,6 +2603,15 @@ Where S.MasterOrderItemId='" + moItemId + "'"
                     _unitOfWork.Rollback();
             }
         }
+        public  int GetSKU1MaxNumber(string salesOrderId)
+        {
+            return  _firstCharacteristicsRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[FirstCharacteristics] WHERE SalesOrderId='" + salesOrderId + "'").First();
+
+        }
+        public  int GetSKU2MaxNumber(string salesOrderId)
+        {
+            return _firstCharacteristicsRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[SecondCharacteristics] WHERE SalesOrderId='" + salesOrderId + "'").First();
+        }
 
         public void InsertOrUpdateCharacteristics(IEnumerable<SalesOrderCharacteristicsViewModel> entities, int listLength, string soId)
         {
@@ -5050,6 +5059,7 @@ LEFT JOIN trn.MasterOrder M ON M.Id = I.MasterOrderId Where S.Id='" + salesOrder
                 throw ex;
             }
         }
+        
     }
 
 

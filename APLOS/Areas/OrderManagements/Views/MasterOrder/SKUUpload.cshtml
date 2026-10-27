@@ -32,19 +32,7 @@
                     </div>
                 </div>
             </div>
-            @*<div class="col-xs-12 col-sm-4 col-md-4">
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">ItemNo<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <div class="input-group">
-                                <input type="text" name="ItemNo" ng-model="fileNew.ItemNo" class="form-control" readonly required>
-                                <span class="input-group-btn">
-                                    <button ng-click="ShowMasterOrderItem();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>*@
+             
             <div class="col-md-12">
                 <div class="col-md-8">
                     <div class="inputBtnSection common-btn">
@@ -76,18 +64,16 @@
                      e-pagesettings-pagesize="25"
                      e-filtersettings-filterType="excel">
                     <div e-columns>
-                        <div e-column e-field="OrderCategoryId" e-headertext="OrderCategoryId" e-width="60"></div>
-                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="DeliveryDate" e-headertext="DeliveryDate" e-width="100"></div>
-                        <div e-column e-field="ShipmentModeId" e-headertext="ShipmentModeId" e-width="100"></div>
-                        <div e-column e-field="DestinationId" e-headertext="DestinationId" e-width="100"></div>
-                        <div e-column e-field="Qty" e-headertext="Qty" e-width="100"></div>
-                        <div e-column e-field="PackingTypeId" e-headertext="PackingTypeId" e-width="50"></div>
-                        <div e-column e-field="ResponsiblePersonId" e-headertext="ResponsiblePersonId" e-width="60"></div>
-                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LSD" e-headertext="LSD" e-width="100"></div>
-                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="MainRawMaterialInhouseDate" e-headertext="MainRawMaterialInhouseDate" e-width="100"></div>
-                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="OtherRawMaterialInhouseDate" e-headertext="OtherRawMaterialInhouseDate" e-width="100"></div>
+                        <div e-column e-textalign="right" e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="80"></div>
+                        <div e-column e-textalign="right" e-field="SKU1Id" e-headertext="SKU1Id" e-width="80"></div>
+                        <div e-column e-textalign="right" e-field="SKU2Id" e-headertext="SKU2" e-width="80"></div>
+                        <div e-column e-headertext="Qty" e-template="#tQty" e-textalign="center" e-width="100"></div>
+
                     </div>
                 </div>
+                <script type="text/template" id="tQty">
+                    <input type="text" class="form-control" ng-model="data.Qty" style="color:black; text-align:center" />
+                </script>
             </div>
             <div class="col-xs-12 col-sm-12 col-md-12 ">
                 <div class="common-btn">
@@ -132,12 +118,11 @@
                     <div id="GridSOItem" ng-init="chkinit()" ej-grid e-datasource="recipeMaterialList"
                          e-allowscrolling="true" @*e-minwidth="1000" e-minheight="400" e-scrollsettings-height="200"*@
                          e-rowdatabound="rowDataBound" e-actioncomplete="actionCompleteSearch" e-allowfiltering="true"
-                         e-allowpaging="true" e-allowsorting="true"
+                         e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="SelectSalesOrder"
                          e-enabletouch="false" e-responsive="true"
                          e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
 
-                            <div e-column e-headertext="" e-template="#checkboxTemplateSOSearch" e-textalign="center" e-width="30"></div>
                             <div e-column e-field="OrderType" e-headertext="Order Type" e-width="70"></div>
                             <div e-column e-field="ShipmentFromStock" e-headertext="ShipmentFromStock" e-width="50"></div>
                             <div e-column e-field="ProductName" e-headertext="Product" e-width="180" e></div>
@@ -183,15 +168,6 @@
                         </div>
 
                     </div>
-
-                    <script type="text/template" id="checkboxTemplateSOSearch">
-                        @*<input type="checkbox" ng-model="{{:SalesOrderId}}" class="rowCheckbox" value="{{:SalesOrderId}}" />*@
-                        <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Checked" e-checked="data.Checked" />
-
-                    </script>
-                    <script type="text/x-jsrender" id="headerTemplate">
-                        <input type="checkbox" id="headchk" />
-                    </script>
 
                     <div class="common-btn">
                         <ul class="list-inline text-right">
