@@ -3885,19 +3885,21 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                 sheetSource = workbook.Worksheets[1];
 
                 xlsRow = 1;
-                CreateSource(dsSKU1, 1, "SKU1", ref sheetSource); int SKU1Col = 2;
-                CreateSource(dsSKU2, 4, "SKU2", ref sheetSource); int SKU2Col = 4;
+                int SKU1Col = 1;   // must match the column passed to CreateSource
+                int SKU2Col = 4;   // must match the column passed to CreateSource
+                CreateSource(dsSKU1, SKU1Col, "SKU1", ref sheetSource);
+                CreateSource(dsSKU2, SKU2Col, "SKU2", ref sheetSource);
 
                 int maxRow = 5001;
                 #region ------------------Column Header------------------
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SalesOrderId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colSalesOrderId = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SKU1", ExcelKnownColors.Red); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colSKU1Id = xlsCol;// xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SalesOrderId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colSalesOrderId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SKU1", ExcelKnownColors.Red); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colSKU1Id = xlsCol;// xlsCol += 1;
                 ru.SetList(ref sheet1, xlsRow, maxRow, xlsCol, sheetSource, SKU1Col, dsSKU1.Tables[0].Rows.Count); xlsCol += 1;
 
                 //ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SKU1ValueId", ExcelKnownColors.Red); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colSKU1ValueId = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FirstCharacteristicsId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colFirstCharacteristicsId = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SKU2", ExcelKnownColors.Red); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12; int colSKU2Id = xlsCol; //xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FirstCharacteristicsId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colFirstCharacteristicsId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SKU2", ExcelKnownColors.Red); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colSKU2Id = xlsCol; //xlsCol += 1;
                 ru.SetList(ref sheet1, xlsRow, maxRow, xlsCol, sheetSource, SKU2Col, dsSKU2.Tables[0].Rows.Count); xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Qty"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12; int colQty = xlsCol; xlsCol += 1;
 
@@ -3913,13 +3915,14 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
 
                 #endregion ------------------Column Header------------------
 
+
                 DataTable dtData = GetSKUSampleData(salesOrderId);
                 for (int i = 0; i < dtData.Rows.Count; i++)
                 {
                     sheet1[xlsRow, colSalesOrderId].Text = dtData.Rows[i]["SalesOrderId"].ToString();
-                    sheet1[xlsRow, SKU1Col].Text = dtData.Rows[i]["SKU1"].ToString();
+                    sheet1[xlsRow, colSKU1Id].Text = dtData.Rows[i]["SKU1"].ToString();             // was SKU1Col
                     sheet1[xlsRow, colFirstCharacteristicsId].Text = dtData.Rows[i]["FirstCharacteristicsId"].ToString();
-                    sheet1[xlsRow, SKU2Col].Text = dtData.Rows[i]["SKU2"].ToString();
+                    sheet1[xlsRow, colSKU2Id].Text = dtData.Rows[i]["SKU2"].ToString();             // was SKU2Col
                     sheet1[xlsRow, colQty].Text = dtData.Rows[i]["Qty"].ToString();
                     xlsRow++;
                 }
