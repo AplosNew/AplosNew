@@ -2391,7 +2391,17 @@ LEFT JOIN TRN.Inspection IT
 LEFT JOIN dbo.InspectionType ITY
     ON ITY.Id = IT.InspectionTypeId
 
-WHERE CONVERT(date, ITG.AddedDate) = CONVERT(date, GETDATE())
+WHERE     CASE
+        WHEN @InspectionTypeId = '24'
+             AND CONVERT(DATE, ITG.AddedDate) <= CONVERT(DATE, GETDATE())
+            THEN 1
+
+        WHEN @InspectionTypeId <> '24'
+             AND CONVERT(DATE, ITG.AddedDate) = CONVERT(DATE, GETDATE())
+            THEN 1
+
+        ELSE 0
+    END = 1
   AND TRN.SalesOrderId = @SO
   AND TRN.SKU1Id = @SKU1
   AND TRN.SKU2Id = @SKU2
@@ -2435,7 +2445,17 @@ left join [TRN].[Inspection] IT on IT.Id = trn.InspectionId
 left join [dbo].[InspectionType] ITY on ITY.Id = IT.InspectionTypeId
 left join TRN.FirstCharacteristics FC on FC.Id = TRN.SKU1Id and FC.SalesOrderId = TRN.SalesOrderId
 left join TRN.SecondCharacteristics SC on SC.Id = TRN.SKU2Id AND sc.SalesOrderId = TRN.SalesOrderId
-where Convert(Date,ITG.AddedDate) = CONVERT(Date,Getdate())  and TRN.SalesOrderId = '" + SO + "' and TRN.SKU1Id = '" + SKU1 + "' and TRN.SKU2Id = '" + SKU2 + "' and ITY.Id = '" + InspectionTypeId + "' and ITG.AddedBy = '" + userid + "' GROUP BY TRN.SalesOrderId, TRN.SKU1Id, TRN.SKU2Id , ITY.Id;"));
+where     CASE
+        WHEN @InspectionTypeId = '24'
+             AND CONVERT(DATE, ITG.AddedDate) <= CONVERT(DATE, GETDATE())
+            THEN 1
+
+        WHEN @InspectionTypeId <> '24'
+             AND CONVERT(DATE, ITG.AddedDate) = CONVERT(DATE, GETDATE())
+            THEN 1
+
+        ELSE 0
+    END = 1  and TRN.SalesOrderId = '" + SO + "' and TRN.SKU1Id = '" + SKU1 + "' and TRN.SKU2Id = '" + SKU2 + "' and ITY.Id = '" + InspectionTypeId + "' and ITG.AddedBy = '" + userid + "' GROUP BY TRN.SalesOrderId, TRN.SKU1Id, TRN.SKU2Id , ITY.Id;"));
 
             }
             catch (Exception ex)
