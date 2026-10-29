@@ -1222,7 +1222,8 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                 string sql = @"SELECT PlannedQty=PQ.Qty,POQ.POQty,PQ.Qty * (PPS.Qty / 100)-ISNULL(CEILING(PRS.TotalProductionQty), 0) as RemainingQty
 ,ISNULL(CEILING(PRS.TotalProductionQty), 0)TotalProductionQty,isnull(PQ.Qty,POQ.POQty) as TotalActualPlannedQty,PPS.Qty TotalProcessPlanPercentage
 ,ProcessPlanQty = PQ.Qty * (PPS.Qty / 100)
-,isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * PQ.Qty * PPS.Qty / 100 - ISNULL(CEILING(PRS.TotalProductionQty), 0) as CurPOBalProd,isnull(PPP.TotalProductionQty,0)  as POPreviousProdQty,isnull(FPP.FirstProductionQty,0) POFirstProcessProductionQty,PPS.Sequence POProcessSequence
+,isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * PQ.Qty * PPS.Qty / 100 - ISNULL(CEILING(PRS.TotalProductionQty), 0) as CurPOBalProd
+,isnull(PPP.TotalProductionQty,0)  as POPreviousProdQty,isnull(FPP.FirstProductionQty,0) POFirstProcessProductionQty,PPS.Sequence POProcessSequence,ISNULL(PPS.IsProductionVerification,0) ProductionVerification
                              FROM ProductionOrderSchedulingParametersType2 PQ
                             LEFT JOIN  trn.ProductionOrder AS PO  ON PQ.ProductionOrderID = PO.Id
                              LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '" + processId+@"'

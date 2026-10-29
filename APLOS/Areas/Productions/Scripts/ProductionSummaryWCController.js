@@ -1055,6 +1055,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                     $scope.NewObject.POPreviousProdQty = $scope.TotalPOPreviousProdQty;
                     $scope.NewObject.POFirstProcessProductionQty = $scope.TotalPOFirstProcessProdQty;
                     $scope.NewObject.POProcessSequence = $scope.TotalPOProcessSequence;
+                    $scope.NewObject.ProductionVerification = response.data[0].ProductionVerification;
                 }
             });
 
