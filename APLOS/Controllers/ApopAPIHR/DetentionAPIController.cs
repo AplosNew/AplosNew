@@ -2433,7 +2433,8 @@ GROUP BY
 
             try
             {
-                return Json(_sqlRepository.GetDataTable(@"SELECT TRN.SalesOrderId, TRN.SKU1Id, TRN.SKU2Id,ITY.Id InspectionTypeId,
+                return Json(_sqlRepository.GetDataTable(@"Declare  @SO varchar(100) = '" + SO + "', @SKU1 varchar(100) = '" + SKU1 + "', @SKU2  varchar(100) = '" + SKU2 +"', @InspectionTypeId varchar(100) = '" + InspectionTypeId + @"';
+                SELECT TRN.SalesOrderId, TRN.SKU1Id, TRN.SKU2Id,ITY.Id InspectionTypeId,
        Convert(numeric(18),SUM(ISNULL(ITG.Qty,0))) AS TotalQty,
    Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='PASS' THEN ISNULL(ITG.Qty,0)  when ITEL.UserName='ALTER' THEN ISNULL(ITG.PassQty,0) else 0 END )) AS PassedQty,
    convert(numeric(18),sum(Case when ITEL.UserName='ALTER' THEN ISNULL(ITG.RecheckQty,0) else 0 END )) RecheckQty,

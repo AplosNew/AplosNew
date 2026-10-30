@@ -304,7 +304,6 @@ function SKUUploadController(commonMessage, $scope, $rootScope, baseService, $ro
                 map[key] = { SalesOrderId: row.SalesOrderId, SKU1Id: row.SKU1Id, Qty: 0 };
                 result.push(map[key]);
             }
-
             map[key].Qty += Number(row.Qty) || 0;
         });
 
