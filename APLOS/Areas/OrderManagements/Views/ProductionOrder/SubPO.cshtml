@@ -149,6 +149,7 @@
                     <li> <button ng-click="GetSKUData();" ng-disabled="disableinput" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> Go </button></li>
                     <li> <button ng-click="SaveSPO();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-save"></i> Save </button></li>
                     <li> <button ng-click="Simulate();" ng-disabled="sku1sku2List.length==0" class="btn small" style="height: 28px; width: 100px; padding: 0px; margin: 0px;"><i class="glyphicon glyphicon-play"></i>Simulate</button></li>
+                    <li> <button ng-click="DeleteSPO();" ng-disabled="sku1sku2List.length==0" class="btn small" style="height: 28px; width: 100px; padding: 0px; margin: 0px;"><i class="glyphicon glyphicon-trash"></i>Delete SPO</button></li>
                 </ul>
             </div>
         </div>
@@ -559,3 +560,4 @@
 </ej-dialog>
 <confirm-archive-generic modalid="confirmRunDelPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteRunningWC();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmPreDelPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeletePreferenceWC();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmSPODelPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteSubPO();"></confirm-archive-generic>

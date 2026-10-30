@@ -1717,13 +1717,15 @@ LEFT OUTER JOIN (
                                     INNER JOIN trn.SalesOrder AS so ON so.Id=pod.SalesOrderId
                                                  WHERE POD.ProductionOrderId='" + ProductionOrderId + @"') GROUP BY k.Enum
                                     UNION ALL
-                                    SELECT k.Enum,convert(date,MIN(p1.LSD)) AS Dates 
+                                      SELECT k.Enum,Dates = LEAST(MIN(p1.LSD),MIN(T2.LSD))
                                     FROM (SELECT 'LatestStartDate' AS Enum) AS K
                                     LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS P1
                                     ON p1.ProductionOrderID IN (SELECT pod.ProductionOrderId
                                                                   FROM trn.ProductionOrderDetail AS pod
                                    INNER JOIN trn.SalesOrder AS so ON so.Id=pod.SalesOrderId
-                                                 WHERE POD.ProductionOrderId='" + ProductionOrderId + @"') GROUP BY k.Enum
+                                                 WHERE POD.ProductionOrderId='" + ProductionOrderId + @"')
+                                   LEFT JOIN dbo.ProductionOrderSchedulingParametersType2 T2 ON T2.ProductionOrderId='" + ProductionOrderId + @"'
+                                                 GROUP BY k.Enum
 
 			                                     UNION ALL
                                     SELECT k.Enum,convert(date,COALESCE(MIN(p1.MainRawmaterialinhouseDate),MIN(p2.MainRawmaterialinhouseDate))) AS Dates
@@ -1764,34 +1766,43 @@ GROUP BY k.Enum
                                                  WHERE POD.ProductionOrderId='" + ProductionOrderId + @"') GROUP BY k.Enum
 
 			                                     UNION ALL
-                                     SELECT k.Enum,convert(date,MIN(d.ProductionDate)) AS Dates 
-                                    FROM (SELECT 'ProductionOrderFirstOutputDate' AS Enum) AS K
-                                    LEFT OUTER JOIN (SELECT ProductionDate=CASE WHEN MIN(ppt.ProductionDate) IS NULL THEN MIN(PS.ProductionDate) 
-									WHEN MIN(PS.ProductionDate) IS NULL THEN MIN(PT2.ProductionDate)
-									ELSE SO.LSD END
-                                      FROM trn.ProductionOrderDetail AS pod
-									LEFT JOIN ProductionPlanningType1 AS ppt ON ppt.ProductionOrderID=pod.ProductionOrderId
-                                   LEFT JOIN trn.SalesOrder AS so ON so.Id=pod.SalesOrderId
-								   LEFT JOIN TRN.ProductionSummary PS ON PS.ProductionOrderID=pod.ProductionOrderId
-                                   LEFT JOIN dbo.ProductionOrderSchedulingParametersType2 ST2 ON ST2.ProductionOrderId=pod.ProductionOrderId
-LEFT JOIN dbo.ProductionPlanningType2 PT2 ON PT2.ProductionOrderId=ST2.ID
-                                                 WHERE POD.ProductionOrderId='" + ProductionOrderId + @"' Group BY SO.LSD) AS D ON 1=1 GROUP BY k.Enum
+                                                                                      SELECT k.Enum, CONVERT(date, MIN(d.ProductionDate)) AS Dates
+FROM (SELECT 'ProductionOrderFirstOutputDate' AS Enum) AS k
+LEFT JOIN (
+    SELECT ProductionDate = LEAST(MIN(ppt.ProductionDate),
+                                  MIN(PS.ProductionDate),
+                                  MIN(PT2.ProductionDate),
+                                  SO.LSD)
+    FROM trn.ProductionOrderDetail AS pod
+    LEFT JOIN ProductionPlanningType1 AS ppt ON ppt.ProductionOrderID = pod.ProductionOrderId
+    LEFT JOIN trn.SalesOrder AS so ON so.Id = pod.SalesOrderId
+    LEFT JOIN trn.ProductionSummary PS ON PS.ProductionOrderID = pod.ProductionOrderId
+    LEFT JOIN dbo.ProductionOrderSchedulingParametersType2 ST2 ON ST2.ProductionOrderId = pod.ProductionOrderId
+    LEFT JOIN dbo.ProductionPlanningType2 PT2 ON PT2.ProductionOrderId = ST2.ID
+    WHERE pod.ProductionOrderId = '" + ProductionOrderId + @"'
+    GROUP BY so.LSD
+) AS d ON 1 = 1
+GROUP BY k.Enum
                                                  
                                                                 UNION ALL
 
-             SELECT k.Enum,convert(date,MAX(d.ProductionDate)) AS Dates 
-FROM (SELECT 'ProductionOrderLastoutputdate' AS Enum) AS K
-                                    LEFT OUTER JOIN (
-SELECT ProductionDate=CASE WHEN MAX(ppt.ProductionDate) IS NULL THEN MAX(PS.ProductionDate) 
-WHEN MAX(PS.ProductionDate) IS NULL THEN MAX(PT2.ProductionDate)
-ELSE SO.DeliveryDate END
-                              FROM trn.ProductionOrderDetail AS pod
-LEFT  JOIN ProductionPlanningType1 AS ppt ON ppt.ProductionOrderID=pod.ProductionOrderId
-LEFT JOIN dbo.ProductionOrderSchedulingParametersType2 ST2 ON ST2.ProductionOrderId=pod.ProductionOrderId
-LEFT JOIN dbo.ProductionPlanningType2 PT2 ON PT2.ProductionOrderId=ST2.ID
-LEFT JOIN trn.SalesOrder AS so ON so.Id=pod.SalesOrderId
- LEFT JOIN TRN.ProductionSummary PS ON PS.ProductionOrderID=pod.ProductionOrderId
-             WHERE POD.ProductionOrderId='" + ProductionOrderId + @"' Group By SO.DeliveryDate) AS D ON 1=1 GROUP BY k.Enum";
+SELECT k.Enum, CONVERT(date, MAX(d.ProductionDate)) AS Dates
+FROM (SELECT 'ProductionOrderLastOutputDate' AS Enum) AS k
+LEFT JOIN (
+    SELECT ProductionDate = GREATEST(MAX(ppt.ProductionDate),
+                                     MAX(PS.ProductionDate),
+                                     MAX(PT2.ProductionDate),
+                                     SO.DeliveryDate)
+    FROM trn.ProductionOrderDetail AS pod
+    LEFT JOIN ProductionPlanningType1 AS ppt ON ppt.ProductionOrderID = pod.ProductionOrderId
+    LEFT JOIN dbo.ProductionOrderSchedulingParametersType2 ST2 ON ST2.ProductionOrderId = pod.ProductionOrderId
+    LEFT JOIN dbo.ProductionPlanningType2 PT2 ON PT2.ProductionOrderId = ST2.ID
+    LEFT JOIN trn.SalesOrder AS so ON so.Id = pod.SalesOrderId
+    LEFT JOIN trn.ProductionSummary PS ON PS.ProductionOrderID = pod.ProductionOrderId
+    WHERE pod.ProductionOrderId = '" + ProductionOrderId + @"'
+    GROUP BY so.DeliveryDate
+) AS d ON 1 = 1
+GROUP BY k.Enum;";
 
             DataTable dtData = _sqlRepository.GetDataTable(trn);
             dtData.Columns.Add("HasActualDate");
