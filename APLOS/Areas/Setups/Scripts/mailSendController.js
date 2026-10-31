@@ -508,6 +508,27 @@ $scope.SendAccountDelayPosting = function () {
             ShowResult(response.data.Message, 'failure');
         };
     };//SendTNAReportMail
+    $scope.CreateProdTNAData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'CreateProdTNAData',
+            params: {
+                'addedBy': "",
+                'ip': "",
+                'appVersion': ""
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+            }
+        }), function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        };
+    };//SendTNAReportMail
     $scope.SendLastFewDaysPayableCreatedMail = function () {
         $http({
             method: 'POST',

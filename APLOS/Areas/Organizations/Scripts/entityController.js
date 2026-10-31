@@ -26,7 +26,8 @@ function entityController(cboService, commonMessage, $rootScope, $scope, baseSer
         FilePrefix: null,
         ThirdPartyBusinessArea: null,
         ThirdPartyProfitCenter: null,
-        VATResistrationNo:null
+        VATResistrationNo: null,
+        Manpower:null
     };
 
     cboService.getCboCompanyByCompanyGroup(null, function (result) {
@@ -181,6 +182,8 @@ function entityController(cboService, commonMessage, $rootScope, $scope, baseSer
         $scope.isUsed = false;
     }
 
+    $scope.ManpowerCboList = [{ Value: 'PhysicalVarification', Text: "Physical Varification" }, { Value: 'ManpowerUpload', Text: "Manpower Upload" }]
+
     $scope.getCompanyStructurerRelation = function (id, data) {
         $scope.getDataList();
         $scope.left = '';
@@ -230,10 +233,15 @@ function entityController(cboService, commonMessage, $rootScope, $scope, baseSer
                         '</div></div>' +
                         '<div class="form-group" > ' +
                         '<label class="col-sm-4 control-label">Active</label>' +
-                        '<div class="col-sm-8">' +
+                        '<div class="col-sm-2">' +
                         '<div class="checkbox-site">' +
                         '<label><input ng-disabled="isUsed" tabindex="20" type="checkbox" ng-model="companyStructureSetup.Active" ng-checked="companyStructureSetup.Active">' +
-                        '<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span></label></div></div></div>' +
+                        '<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span></label></div></div>' +
+                        '<label class="col-sm-4 control-label">Exception For Planning</label>' +
+                        '<div class="col-sm-2">' +
+                        '<div class="checkbox-site">' +
+                        '<label><input ng-disabled="isUsed" tabindex="10" type="checkbox" ng-model="companyStructureSetup.IsExceptionForPlanning" ng-checked="companyStructureSetup.IsExceptionForPlanning">' +
+                        '<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span></label></div></div></div > ' +
                         '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Third Party Business Area</label>' +
                         '<div class="col-sm-8">' +
@@ -261,22 +269,19 @@ function entityController(cboService, commonMessage, $rootScope, $scope, baseSer
                         '</div></div>' +
                         '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Responsible Person</label>' +
-                        '<div class="col-sm-5 pdr3" style= "Width:260px;" > ' +
-                        '<input tabindex="8" type="text" ng-model="companyStructureSetup.EmployeeName" class="form-control" disabled>' +
+                        '<div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">' +
+                        '<input type="text" ng-model="companyStructureSetup.EmployeeName" class="form-control" readonly>' +
+                        '<span class="input-group-btn">' +
+                        '<button ng-click="ShowEmployeeListPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>' +
+                        '<button ng-click="employeeProfileClear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>' +
+                        '</span>' +
                         '</div>' +
-                        '<div class="pdl3">' +
-                        '<button name="Show" class="btn single-small-btn" ng-click="ShowEmployeeListPopUp()">' +
-                        '<i class="cr-icon glyphicon glyphicon-search"></i>' +
-                        '</button>' +
-                        '<button class="btn single-small-btn" ng-click="employeeProfileClear()">' +
-                        '<i class="cr-icon glyphicon glyphicon-refresh"></i>' +
-                        '</button></div></div>' +
-                        '<div class="form-group">' +
-                        '<label class="col-sm-4 control-label">Exception For Planning</label>' +
-                        '<div class="col-sm-8">' +
-                        '<div class="checkbox-site">' +
-                        '<label><input ng-disabled="isUsed" tabindex="10" type="checkbox" ng-model="companyStructureSetup.IsExceptionForPlanning" ng-checked="companyStructureSetup.IsExceptionForPlanning">' +
-                        '<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span></label></div></div></div>' +
+                        '</div>' +
+                        '<div class="form-group" show-errors>' +
+                        '<label class="col-sm-4 control-label">Manpower<sup>*</sup></label>' +
+                        '<div class="col-sm-8 show-message"><div class="select-style">' +
+                        '<select tabindex="1" ng-model="companyStructureSetup.Manpower" class="form-control" ng-options="item.Value as item.Text for item in ManpowerCboList" required name="Manpower"><option value=""></option></select>' +
+                        '</div></div></div>' +
                         '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Third Party Profit Center</label>' +
                         '<div class="col-sm-8">' +
@@ -367,7 +372,7 @@ function entityController(cboService, commonMessage, $rootScope, $scope, baseSer
         limit: 10,
         offset: 0,
         order: 'asc',
-        sort: 'EmployeeCode, FirstName, MiddleName, LastName ',
+        sort: 'EmployeeCode',
         searchBy: 'LastName',
         pageSize: 10,
         total_count: 0,

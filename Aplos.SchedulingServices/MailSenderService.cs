@@ -11,6 +11,7 @@ using Library.Model.Organizations;
 using Library.Model.Setups;
 using Library.Service.Addresses;
 using Library.Service.Attendances;
+using Library.Service.Enums;
 using Library.Service.Helpers;
 using Library.Service.HumanResources;
 using Library.Service.OrderManagements;
@@ -6751,6 +6752,38 @@ namespace Library.SchedulingServices.Setups
             }
         }
 
+        public void CreateProdTNAData(string addedBy, string ip, string appVersion)
+        {
+            try
+            {
+
+                Library.Service.TaskScheduler.TaskScheduler schedule = new Library.Service.TaskScheduler.TaskScheduler(_sqlRepository);
+                schedule.UpdateTaskStatus();
+                //Production Order Related Tasks
+
+                string sql = @"select * from [TRN].[ProductionOrder] where ProductionStatusId IN(Select Id from HKP.ProductionStatus Where UserName IN('Active','Running'))";
+                DataTable dtPO = _sqlRepository.GetDataTable(sql);
+                for (int i = 0; i < dtPO.Rows.Count; i++)
+                {
+                    string sosql = @"SELECT distinct TaskTemplateMasterId FROM trn.MasterOrder AS mo 
+                                INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
+                                INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=moi.Id
+                                WHERE so.id IN(select SalesOrderId from [TRN].[ProductionOrderDetail] where ProductionOrderId='"+ dtPO.Rows[i]["Id"].ToString() + "')";
+                    DataTable dtSO = _sqlRepository.GetDataTable(sosql);
+                    string TaskTemplateMasterId = dtSO.Rows[0]["TaskTemplateMasterId"].ToString();
+
+                    DataTable dt = schedule.GetDataSourceProdOrderNew(dtPO.Rows[i]["Id"].ToString(), dtPO.Rows[i]["EntityId"].ToString(), TaskAppliedOnEnum.ProductionOrder);
+                    if (dt.Rows.Count > 0)
+                        schedule.MakeTNAMaster(dt, dtPO.Rows[i]["Id"].ToString(), TaskAppliedOnEnum.ProductionOrder);
+                }
+                
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
 
 
 

@@ -2289,6 +2289,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     $scope.disableinput = false;
 
     $scope.GetSavedSKUData = function () {
+        $scope.sku1sku2List = [];
         $http({
             method: 'POST',
             data: {

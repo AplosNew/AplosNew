@@ -159,7 +159,7 @@ namespace Library.Service.Setups
 
         void RunTaskNotification(string addedBy, string ip, string appVersion, string companyGroupId);
         void RunTNAScheduler(string addedBy, string ip, string appVersion);
-
+        void CreateProdTNAData(string addedBy, string ip, string appVersion);
         /// <summary>
         /// Account Delay Posting
         /// </summary>
