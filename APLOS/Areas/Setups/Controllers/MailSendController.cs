@@ -213,6 +213,15 @@ namespace Aplos.Areas.Setups.Controllers
             _mailSenderService.RunTNAScheduler("TS", "TS", "10215");
             return Json(new { Message = AplosMessage.Success });
         }//SendLateAttendancePosting 
+
+        [HttpPost, Authorize]
+        public JsonResult CreateProdTNAData()
+        {
+            //_mailSenderService.SendTNAReportMail("TS", "TS", "10215");
+            _mailSenderService.CreateProdTNAData("TS", "TS", "10215");
+            return Json(new { Message = AplosMessage.Success });
+        }//SendLateAttendancePosting 
+
         [HttpPost, Authorize]
         public JsonResult SendLastFewDaysPayableCreatedMail()
         {

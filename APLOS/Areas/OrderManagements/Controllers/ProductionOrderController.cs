@@ -454,8 +454,17 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
 
             try
             {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 DataTable dtRunningOrderPreference = new DataTable();
 
+                string s = "''";
+                foreach (ProductionOrderDetail item in detaillist)
+                {
+                    s += ",'" + item.SalesOrderId + "'";
+                }
+
+                if (s == "''")
+                    throw new Exception("No sales order data found, cannot save");
 
                 DataTable dtUserDefineLotNo = _sqlRepository.GetDataTable("SELECT * FROM TRN.ProductionOrder where  Id <> '" + master.Id + "' AND UserDefineLotNo = '" + master.UserDefineLotNo + "'");
                 if (dtUserDefineLotNo.Rows.Count > 0)
@@ -514,16 +523,9 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                     }
                 }
 
-                string s = "''";
-                foreach (ProductionOrderDetail item in detaillist)
-                {
-                    s += ",'" + item.SalesOrderId + "'";
-                }
+                
 
-                if (s == "''")
-                    throw new Exception("No sales order data found, cannot save");
-
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                
                 master.PlantId = identity.PlantId;
                 dtTemp = _sqlRepository.GetDataTable("select Min(LSD) AS LSD,max(CommitmentDate) AS CommitmentDate  from trn.SalesOrder where id in (" + s + ")");
                 if (dtTemp.Rows.Count > 0)
@@ -555,11 +557,11 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                 DataTable dtMaster = _sqlRepository.GetDataTable("SELECT * FROM [TRN].[ProductionOrder] where id='" + master.Id + "'");
                 if (dtMaster.Rows.Count > 0)
                 {
-                    master.AddedBy = identity.UserId;
+                    master.AddedBy = identity.Name;
                     master.AddedDate = System.DateTime.Now;
                     master.AddedFromIP = identity.IPAddress;
 
-                    master.UpdatedBy = identity.UserId;
+                    master.UpdatedBy = identity.Name;
                     master.UpdatedDate = System.DateTime.Now;
                     master.UpdatedFromIP = identity.IPAddress;
 
@@ -2942,8 +2944,20 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                 DataSet dsWCDD = null;
                 DataSet dsFPWCDD = null;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                string s = "''";
+               
+                foreach (var item in detaillist)
+                {
+                    s += ",'" + item["SalesOrderId"] + "'";
+                }
+
+                if (s == "''")
+                    throw new Exception("No sales order data found, cannot save");
+
                 con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionOrder] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
                 string _Id = "";
+                string _EntityId = "";
                 #region data update
                 if (dsMaster.Tables[0].DefaultView.Count == 0)
                 {
@@ -2951,6 +2965,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                     bplib.clsGenID objID = new bplib.clsGenID();
                     objID.GenHRID(System.DateTime.Now.ToShortDateString(), "PRODUCTION ORDER", out _Id);
                     data["Id"] = _Id;
+                     _EntityId= data["EntityId"].ToString();
                     data["OrderType"] = "PlanningType2";
                     AddNewRow(dsMaster.Tables[0], data);
                 }
@@ -2958,6 +2973,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                 {
                     _Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
                     data["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                    _EntityId = dsMaster.Tables[0].Rows[0]["EntityId"].ToString();
                     EditRow(dsMaster.Tables[0].DefaultView[0].Row, data);
                 }
 
@@ -3112,6 +3128,23 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster, dsDetail, dsProcDetail, dsWCDetail, dsFPWCDetail);
+
+                Library.Service.TaskScheduler.TaskScheduler schedule = new Library.Service.TaskScheduler.TaskScheduler(_sqlRepository);
+                schedule.UpdateTaskStatus();
+                //Production Order Related Tasks
+
+                string sql = @"SELECT distinct TaskTemplateMasterId FROM trn.MasterOrder AS mo 
+                                INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
+                                INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=moi.Id
+                           WHERE so.id IN(" + s + ")";
+                DataTable dtSO = _sqlRepository.GetDataTable(sql);
+                string TaskTemplateMasterId = dtSO.Rows[0]["TaskTemplateMasterId"].ToString();
+
+                DataTable dt = schedule.GetDataSourceProdOrderNew(_Id, _EntityId, TaskAppliedOnEnum.ProductionOrder);
+                if (dt.Rows.Count > 0)
+                    schedule.MakeTNAMaster(dt, _Id, TaskAppliedOnEnum.ProductionOrder);
+
+
                 return Json(new { Error = false, DATA = _Id, Message = AplosMessage.Success });
             }
             catch (Exception ex)
@@ -3140,8 +3173,6 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
         [HttpPost]
         public JsonResult DeleteType2(string masterid)
         {
-            //_productionOrderService.DeleteGraph(masterid);
-            //return Json(new { Message = AplosMessage.Deleted });
             try
             {
                 ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
@@ -3175,6 +3206,34 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
 
 
 
+
+                objCon.CommitTransaction();
+                return Json(new { Message = AplosMessage.Deleted });
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Message = "Production Order might have Planning, TNA or Production Data, therefore can not delete!", Error = true });
+            }
+
+        }
+
+        [HttpPost]
+        public JsonResult DeletePlanType2(string masterid)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+
+                objCon.ExecuteNonQueryWrapper(@"delete from dbo.ProductionPlanningType2 Where ProductionOrderID IN( Select Id FROM dbo.ProductionOrderSchedulingParametersType2 Where ProductionOrderID in('" + masterid + "'))", true, "1");
+
+                objCon.ExecuteNonQueryWrapper(@"delete from TRN.ProductionOrderType2WorkCenter Where ProductionOrderID IN( Select Id FROM dbo.ProductionOrderSchedulingParametersType2 Where ProductionOrderID in('" + masterid + "'))", true, "1");
+
+                objCon.ExecuteNonQueryWrapper(@"delete from TRN.RunningOrderType2WorkCenter Where ProductionOrderID IN( Select Id FROM dbo.ProductionOrderSchedulingParametersType2 Where ProductionOrderID in('" + masterid + "'))", true, "1");
+
+                objCon.ExecuteNonQueryWrapper(@"delete from dbo.ProductionOrderSchedulingParametersType2 where ProductionOrderID='" + masterid + "'", true, "1");
 
                 objCon.CommitTransaction();
                 return Json(new { Message = AplosMessage.Deleted });

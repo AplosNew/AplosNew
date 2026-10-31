@@ -2289,6 +2289,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     $scope.disableinput = false;
 
     $scope.GetSavedSKUData = function () {
+        $scope.sku1sku2List = [];
         $http({
             method: 'POST',
             data: {
@@ -4054,7 +4055,31 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     }
 
    
+    $scope.DeleteSPO = function () {
+        $scope.message_confirmation = 'Are you sure want to delete Sub Production Orders.';
+        angular.element(document.querySelector('#confirmSPODelPopUp')).modal('show');
+    };
 
+    $scope.DeleteSubPO = function () {
+        if (!baseService.isUndefinedOrNull($scope.model.Id)) {
+            $http({
+                method: 'POST',
+                url: 'OrderManagements/ProductionOrder/DeletePlanType2?masterid=' + $scope.model.Id
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetSavedSKUData();
+                }
+            }, function () {
+                ShowResult(commonMessage.NetworkError, 'failure');
+            }).finally(function () {
+            });
+        }
+
+    };
 
 
 
