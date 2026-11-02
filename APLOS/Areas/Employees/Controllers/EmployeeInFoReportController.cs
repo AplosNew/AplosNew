@@ -1801,14 +1801,16 @@ LEFT JOIN (SELECT R.EmpSystemID,B.EmployeeCode RefEmpCode,R.Ref1Name,R.Ref1CellP
             try
             {
                 var sql = @"SELECT distinct M.Id, SD.SystemID ShiftId,SD.UserName ShiftName,P.Id PositionId,P.PositionCategory
-,EN.Id EntityId, EN.UserName EntityName,S.Id SectionId,S.UserName Section,E.EmploymentType 
+,EN.Id EntityId, EN.UserName EntityName,S.Id SectionId,S.UserName Section,SS.Id SubSectionId,SS.UserName SubSection,D.Id DepartmentId,D.UserName Department,E.EmploymentType 
 FROM  MST.ManpowerBudget M 
 LEFT JOIN ORG.Position P ON P.Id=M.PositionId
 LEFT JOIN ORG.Entity EN ON EN.Id=M.EntityId
 LEFT JOIN ORG.Section S ON S.Id=P.SectionId
+LEFT JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
+LEFT JOIN ORG.Department D ON D.Id=P.DepartmentId
 LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftDefinationId
 LEFT JOIN dbo.EmployeeInformation E ON E.BudgetCode=M.Id AND E.EmployeeStatus='Active' AND E.EmpType<>'Guest'
-Where M.Active=1 ";
+Where M.Active=1";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -2551,10 +2553,7 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftId";
                 int colAct = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Active Emp";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 9;
-                xlsCol++;
-                int col5DayAbs = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "5 Days Absent";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12;
+                
                 xlsCol++;
                 int colNetOnroll = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Net Onroll";
@@ -2573,6 +2572,21 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftId";
                 //shape1.RichText.Append("Emp Due Task FP / Total Due Task FP", fontCaption);
                 //shape1.IsTextLocked = false;
                 //shape1.AutoSize = false;
+
+                xlsCol++;
+                int colLeavePer = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Leave%";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12;
+
+                xlsCol++;
+                int colLongAbsenteeism = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "LongAbsenteeism";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12;
+
+                xlsCol++;
+                int colTBS = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "TBS";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12;
 
                 xlsCol++;
                 int colWeekoff = xlsCol;
@@ -2667,7 +2681,7 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftId";
                     sheet1.Range[xlsRow, colDep].Number = clsStaticInfo.dbl(dtTask.Rows[i]["Deployment"].ToString());
                     sheet1.Range[xlsRow, colSan].Number = clsStaticInfo.dbl(dtTask.Rows[i]["Sanction"].ToString());
                     sheet1.Range[xlsRow, colAct].Number = clsStaticInfo.dbl(dtTask.Rows[i]["ActiveEmployee"].ToString());
-                    sheet1.Range[xlsRow, col5DayAbs].Number = clsStaticInfo.dbl(dtTask.Rows[i]["AbsentLast5Days"].ToString());
+                    sheet1.Range[xlsRow, colLeavePer].Number = clsStaticInfo.dbl(dtTask.Rows[i]["LeavePer"].ToString());
                     sheet1.Range[xlsRow, colNetOnroll].Number = clsStaticInfo.dbl(dtTask.Rows[i]["NetOnroll"].ToString());
                     sheet1.Range[xlsRow, colOnrollSS].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OnrollShortSurplus"].ToString());
                     sheet1.Range[xlsRow, colLeave].Number = clsStaticInfo.dbl(dtTask.Rows[i]["LeaveYesterday"].ToString());
@@ -2686,6 +2700,8 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=M.ShiftId";
                     sheet1.Range[xlsRow, colTR].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TraineePresentValue"].ToString());
                     sheet1.Range[xlsRow, colLast30DOJ].Number = clsStaticInfo.dbl(dtTask.Rows[i]["JoinedLast30Days"].ToString());
                     sheet1.Range[xlsRow, colLast30DOS].Number = clsStaticInfo.dbl(dtTask.Rows[i]["LeftLast30Days"].ToString());
+                    sheet1.Range[xlsRow, colLongAbsenteeism].Number = clsStaticInfo.dbl(dtTask.Rows[i]["LongAbsenteeism"].ToString());
+                    sheet1.Range[xlsRow, colTBS].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TBS"].ToString());
 
                     xlsRow++;
                 }
@@ -2833,6 +2849,8 @@ DECLARE @ProductionDate date = '" + date + @"'
             AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @") 
             AND MB.EntityId IN(" + parameters["EntityId"] + @")
             AND PR.SectionId IN(" + parameters["SectionId"] + @")
+AND PR.SubSectionId IN(" + parameters["SubSectionId"] + @")
+AND PR.DepartmentId IN(" + parameters["DepartmentId"] + @")
             AND E.EmploymentType IN(" + parameters["EmploymentType"] + @")
 ),
 
@@ -2855,6 +2873,8 @@ AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @")
 AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @") 
 AND MB.EntityId IN(" + parameters["EntityId"] + @")
 AND PR.SectionId IN(" + parameters["SectionId"] + @")
+AND PR.SubSectionId IN(" + parameters["SubSectionId"] + @")
+AND PR.DepartmentId IN(" + parameters["DepartmentId"] + @")
 AND E.EmploymentType IN(" + parameters["EmploymentType"] + @")
     GROUP BY D.Id,EmpC.Id
 ),
@@ -2877,6 +2897,8 @@ AND mmb.ShiftDefinationId IN(" + parameters["ShiftId"] + @")
 AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
 AND mmb.EntityId IN(" + parameters["EntityId"] + @")
 AND PR.SectionId IN(" + parameters["SectionId"] + @")
+AND PR.SubSectionId IN(" + parameters["SubSectionId"] + @")
+AND PR.DepartmentId IN(" + parameters["DepartmentId"] + @")
     GROUP BY D.Id,EmpC.Id
 ),
 
@@ -2897,6 +2919,8 @@ AND mmb.ShiftDefinationId IN(" + parameters["ShiftId"] + @")
 AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
 AND mmb.EntityId IN(" + parameters["EntityId"] + @")
 AND PR.SectionId IN(" + parameters["SectionId"] + @")
+AND PR.SubSectionId IN(" + parameters["SubSectionId"] + @")
+AND PR.DepartmentId IN(" + parameters["DepartmentId"] + @")
     GROUP BY D.Id,EmpC.Id
 ),
 
@@ -2920,6 +2944,8 @@ AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @")
 AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
 AND MB.EntityId IN(" + parameters["EntityId"] + @")
 AND PR.SectionId IN(" + parameters["SectionId"] + @")
+AND PR.SubSectionId IN(" + parameters["SubSectionId"] + @")
+AND PR.DepartmentId IN(" + parameters["DepartmentId"] + @")
 AND E.EmploymentType IN(" + parameters["EmploymentType"] + @")
     GROUP BY D.Id,EmpC.Id
 ),
@@ -2944,6 +2970,8 @@ AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @")
 AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
 AND MB.EntityId IN(" + parameters["EntityId"] + @")
 AND PR.SectionId IN(" + parameters["SectionId"] + @")
+AND PR.SubSectionId IN(" + parameters["SubSectionId"] + @")
+AND PR.DepartmentId IN(" + parameters["DepartmentId"] + @")
 AND E.EmploymentType IN(" + parameters["EmploymentType"] + @")
     GROUP BY D.Id,EmpC.Id
 ),
@@ -2972,6 +3000,8 @@ AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @")
 AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
 AND MB.EntityId IN(" + parameters["EntityId"] + @")
 AND PR.SectionId IN(" + parameters["SectionId"] + @")
+AND PR.SubSectionId IN(" + parameters["SubSectionId"] + @")
+AND PR.DepartmentId IN(" + parameters["DepartmentId"] + @")
 AND E.EmploymentType IN(" + parameters["EmploymentType"] + @")
     GROUP BY D.Id,EmpC.Id
 ),
@@ -2999,6 +3029,8 @@ AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @")
 AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
 AND MB.EntityId IN(" + parameters["EntityId"] + @")
 AND PR.SectionId IN(" + parameters["SectionId"] + @")
+AND PR.SubSectionId IN(" + parameters["SubSectionId"] + @")
+AND PR.DepartmentId IN(" + parameters["DepartmentId"] + @")
 AND E.EmploymentType IN(" + parameters["EmploymentType"] + @")
     GROUP BY D.Id,EmpC.Id
 ),
@@ -3006,35 +3038,37 @@ AND E.EmploymentType IN(" + parameters["EmploymentType"] + @")
 ---------------------------------------------------------
 -- ⭐ LAST 5 DAYS CONTINUOUS ABSENT (NEW)
 ---------------------------------------------------------
-Last5DaysAbsentEmp AS
-(
-    SELECT A.EmpSystemID
-    FROM AttdnProcessData A
-    WHERE A.PlantId=@PlantId
-      AND A.DayStatus='A'
-      AND CONVERT(date,A.Workdate) BETWEEN DATEADD(DAY,-4,@ReportDate) AND @ReportDate
-    GROUP BY A.EmpSystemID
-    HAVING COUNT(DISTINCT CONVERT(date,A.WorkDate)) = 5
-),
-Last5DaysAbsentAgg AS
-(
-    SELECT D.Id DivisionId,EmpC.Id EmpCategoryId,COUNT(E.SystemId) Absent5DaysEmp
-    FROM Last5DaysAbsentEmp L5
-    JOIN EmployeeInformation E ON E.SystemId=L5.EmpSystemID
-    LEFT JOIN MST.ManpowerBudget mb ON mb.Id=E.BudgetCode
-    LEFT JOIN ORG.Position PR ON mb.PositionId=PR.Id
-    JOIN ORG.Division D ON D.Id=PR.DivisionId
-    LEFT JOIN MST.DesignationMaster DesM ON DesM.DesignationId=E.GivenDesignationId
-    LEFT JOIN HKP.EmployeeCategory EmpC ON EmpC.Id=DesM.EmployeeCategoryId
-    WHERE (E.EmployeeStatus<>'Separated' OR E.DOS IS NULL OR E.DOS>@ReportDate)
-      AND E.DOJ<=@ReportDate
-AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @") 
-AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
-AND MB.EntityId IN(" + parameters["EntityId"] + @")
-AND PR.SectionId IN(" + parameters["SectionId"] + @")
-AND E.EmploymentType IN(" + parameters["EmploymentType"] + @")
-    GROUP BY D.Id,EmpC.Id
-),
+--Last5DaysAbsentEmp AS
+--(
+--    SELECT A.EmpSystemID
+--    FROM AttdnProcessData A
+--    WHERE A.PlantId=@PlantId
+--      AND A.DayStatus='A'
+--      AND CONVERT(date,A.Workdate) BETWEEN DATEADD(DAY,-4,@ReportDate) AND @ReportDate
+--    GROUP BY A.EmpSystemID
+--    HAVING COUNT(DISTINCT CONVERT(date,A.WorkDate)) = 5
+--),
+--Last5DaysAbsentAgg AS
+--(
+--    SELECT D.Id DivisionId,EmpC.Id EmpCategoryId,COUNT(E.SystemId) Absent5DaysEmp
+--    FROM Last5DaysAbsentEmp L5
+--    JOIN EmployeeInformation E ON E.SystemId=L5.EmpSystemID
+--    LEFT JOIN MST.ManpowerBudget mb ON mb.Id=E.BudgetCode
+--    LEFT JOIN ORG.Position PR ON mb.PositionId=PR.Id
+--    JOIN ORG.Division D ON D.Id=PR.DivisionId
+--    LEFT JOIN MST.DesignationMaster DesM ON DesM.DesignationId=E.GivenDesignationId
+--    LEFT JOIN HKP.EmployeeCategory EmpC ON EmpC.Id=DesM.EmployeeCategoryId
+--    WHERE (E.EmployeeStatus<>'Separated' OR E.DOS IS NULL OR E.DOS>@ReportDate)
+--      AND E.DOJ<=@ReportDate
+--AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @") 
+--AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
+--AND MB.EntityId IN(" + parameters["EntityId"] + @")
+--AND PR.SectionId IN(" + parameters["SectionId"] + @")
+--AND PR.SubSectionId IN(" + parameters["SubSectionId"] + @")
+--AND PR.DepartmentId IN(" + parameters["DepartmentId"] + @")
+--AND E.EmploymentType IN(" + parameters["EmploymentType"] + @")
+--    GROUP BY D.Id,EmpC.Id
+--),
 
 ---------------------------------------------------------
 -- PRODUCTION
@@ -3056,6 +3090,8 @@ AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @")
 AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
 AND MB.EntityId IN(" + parameters["EntityId"] + @")
 AND PR.SectionId IN(" + parameters["SectionId"] + @")
+AND PR.SubSectionId IN(" + parameters["SubSectionId"] + @")
+AND PR.DepartmentId IN(" + parameters["DepartmentId"] + @")
 AND E.EmploymentType IN(" + parameters["EmploymentType"] + @")
     GROUP BY D.Id,EmpC.Id
 ),
@@ -3079,10 +3115,39 @@ AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @")
 AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
 AND MB.EntityId IN(" + parameters["EntityId"] + @")
 AND PR.SectionId IN(" + parameters["SectionId"] + @")
+AND PR.SubSectionId IN(" + parameters["SubSectionId"] + @")
+AND PR.DepartmentId IN(" + parameters["DepartmentId"] + @")
 AND E.EmploymentType IN(" + parameters["EmploymentType"] + @")
     GROUP BY D.Id,EmpC.Id
 )
-
+,
+---------------------------------------------------------
+-- LONG ABSENTEEISM / TBS (separate columns)
+---------------------------------------------------------
+CurrentStatusEmp AS
+(
+    SELECT D.Id DivisionId, EmpC.Id EmpCategoryId,
+        SUM(CASE WHEN E.EmployeeCurrentStatus = 'LONG ABSENTEEISM' THEN 1 ELSE 0 END) LongAbsenteeism,
+        SUM(CASE WHEN E.EmployeeCurrentStatus = 'TBS' THEN 1 ELSE 0 END) TBS
+    FROM EmployeeInformation E
+    LEFT JOIN MST.ManpowerBudget mb ON mb.Id=E.BudgetCode
+    LEFT JOIN ORG.Position PR ON mb.PositionId=PR.Id
+    JOIN ORG.Division D ON D.Id=PR.DivisionId
+    LEFT JOIN MST.DesignationMaster DesM ON DesM.DesignationId=E.GivenDesignationId
+    LEFT JOIN HKP.EmployeeCategory EmpC ON EmpC.Id=DesM.EmployeeCategoryId
+    WHERE E.PlantId=@PlantId
+      AND (E.EmployeeStatus<>'Separated' OR E.DOS IS NULL OR E.DOS>@ReportDate)
+      AND E.DOJ<=@ReportDate
+      AND E.EmployeeCurrentStatus IN ('LONG ABSENTEEISM','TBS')
+     AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @") 
+AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @")  
+AND MB.EntityId IN(" + parameters["EntityId"] + @")
+AND PR.SectionId IN(" + parameters["SectionId"] + @")
+AND PR.SubSectionId IN(" + parameters["SubSectionId"] + @")
+AND PR.DepartmentId IN(" + parameters["DepartmentId"] + @")
+AND E.EmploymentType IN(" + parameters["EmploymentType"] + @")
+    GROUP BY D.Id, EmpC.Id
+)
 ---------------------------------------------------------
 -- FINAL RESULT
 ---------------------------------------------------------
@@ -3092,9 +3157,9 @@ SELECT
     ISNULL(DP.Deployment,0) Deployment,
     ISNULL(SC.Sanction,0) Sanction,
     ISNULL(A.ActiveEmployee,0) ActiveEmployee,
-    ISNULL(L5.Absent5DaysEmp,0) AbsentLast5Days,   -- ⭐ NEW COLUMN
-    NetOnroll=ISNULL(A.ActiveEmployee,0)-ISNULL(L5.Absent5DaysEmp,0),
-    OnrollShortSurplus=(ISNULL(A.ActiveEmployee,0)-ISNULL(L5.Absent5DaysEmp,0))-ISNULL(SC.Sanction,0),
+   -- ISNULL(L5.Absent5DaysEmp,0) AbsentLast5Days,   -- ⭐ NEW COLUMN
+    NetOnroll=ISNULL(A.ActiveEmployee,0),
+    OnrollShortSurplus=ISNULL(A.ActiveEmployee,0)-ISNULL(SC.Sanction,0),
     ISNULL(Y.LeaveEmp,0) LeaveYesterday,
     ISNULL(Y.WeekOffEmp,0) WeekOffYesterday,
     ISNULL(Y.AbsentEmp,0) AbsentYesterday,
@@ -3102,11 +3167,17 @@ SELECT
     CAST(
         ROUND(
             CAST((ISNULL(Y.LeaveEmp,0) + ISNULL(Y.AbsentEmp,0)) AS DECIMAL(18,4)) * 100.0
-            / NULLIF((ISNULL(A.ActiveEmployee,0) - ISNULL(L5.Absent5DaysEmp,0)), 0)
+            / NULLIF((ISNULL(A.ActiveEmployee,0)), 0)
         , 2)
     AS DECIMAL(10,2))
 , 0),
-    NetDeployedYesterday=(ISNULL(A.ActiveEmployee,0)-ISNULL(L5.Absent5DaysEmp,0))-ISNULL(Y.LeaveEmp,0)-ISNULL(Y.WeekOffEmp,0)-ISNULL(Y.AbsentEmp,0),
+ LeavePer = ISNULL(
+        CAST(ROUND(
+            CAST(ISNULL(Y.LeaveEmp,0) AS DECIMAL(18,4)) * 100.0
+            / NULLIF(ISNULL(A.ActiveEmployee,0), 0)
+        , 2) AS DECIMAL(10,2))
+    , 0),
+    NetDeployedYesterday=ISNULL(A.ActiveEmployee,0)-ISNULL(Y.AbsentEmp,0)-ISNULL(Y.LeaveEmp,0)-ISNULL(Y.WeekOffEmp,0)-ISNULL(CS.LongAbsenteeism,0)-ISNULL(CS.TBS,0),
     ISNULL(SA.ScanApplicableEmployee,0) ScanApplicable,
     ISNULL(YPV.ScanComplete,0)ScanComplete,
     ISNULL(YPV.ScanPending,0)ScanPending,
@@ -3117,7 +3188,9 @@ SELECT
     ISNULL(P.ZeroProdEmp,0) ZeroProductionEmp,
     ISNULL(TY.TraineePresentValue,0) TraineePresentValue,
     ISNULL(M.Joined30,0) JoinedLast30Days,
-    ISNULL(M.Left30,0) LeftLast30Days
+    ISNULL(M.Left30,0) LeftLast30Days,
+        ISNULL(CS.LongAbsenteeism,0) LongAbsenteeism,
+    ISNULL(CS.TBS,0) TBS
 FROM Base B
 LEFT JOIN ActiveEmp A ON A.DivisionId=B.DivisionId AND A.EmpCategoryId=B.EmpCategoryId
 LEFT JOIN Deployment DP ON DP.DivisionId=B.DivisionId AND DP.EmpCategoryId=B.EmpCategoryId
@@ -3126,7 +3199,8 @@ LEFT JOIN ScanApplicable SA ON SA.DivisionId=B.DivisionId AND SA.EmpCategoryId=B
 LEFT JOIN YesterdayPhysicalVerification YPV ON YPV.DivisionId=B.DivisionId AND YPV.EmpCategoryId=B.EmpCategoryId
 LEFT JOIN TraineeYesterday TY ON TY.DivisionId=B.DivisionId AND TY.EmpCategoryId=B.EmpCategoryId
 LEFT JOIN YesterdayStatus Y ON Y.DivisionId=B.DivisionId AND Y.EmpCategoryId=B.EmpCategoryId
-LEFT JOIN Last5DaysAbsentAgg L5 ON L5.DivisionId=B.DivisionId AND L5.EmpCategoryId=B.EmpCategoryId
+--LEFT JOIN Last5DaysAbsentAgg L5 ON L5.DivisionId=B.DivisionId AND L5.EmpCategoryId=B.EmpCategoryId
+LEFT JOIN CurrentStatusEmp CS ON CS.DivisionId=B.DivisionId AND CS.EmpCategoryId=B.EmpCategoryId
 LEFT JOIN Production P ON P.DivisionId=B.DivisionId AND P.EmpCategoryId=B.EmpCategoryId
 LEFT JOIN Movement M ON M.DivisionId=B.DivisionId AND M.EmpCategoryId=B.EmpCategoryId
 ORDER BY B.EmpCategory,B.Division";

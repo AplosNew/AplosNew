@@ -7,7 +7,7 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
 
     $scope.Action = 'Save';
 
-    $scope.tab = 2;
+    $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
     };
@@ -18,6 +18,7 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
     $scope.HrefList = [];
     $scope.UINameList = [];
 
+    $scope.WorkDate = null;
     $scope.WrkDate = null;
 
     $scope.downloadgriddataPDFUrl = 'GridReports/DownloadPdf';
@@ -31,7 +32,7 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
             gridObj.refreshContent(true);
             gridObj.refreshTemplate();
 
-            if (baseService.isUndefinedOrNull($scope.WrkDate)) {
+            if (baseService.isUndefinedOrNull($scope.WorkDate)) {
                 throw "Work Date is required.";
             }
             $http({
@@ -45,6 +46,8 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
                     { field: 'PositionCategory', width: 20, headerText: "Position Category", type: "string" },
                     { field: 'EntityName', width: 20, headerText: "Entity Name", type: "string" },
                     { field: 'Section', width: 20, headerText: "Section", type: "string" },
+                    { field: 'SubSection', width: 20, headerText: "SubSection", type: "string" },
+                    { field: 'Department', width: 20, headerText: "Department", type: "string" },
                     { field: 'EmploymentType', width: 20, headerText: "EmploymentType", type: "string" }
 
                 ];
@@ -70,7 +73,7 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
 
     $scope.getFiltersData = function () {
         try {
-            if (baseService.isUndefinedOrNull($scope.WrkDate)) {
+            if (baseService.isUndefinedOrNull($scope.WorkDate)) {
                 throw "Work Date is required.";
             }
             $http({
@@ -84,6 +87,8 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
                     { field: 'PositionCategory', width: 20, headerText: "Position Category", type: "string" },
                     { field: 'EntityName', width: 20, headerText: "Entity Name", type: "string" },
                     { field: 'Section', width: 20, headerText: "Section", type: "string" },
+                    { field: 'SubSection', width: 20, headerText: "SubSection", type: "string" },
+                    { field: 'Department', width: 20, headerText: "Department", type: "string" },
                     { field: 'EmploymentType', width: 20, headerText: "EmploymentType", type: "string" }
 
                 ];
@@ -194,8 +199,10 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
         parameters.push({ "Key": "ShiftId", "Value": getString(fl, "ShiftId") });
         parameters.push({ "Key": "PositionCategory", "Value": getString(fl, "PositionCategory") });
         parameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
-        parameters.push({ "Key": "SectionId", "Value": getString(fl, "SectionId") })
-        parameters.push({ "Key": "EmploymentType", "Value": getString(fl, "EmploymentType") })
+        parameters.push({ "Key": "SectionId", "Value": getString(fl, "SectionId") });
+        parameters.push({ "Key": "SubSectionId", "Value": getString(fl, "SubSectionId") });
+        parameters.push({ "Key": "DepartmentId", "Value": getString(fl, "DepartmentId") });
+        parameters.push({ "Key": "EmploymentType", "Value": getString(fl, "EmploymentType") });
 
         $scope.parameters = parameters;
     }
@@ -263,7 +270,7 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
     $scope.DailyHRReportList = [];
     $scope.GetDailyReportData = function () {
         try {
-            if (baseService.isUndefinedOrNull($scope.WrkDate)) {
+            if (baseService.isUndefinedOrNull($scope.WorkDate)) {
                 throw "Work Date is required.";
             }
 
@@ -273,7 +280,7 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
             $http({
                 method: 'POST',
                 url: "Employees/EmployeeInFoReport/GetDailyReportData",
-                data: { 'parameters': $scope.parameters, 'date': $scope.WrkDate },
+                data: { 'parameters': $scope.parameters, 'date': $scope.WorkDate },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
