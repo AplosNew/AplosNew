@@ -177,7 +177,7 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
         }
         else {
             $scope.invalidDocDate = false;
-            $scope.GetCurrencyExchangeRateList();
+            //$scope.GetCurrencyExchangeRateList();
         }
         return manualValidation("div_DocDate", $scope.invalidDocDate, msg);
     };
@@ -199,7 +199,7 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
         }
         else {
             $scope.invalidPostingDate = false;
-            $scope.GetCurrencyExchangeRateList();
+           // $scope.GetCurrencyExchangeRateList();
         }
         return manualValidation("div_PostingDate", $scope.invalidPostingDate, msg);
     };
