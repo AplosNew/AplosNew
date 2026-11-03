@@ -854,8 +854,9 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
 							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
                             where MP.Active = 1";
-
-            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(_sqlRepository.GetDataCollection(str, null), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         [Authorize, HttpPost]
@@ -1504,7 +1505,9 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
                                 left join hkp.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
 								LEFT JOIN [MST].[ParameterResponsiblePerson] PRP ON PRP.ResponsiblePersonId=EMP.SystemId
                                 where EMP.EmployeeStatus = 'Active' order by PRP.Id desc";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         [HttpPost]
@@ -1710,7 +1713,9 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT QAP.*,(select EmployeeName from EmployeeInformation where SystemId=QAP.AuthorizedResPersonId) AuthorizedResPerson  FROM [HKP].[QualityManagementAuthorizedPerson] QAP order by SNO";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         [Authorize, HttpGet]
@@ -1785,7 +1790,9 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
                             LEFT OUTER JOIN ORG.Section S ON S.Id=p.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=p.SubSectionId
                             WHERE EI.EmployeeStatus='Active' and EI.EmployeeCode is not null";
-            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(_sqlRepository.GetDataCollection(str, null), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         [Authorize, HttpGet]
