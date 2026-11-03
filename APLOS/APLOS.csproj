@@ -1993,6 +1993,7 @@
     <Content Include="Areas\Commercial\Scripts\LCPendingReportController.js" />
     <Content Include="Areas\Commercial\Scripts\ComplianceController.js" />
     <Content Include="Areas\Costings\Scripts\OrderLineCostingItemServiceMasterMappingController.js" />
+    <Content Include="Areas\Employees\Scripts\EmployeeDailyIssueController.js" />
     <Content Include="Areas\Employees\Scripts\DailyTargetUploadController.js" />
     <Content Include="Areas\Employees\Scripts\EmployeeBulkUploadFNFController.js" />
     <Content Include="Areas\Employees\Scripts\CasteController.js" />
@@ -5163,6 +5164,7 @@
     <Content Include="Areas\OrderManagements\Views\MasterOrder\SKURP.cshtml" />
     <Content Include="Areas\OrderManagements\Views\MasterOrder\ReasonMaster.cshtml" />
     <Content Include="Areas\Productions\Views\Packing\LotDef.cshtml" />
+    <Content Include="Areas\Employees\Views\EmployeeInformation\DailyIssue.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

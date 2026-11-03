@@ -1,0 +1,162 @@
+﻿<togglable name="Daily Issue"></togglable>
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    <input type="hidden" ng-model="DailyIssueNew.Id">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Category<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Category" ng-model="DailyIssueNew.Category" class="form-control" required tabindex="1" maxlength="50">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Resolve Time<sup>*</sup></label>
+            <div class="col-sm-6 show-message">
+                <input type="text" name="ResolveTime" ng-model="DailyIssueNew.ResolveTime" only-numbers class="form-control" required tabindex="5" maxlength="50">
+            </div>
+            <label class="col-sm-2 control-label">Min</label>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Criticality Level<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="DailyIssueNew.CriticalityLevel" name="Item"
+                            ng-options="item.Value as item.Text for item in CriticalityLevelList" required tabindex="10">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input type="text" name="Responsible Person" ng-model="DailyIssueNew.ResponsiblePerson" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="getPopUpData();" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Issue<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Issue" ng-model="DailyIssueNew.IssueType" class="form-control" maxlength="50" required tabindex="2">
+            </div>
+        </div>
+        
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Handle Time<sup>*</sup></label>
+            <div class="col-sm-6 show-message">
+                <input type="text" name="HandleTime" ng-model="DailyIssueNew.HandleTime" only-numbers class="form-control" required tabindex="5" maxlength="50">
+            </div>
+            <label class="col-sm-2 control-label">Min</label>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="3" ng-model="DailyIssueNew.Remarks" maxlength="250" tabindex="6"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li><button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="searchDIBy">
+                            <option ng-repeat="option in searchByDIList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="searchDI" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ej-grid e-datasource="DailyIssues" e-recorddoubleclick="Get" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
+            <div e-column e-field="Category" e-headertext="Category" e-width="2"></div>
+            <div e-column e-field="IssueType" e-headertext="Issue" e-width="5"></div>
+            <div e-column e-field="CriticalityLevel" e-headertext="CriticalityLevel" e-width="5"></div>
+            <div e-column e-field="ResolveTime" e-headertext="ResolveTime" e-width="3"></div>
+            <div e-column e-field="HandleTime" e-headertext="HandleTime" e-width="3"></div>
+            <div e-column e-field="ResponsiblePerson" e-headertext="ResponsiblePerson" e-width="5"></div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="confirmTarDataPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteTrainingType();"></confirm-archive-generic>
+
+<div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" ng-click="closeEmployeePopUp();">&times;</button>
+            </div>
+            <div class="modal-body">
+                @*<div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="search-form">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="searchBy">
+                                        <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getEmpData()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="getEmpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>*@
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="Grid" ej-grid e-datasource="employee" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                                <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                                <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                                <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>

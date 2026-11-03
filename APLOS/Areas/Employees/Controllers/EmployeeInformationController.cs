@@ -147,6 +147,11 @@ namespace Aplos.Areas.Employees.Controllers
             return View();
         }
 
+      
+        public ActionResult DailyIssue()
+        {
+            return View();
+        }
 
         public ActionResult BulkUpload()
         {
@@ -3643,5 +3648,91 @@ ORDER BY ISNULL(SUM(PS.Quantity*DT.SPT) / NULLIF(SUM(ISNULL(PBC.NonMCtotalMP*(DT
 
         #endregion
 
+        #region DailyIssue
+
+        [HttpPost, Authorize]
+        public ActionResult GetDailyIssueDataList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 100 * from (SELECT TT.*,E.EmployeeName ResponsiblePerson FROM dbo.EmployeeDailyIssue TT
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=TT.ResponsiblePersonId) AS TEMP WHERE " + strkey + "";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult CreateDailyIssue(Dictionary<string, object> data)
+        {
+            try
+            {
+                string smg = "";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from dbo.EmployeeDailyIssue where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("EmployeeDailyIssue", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                    smg = AplosMessage.Insert;
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                    smg = AplosMessage.Updated;
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Message = smg });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+        [HttpPost]
+        public ActionResult DeleteDailyIssue(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from dbo.EmployeeDailyIssue where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+
+
+        #endregion
     }
 }
