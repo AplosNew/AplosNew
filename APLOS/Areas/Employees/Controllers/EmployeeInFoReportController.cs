@@ -3166,7 +3166,7 @@ SELECT
     AbsentPerYesterday = ISNULL(
     CAST(
         ROUND(
-            CAST((ISNULL(Y.LeaveEmp,0) + ISNULL(Y.AbsentEmp,0)) AS DECIMAL(18,4)) * 100.0
+            CAST(ISNULL(Y.AbsentEmp,0) AS DECIMAL(18,4)) * 100.0
             / NULLIF((ISNULL(A.ActiveEmployee,0)), 0)
         , 2)
     AS DECIMAL(10,2))

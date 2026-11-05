@@ -178,7 +178,7 @@ namespace Library.Service.Employees
             }
         }
 
-        public IEnumerable<object> GetAllEmployeeData()
+        public IEnumerable<object> GetAllEmployeeData(string companyId)
         {
             try
             {
@@ -224,7 +224,52 @@ namespace Library.Service.Employees
                                 LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
 								LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                                 LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
-                                WHERE E.EmployeeStatus='Active' AND E.EmpType<>'Guest' Order by EmployeeCodeNumeric";
+                                WHERE E.EmployeeStatus='Active' AND E.EmpType<>'Guest' AND E.CompanyId='"+companyId+ @"'
+								union all
+								SELECT CAST (0 AS bit) Flag,E.SystemId
+							    	,E.PlantId
+							    	,E.GroupID
+							    	,E.CompanyId
+							    	,E.EmployeeName
+							    	,PMB.Code BudgetCode
+							    	,PR.UserName PositionName
+							    	,E.TelePhnNo
+							    	,E.EmailId
+                                    ,PR.DepartmentId
+                                    ,PR.DivisionId
+									,PR.SectionId
+							    	,E.EmpType
+							    	,E.GivenDesignationId
+									,E.EmployeeCategorySystemID EmployeeCategoryId
+							    	,EN.UserName EntityName
+							    	,D.UserName Designation
+							    	,GD.UserName GivenDesignation
+                                    ,LD.UserName LegalDesignation
+							    	,DEPT.UserName AS Department
+							    	,DV.UserName AS Division
+									,SC.UserName AS Section
+                                    ,E.EmployeeCode
+									,E.EmpPicPath
+                                    ,E.DOJ
+                                    ,P.UserName Plant
+									,SS.UserName SubSection
+                                    ,E.EmployeeCodeNumeric
+                                    ,C.UserName Company
+							    FROM EmployeeInformation E
+							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
+							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+							    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
+							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
+							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
+							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
+                                LEFT JOIN HKP.LegalDesignation LD ON E.LegalDesignationId = LD.Id
+                                LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
+								LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
+                                LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
+                                WHERE E.EmployeeStatus='Active' AND E.EmpType<>'Guest' AND E.IsGlobalEmployee=1 								
+								Order by EmployeeCodeNumeric";
                 return _sqlRepository.GetDataCollection(CmdText);
             }
             catch (Exception ex)

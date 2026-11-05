@@ -45,7 +45,8 @@ namespace Aplos.Areas.Employees.Controllers
         [HttpGet, Authorize]
         public ActionResult GetAllEmployeeData()
         {
-            JsonResult json = Json(_authorizationConfigService.GetAllEmployeeData(), JsonRequestBehavior.AllowGet);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            JsonResult json = Json(_authorizationConfigService.GetAllEmployeeData(identity.CompanyId), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }

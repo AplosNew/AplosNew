@@ -565,5 +565,9 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             templateUrl: 'Employees/EmployeeInformation/DailyTargetUpload',
             controller: 'DailyTargetUploadController'
         })
+        .when('/dailyissue', {
+            templateUrl: 'Employees/EmployeeInformation/DailyIssue',
+            controller: 'EmployeeDailyIssueController'
+        })
         ;
 } 

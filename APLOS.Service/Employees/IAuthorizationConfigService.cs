@@ -14,6 +14,6 @@ namespace Library.Service.Employees
         void DeleteGraph(string id);
         IEnumerable<object> Query(string CompanyId, string PlantId, string actionStatus);
         IEnumerable<object> GetCbo(string status, string plantId);
-        IEnumerable<object> GetAllEmployeeData();
+        IEnumerable<object> GetAllEmployeeData(string companyId);
     }
 }
