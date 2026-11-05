@@ -372,7 +372,9 @@ function advanceJournalController(accountService, cboService, commonMessage, $sc
         $scope.Action = "Save";
         $scope.voucher.Active = true;
         $scope.voucher.Amount = 0;
+        $scope.voucher.Id = null;
         $scope.voucher.DocRefNo = null;
+        $scope.voucher.VoucherNo = null;
         $scope.voucher.Narration = null;
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.getCboVoucherTypeJournalVoucherList();
