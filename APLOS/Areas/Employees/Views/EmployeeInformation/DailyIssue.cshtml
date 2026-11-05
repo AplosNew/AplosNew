@@ -14,7 +14,7 @@
             <div class="col-sm-6 show-message">
                 <input type="text" name="ResolveTime" ng-model="DailyIssueNew.ResolveTime" only-numbers class="form-control" required tabindex="5" maxlength="50">
             </div>
-            <label class="col-sm-2 control-label">Min</label>
+            <label class="col-sm-2 control-label">(Min)</label>
         </div>
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Criticality Level<sup>*</sup></label>
@@ -46,13 +46,24 @@
                 <input type="text" name="Issue" ng-model="DailyIssueNew.IssueType" class="form-control" maxlength="50" required tabindex="2">
             </div>
         </div>
-        
+
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Handle Time<sup>*</sup></label>
             <div class="col-sm-6 show-message">
                 <input type="text" name="HandleTime" ng-model="DailyIssueNew.HandleTime" only-numbers class="form-control" required tabindex="5" maxlength="50">
             </div>
-            <label class="col-sm-2 control-label">Min</label>
+            <label class="col-sm-2 control-label">(Min)</label>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select id="Shit " class="form-control" ng-model="DailyIssueNew.ShiftId" name="Shift" tabindex="16" required>
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in fixedShitList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
         </div>
         <div class="form-group">
             <label class="col-sm-4 control-label">Remarks</label>
@@ -96,6 +107,7 @@
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
+            <div e-column e-field="ShiftName" e-headertext="Shift" e-width="2"></div>
             <div e-column e-field="Category" e-headertext="Category" e-width="2"></div>
             <div e-column e-field="IssueType" e-headertext="Issue" e-width="5"></div>
             <div e-column e-field="CriticalityLevel" e-headertext="CriticalityLevel" e-width="5"></div>

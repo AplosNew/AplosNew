@@ -1,6 +1,6 @@
 ﻿'use strict';
-EmployeeDailyIssueController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function EmployeeDailyIssueController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+EmployeeDailyIssueController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$window'];
+function EmployeeDailyIssueController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter,$window) {
     $rootScope.title = 'Daily Issue';
     $scope.Action = 'Save';
     $scope.index = -1;
@@ -35,7 +35,8 @@ function EmployeeDailyIssueController(cboService, commonMessage, $scope, $rootSc
         ResponsiblePersonId: null,
         IssueType: null,
         HandleTime: null,
-        Remarks: null
+        Remarks: null,
+        ShiftId:null
     };
 
     $scope.DailyIssueNew = Object.assign({}, $scope.DailyIssue);
@@ -76,6 +77,17 @@ function EmployeeDailyIssueController(cboService, commonMessage, $scope, $rootSc
     $scope.closeEmployeePopUp = function () {
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     }
+
+    $scope.fixedShitList = [];
+    $scope.GetShiftCbo = function () {
+        $scope.fixedShitList = [];
+        $http.get('employees/EmployeeInformation/GetCboShiftDefinationByPlant?plantId=' + $window.plantId)
+            .then(function (response) {
+                $scope.fixedShitList = response.data;
+            });
+    };
+    $scope.GetShiftCbo();
+
 
     $scope.Get = function (data) {
         $scope.DailyIssueNew = Object.assign({}, data.data);

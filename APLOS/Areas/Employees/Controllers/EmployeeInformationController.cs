@@ -3658,8 +3658,9 @@ ORDER BY ISNULL(SUM(PS.Quantity*DT.SPT) / NULLIF(SUM(ISNULL(PBC.NonMCtotalMP*(DT
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT TT.*,E.EmployeeName ResponsiblePerson FROM dbo.EmployeeDailyIssue TT
-LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=TT.ResponsiblePersonId) AS TEMP WHERE " + strkey + "";
+            string sql = @"select top 100 * from (SELECT TT.*,E.EmployeeName ResponsiblePerson,SD.UserName ShiftName FROM dbo.EmployeeDailyIssue TT
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=TT.ResponsiblePersonId
+LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=TT.ShiftId) AS TEMP WHERE " + strkey + "";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
