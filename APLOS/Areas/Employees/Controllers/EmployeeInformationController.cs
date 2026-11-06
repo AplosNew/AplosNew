@@ -3817,6 +3817,77 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=TT.ShiftId) AS TEMP WHERE " + st
             }
         }
 
+        [HttpPost]
+        public JsonResult CreateResPerson(List<Dictionary<string, object>> data)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsEntity;
+            try
+            {
+
+                #region Entity 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.DailyIssueResponsiblePerson", out dsEntity, false, "1");
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsEntity.Tables[0]);
+                        dv.RowFilter = "Id='" + Convert.ToInt64(item["Id"]) + "' AND EmpSystemId='" + item["EmpSystemId"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            AddNewRow(dsEntity.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsEntity);
+
+                return Json(new { Error = false, Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetResPersonList()
+        {
+            string CmdText = @"SELECT SSU.*,EI.EmployeeName,EI.CompanyId,EI.PlantId,EI.GroupId,EI.EmployeeCode
+                                      ,EI.BudgetCode,E.UserName EntityName,D.UserName Designation,
+                                      PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,SS.UserName SubSection
+                                      ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,EI.EmpPicPath,EI.EmployeeStatus,C.UserName Company
+									  FROM dbo.DailyIssueResponsiblePerson SSU
+									  LEFT JOIN dbo.EmployeeInformation EI on ei.SystemId=ssu.EmpSystemId
+                                      LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                                      LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                      LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                                      LEFT JOIN ORG.Section S ON S.Id=PR.SectionId
+                                      LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
+                                      LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
+                                      LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                                      LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
+                                      LEFT JOIN ORG.Company C ON C.Id=EI.CompanyId
+                                      LEFT JOIN ORG.Line L ON L.Id=PMB.LineId
+                                      LEFT JOIN HKP.Designation DEG ON EI.GivenDesignationId=DEG.Id
+                                      LEFT JOIN HKP.LegalDesignation LDEG ON EI.LegalDesignationId=LDEG.Id
+									  ORDER BY EI.EmployeeStatus";
+            var jsondata = Json(_sqlRepository.GetDataCollection(CmdText), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
 
         #endregion
     }
