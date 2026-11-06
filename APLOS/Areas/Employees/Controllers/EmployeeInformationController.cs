@@ -2917,18 +2917,46 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                             .Select(row => row["ProductionOrderId"].ToString()));
 
 
-                            string workcenterIncharges = string.Join(",",
-                            dt.AsEnumerable().Where(row => row["WorkCenterIncharge"] != DBNull.Value)
-                            .Select(row => "'" + row["WorkCenterIncharge"].ToString().Replace("'", "''") + "'"));
+                            //// string workcenterIncharges = string.Join(",",
+                            //// dt.AsEnumerable().Where(row => row["WorkCenterIncharge"] != DBNull.Value)
+                            //// .Select(row => "'" + row["WorkCenterIncharge"].ToString().Replace("'", "''") + "'"));
 
-                            string qcIncharges = string.Join(",",
-                           dt.AsEnumerable().Where(row => row["QCIncharge"] != DBNull.Value)
-                           .Select(row => "'" + row["QCIncharge"].ToString().Replace("'", "''") + "'"));
+                            //// string qcIncharges = string.Join(",",
+                            ////dt.AsEnumerable().Where(row => row["QCIncharge"] != DBNull.Value)
+                            ////.Select(row => "'" + row["QCIncharge"].ToString().Replace("'", "''") + "'"));
+                            ///
+                            // ফাঁকা/NULL/স্পেস মান বাদ + ডুপ্লিকেট বাদ + একক উদ্ধৃতি escape
+                            Func<DataTable, string, string> BuildInList = (table, column) =>
+                                string.Join(",",
+                                    table.AsEnumerable()
+                                         .Where(row => row[column] != DBNull.Value
+                                                    && !string.IsNullOrWhiteSpace(row[column].ToString()))
+                                         .Select(row => row[column].ToString().Trim())
+                                         .Distinct()
+                                         .Select(v => "'" + v.Replace("'", "''") + "'"));
+
+                            string workcenterIncharges = BuildInList(dt, "WorkCenterIncharge");
+                            string qcIncharges = BuildInList(dt, "QCIncharge");
+
 
                             objCon = new ConnectionManager.DAL.ConManager("1");
                             objCon.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[ProductionOrder]  where Id in (" + productionOrderIds + " )", out dsBC, false, "1");
-                            objCon.OpenDataSetThroughAdapter("SELECT * FROM [DBO].[EmployeeInformation]  where EmployeeCode in (" + workcenterIncharges + " )", out dsWorkCenIncharge, false, "1");
-                            objCon.OpenDataSetThroughAdapter("SELECT * FROM [DBO].[EmployeeInformation]  where EmployeeCode in (" + qcIncharges + " )", out dsQCIncharge, false, "1");
+                            //objCon.OpenDataSetThroughAdapter("SELECT * FROM [DBO].[EmployeeInformation]  where EmployeeCode in (" + workcenterIncharges + " )", out dsWorkCenIncharge, false, "1");
+                            //objCon.OpenDataSetThroughAdapter("SELECT * FROM [DBO].[EmployeeInformation]  where EmployeeCode in (" + qcIncharges + " )", out dsQCIncharge, false, "1");
+
+                            if (!string.IsNullOrEmpty(workcenterIncharges))
+                                objCon.OpenDataSetThroughAdapter(
+                                    "SELECT * FROM [DBO].[EmployeeInformation] WHERE EmployeeCode IN (" + workcenterIncharges + ")",
+                                    out dsWorkCenIncharge, false, "1");
+                            else
+                                dsWorkCenIncharge = new DataSet();
+
+                            if (!string.IsNullOrEmpty(qcIncharges))
+                                objCon.OpenDataSetThroughAdapter(
+                                    "SELECT * FROM [DBO].[EmployeeInformation] WHERE EmployeeCode IN (" + qcIncharges + ")",
+                                    out dsQCIncharge, false, "1");
+                            else
+                                dsQCIncharge = new DataSet();
 
                             for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
                             {
@@ -2941,23 +2969,23 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                                     UploadedDailyTargetViewModel vm = new UploadedDailyTargetViewModel();
                                     DataView dv = new DataView(dsBC.Tables[0]);
                                     dsBC.Tables[0].DefaultView.RowFilter = "Id='" + dsExcel.Tables[0].Rows[i][4].ToString().Trim() + "'";
-                                    dsWorkCenIncharge.Tables[0].DefaultView.RowFilter = "EmployeeCode='" + dsExcel.Tables[0].Rows[i][11].ToString().Trim() + "'";
+                                   // dsWorkCenIncharge.Tables[0].DefaultView.RowFilter = "EmployeeCode='" + dsExcel.Tables[0].Rows[i][11].ToString().Trim() + "'";
 
                                     if (dsExcel.Tables[0].Rows[i][4].ToString().Trim() != DBNull.Value.ToString() && dsBC.Tables[0].DefaultView.Count == 0)
                                     {
                                         throw new Exception("ProductionOrder no '" + dsExcel.Tables[0].Rows[i][4].ToString().Trim() + "' not valid PO. Please check !!");
 
                                     }
-                                    if (dsWorkCenIncharge.Tables[0].DefaultView.Count == 0)
-                                    {
-                                        throw new Exception("WorkcenterIncharge '" + dsExcel.Tables[0].Rows[i][11].ToString().Trim() + "' not valid Code. Please check !!");
+                                    //if (dsWorkCenIncharge.Tables[0].DefaultView.Count == 0)
+                                    //{
+                                    //    throw new Exception("WorkcenterIncharge '" + dsExcel.Tables[0].Rows[i][11].ToString().Trim() + "' not valid Code. Please check !!");
 
-                                    }
-                                    if (dsQCIncharge.Tables[0].DefaultView.Count == 0)
-                                    {
-                                        throw new Exception("QCIncharge '" + dsExcel.Tables[0].Rows[i][12].ToString().Trim() + "' not valid Code. Please check !!");
+                                    //}
+                                    //if (dsQCIncharge.Tables[0].DefaultView.Count == 0)
+                                    //{
+                                    //    throw new Exception("QCIncharge '" + dsExcel.Tables[0].Rows[i][12].ToString().Trim() + "' not valid Code. Please check !!");
 
-                                    }
+                                    //}
 
                                     vm.TargetDate = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
                                     vm.ShiftName = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
@@ -2972,10 +3000,22 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                                     vm.Helper = ParseIntOrDefault(dsExcel.Tables[0].Rows[i][8]);
                                     vm.SPT = ParseDecimalOrFormula(dsExcel.Tables[0].Rows[i][9]);
                                     vm.Remarks = dsExcel.Tables[0].Rows[i][10].ToString().Trim();
-                                    vm.WorkCenterIncharge = dsWorkCenIncharge.Tables[0].DefaultView[0]["SystemId"].ToString();
-                                    vm.QCIncharge = dsQCIncharge.Tables[0].DefaultView[0]["SystemId"].ToString();
-                                    vm.WorkingHour = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][13]);
+                                    //vm.WorkCenterIncharge = dsWorkCenIncharge.Tables[0].DefaultView[0]["SystemId"].ToString();
                                     vm.TargetQty = vm.QtyPerHour * Convert.ToDecimal(dsExcel.Tables[0].Rows[i][13]);
+
+                                    Func<DataSet, object, string> SystemIdByCode = (ds, code) =>
+                                    {
+                                        if (ds == null || ds.Tables.Count == 0 || code == null || code == DBNull.Value) return string.Empty;
+                                        var row = ds.Tables[0].AsEnumerable()
+                                            .FirstOrDefault(r => r["EmployeeCode"].ToString().Trim() == code.ToString().Trim());
+                                        return row != null && row["SystemId"] != DBNull.Value ? row["SystemId"].ToString() : string.Empty;
+                                    };
+
+                                    vm.WorkCenterIncharge = SystemIdByCode(dsWorkCenIncharge, dt.Rows[i]["WorkCenterIncharge"]);
+                                    vm.QCIncharge = SystemIdByCode(dsQCIncharge, dt.Rows[i]["QCIncharge"]);
+
+                                    //vm.QCIncharge = dsQCIncharge.Tables[0].DefaultView[0]["SystemId"].ToString();
+                                    //vm.WorkingHour = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][13]);
 
                                     data.Add(vm);
                                 }
@@ -3084,8 +3124,9 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsBC;
             DataSet dsPO;
-            DataSet dsWorkCenIncharge;
-            DataSet dsQCIncharge;
+
+            DataSet dsWorkCenIncharge = new DataSet();
+            DataSet dsQCIncharge = new DataSet();
             string _Id = string.Empty;
             try
             {
@@ -3103,6 +3144,26 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
 
                 if (data != null)
                 {
+                    // EmployeeCode -> SystemId (ফাঁকা কোড বাদ)
+                    Func<DataSet, Dictionary<string, string>> ToMap = ds =>
+                    {
+                        var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                        if (ds != null && ds.Tables.Count > 0)
+                            foreach (DataRow r in ds.Tables[0].Rows)
+                            {
+                                string code = r["EmployeeCode"].ToString().Trim();
+                                if (code != "" && !map.ContainsKey(code))
+                                    map[code] = r["SystemId"] == DBNull.Value ? "" : r["SystemId"].ToString();
+                            }
+                        return map;
+                    };
+
+                    var wcMap = ToMap(dsWorkCenIncharge);
+                    var qcMap = ToMap(dsQCIncharge);
+
+                    // কী না থাকলে বা মান ফাঁকা হলে "" ফেরত দেয়
+                    Func<Dictionary<string, object>, string, string> Get = (d, key) =>
+                        d.ContainsKey(key) && d[key] != null ? d[key].ToString().Trim() : "";
                     foreach (var item in data)
                     {
                         //item["TargetDate"] = Convert.ToDateTime(item["TargetDate"]);
@@ -3115,6 +3176,19 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                             dsPO.Tables[0].DefaultView.RowFilter = "ProductionOrderId='" + item["ProductionOrderId"] + "'";
                             //dsWorkCenIncharge.Tables[0].DefaultView.RowFilter = "EmployeeCode='" + item["WorkCenterInCharge"] + "'";
                             //dsQCIncharge.Tables[0].DefaultView.RowFilter = "EmployeeCode='" + item["QCInCharge"] + "'";
+                            string wcSystemId;
+                            if (!wcMap.TryGetValue(Get(item, "WorkCenterIncharge"), out wcSystemId) || string.IsNullOrWhiteSpace(wcSystemId))
+                                item["WorkCenterIncharge"] = DBNull.Value;
+                            else
+                                item["WorkCenterIncharge"] = wcSystemId;
+
+                            string qcSystemId;
+                            if (!qcMap.TryGetValue(Get(item, "QCIncharge"), out qcSystemId) || string.IsNullOrWhiteSpace(qcSystemId))
+                                item["QCIncharge"] = DBNull.Value;
+                            else
+                                item["QCIncharge"] = qcSystemId;
+
+                           
                             if (dsPO.Tables[0].DefaultView.Count > 0)
                             {
                                 item["SPT"] = Convert.ToDecimal(dsPO.Tables[0].DefaultView[0]["TotalSPT"]).ToString();
@@ -3144,8 +3218,18 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                             dr["StyleNo"] = item["StyleNo"];
                             dr["QtyPerHour"] = item["QtyPerHour"];
                             dr["WorkingHour"] = item["WorkingHour"];
-                            dr["QCIncharge"] = item["QCIncharge"];
-                            dr["WorkCenterIncharge"] = item["WorkCenterIncharge"];
+                            Func<Dictionary<string, string>, object, object> ResolveIncharge = (map, v) =>
+                            {
+                                string s = (v == null || v == DBNull.Value) ? "" : v.ToString().Trim();
+                                if (s == "") return DBNull.Value;
+                                string sys;
+                                return (map.TryGetValue(s, out sys) && sys != "") ? (object)sys : s;
+                            };
+                            if (item.ContainsKey("WorkCenterIncharge"))
+                                item["WorkCenterIncharge"] = ResolveIncharge(wcMap, item["WorkCenterIncharge"]);
+                            if (item.ContainsKey("QCIncharge"))
+                                item["QCIncharge"] = ResolveIncharge(qcMap, item["QCIncharge"]);
+
                             dr["AddedBy"] = dsBC.Tables[0].Rows[0]["AddedBy"].ToString();
                             dr["AddedDate"] = dsBC.Tables[0].Rows[0]["AddedDate"];
                             dr["AddedFromIP"] = dsBC.Tables[0].Rows[0]["AddedFromIP"].ToString();
