@@ -93,7 +93,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 }
 
 
-                if (sourceType== SourceType.JournalVoucher.ToString())
+                if (sourceType== SourceType.JournalVoucher.ToString() || sourceType == SourceType.AdvanceJournalVoucher.ToString())
                 {
                     ConnectionManager.DAL.ConManager objCon1;
                     DataSet dsMaster1 = null;
