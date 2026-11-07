@@ -3163,22 +3163,26 @@ SELECT
     ISNULL(Y.LeaveEmp,0) LeaveYesterday,
     ISNULL(Y.WeekOffEmp,0) WeekOffYesterday,
     AbsentYesterday =
-CASE
-    WHEN ISNULL(Y.AbsentEmp,0) = 0 THEN 0
-    ELSE ISNULL(Y.AbsentEmp,0) - ISNULL(CS.LongAbsenteeism,0) - ISNULL(CS.TBS,0)
-END,
+    CASE
+        WHEN ISNULL(Y.AbsentEmp,0) - ISNULL(CS.LongAbsenteeism,0) - ISNULL(CS.TBS,0) < 0
+            THEN 0
+        ELSE ISNULL(Y.AbsentEmp,0) - ISNULL(CS.LongAbsenteeism,0) - ISNULL(CS.TBS,0)
+    END,
 AbsentPerYesterday =
-CASE
-    WHEN ISNULL(Y.AbsentEmp,0) = 0 THEN 0
-    ELSE ISNULL(
-            CAST(
-                ROUND(
-                    CAST(ISNULL(Y.AbsentEmp,0) - ISNULL(CS.LongAbsenteeism,0) - ISNULL(CS.TBS,0) AS DECIMAL(18,4)) * 100.0
-                    / NULLIF((ISNULL(A.ActiveEmployee,0) - ISNULL(CS.LongAbsenteeism,0) - ISNULL(CS.TBS,0)), 0)
-                , 2)
-            AS DECIMAL(10,2))
-        , 0)
-END,
+    ISNULL(
+        CAST(
+            ROUND(
+                CAST(
+                    CASE
+                        WHEN ISNULL(Y.AbsentEmp,0) - ISNULL(CS.LongAbsenteeism,0) - ISNULL(CS.TBS,0) < 0
+                            THEN 0
+                        ELSE ISNULL(Y.AbsentEmp,0) - ISNULL(CS.LongAbsenteeism,0) - ISNULL(CS.TBS,0)
+                    END
+                AS DECIMAL(18,4)) * 100.0
+                / NULLIF((ISNULL(A.ActiveEmployee,0) - ISNULL(CS.LongAbsenteeism,0) - ISNULL(CS.TBS,0)), 0)
+            , 2)
+        AS DECIMAL(10,2))
+    , 0),
  LeavePer = ISNULL(
         CAST(ROUND(
             CAST(ISNULL(Y.LeaveEmp,0) AS DECIMAL(18,4)) * 100.0
