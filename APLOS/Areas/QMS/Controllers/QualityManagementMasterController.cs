@@ -32,7 +32,7 @@ namespace Aplos.Areas.QMS.Controllers
 
         #region -- Pages
 
-       
+
         public ActionResult Aplos()
         {
             return View();
@@ -140,7 +140,7 @@ where P.Id='" + Pid + "'";
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         [HttpPost]
         public ActionResult Delete(string id)
         {
@@ -185,7 +185,7 @@ where P.Id='" + Pid + "'";
 
             var sql = @"select ProcessId as Value,P.UserName as Text from MST.QualityManagementProcess QMP 
 left join hkp.Process P on P.id=QMP.ProcessId
-where QMID='"+ ScheduleId + "'";
+where QMID='" + ScheduleId + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -238,7 +238,7 @@ where QMP.QMID='" + ScheduleId + "' and QMP.ProcessId='" + ProcessId + "'";
                 conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityManagementMaster] where ScheduleCode='" + ScheduleData["ScheduleCode"] + "'", out DataSet dsQualityManagmentMasterCodeValidation, false, "1");
                 conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityManagementMaster] where StandaredName='" + ScheduleData["StandaredName"] + "'", out DataSet dsQualityManagmentMasterSNameValidation, false, "1");
                 conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityManagementMaster] where UserName='" + ScheduleData["UserName"] + "'", out DataSet dsQualityManagmentMasterUNameValidation, false, "1");
-                
+
 
                 DataSet dsQualityManagmentMaster;
 
@@ -249,7 +249,7 @@ where QMP.QMID='" + ScheduleId + "' and QMP.ProcessId='" + ProcessId + "'";
                 #region data update
                 if (dsQualityManagmentMaster.Tables[0].Rows.Count == 0)
                 {
-                    
+
                     if (dsQualityManagmentMasterCodeValidation.Tables[0].Rows.Count > 0)
                     {
                         throw new Exception("Schedule Code Already Exist.");
@@ -428,7 +428,7 @@ where QMP.QMID='" + ScheduleId + "' and QMP.ProcessId='" + ProcessId + "'";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select CAST (CASE WHEN QMM.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,QMM.Id,MM.Id MachineMasterId,MM.UserName Machine, MC.UserName Category, MSC.UserName SubCategory
                             from MST.MachineMaster MM
-							LEFT JOIN [MST].[QualityManagementMachine] QMM ON QMM.MachineMasterId=MM.Id and QMM.QMID='"+ ScheduleId + @"'
+							LEFT JOIN [MST].[QualityManagementMachine] QMM ON QMM.MachineMasterId=MM.Id and QMM.QMID='" + ScheduleId + @"'
 							left join HKP.MachineCategory MC on MC.Id = MM.MachineCategoryId
                             left join HKP.MachineSubCategory MSC on MSC.Id = MM.MachineSubCategoryId
                             where MM.Active = 1 order by QMM.Id desc";
@@ -499,7 +499,7 @@ P.UserReportGroup,QPC.Remarks
                 conC.CommitTransaction();
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                
+
                 if (DataList != null)
                 {
                     foreach (var item in DataList)
@@ -582,7 +582,7 @@ P.UserReportGroup,QPC.Remarks
             }
         }
 
-        [Authorize, HttpGet] 
+        [Authorize, HttpGet]
         public ActionResult LoadQMActivityGroupDetails(string ScheduleId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -622,13 +622,13 @@ P.UserReportGroup,QPC.Remarks
                         throw new Exception("Activity Group Already Exist.");
                     }
                     else
-                    { 
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("QualityManagementAG", out _Id);
-                    _Id = "QAG" + _Id;
-                    ActivityGroupData["Id"] = _Id;
-                    ActivityGroupData["QMID"] = Pid;
-                    AddNewRow(dsQualityManagementAG.Tables[0], ActivityGroupData);
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("QualityManagementAG", out _Id);
+                        _Id = "QAG" + _Id;
+                        ActivityGroupData["Id"] = _Id;
+                        ActivityGroupData["QMID"] = Pid;
+                        AddNewRow(dsQualityManagementAG.Tables[0], ActivityGroupData);
                     }
                 }
                 else
@@ -710,7 +710,7 @@ P.UserReportGroup,QPC.Remarks
         }
 
         [HttpPost]
-        public ActionResult createProcess(List<Dictionary<string, object>> DataList,string Pid)
+        public ActionResult createProcess(List<Dictionary<string, object>> DataList, string Pid)
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsProdBooked;
@@ -853,7 +853,7 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
 							LEFT OUTER JOIN ORG.Section S ON S.Id=P.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
 							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            where MP.Active = 1";
+                            where MP.Active = 1 AND MP.Companyid='" + identity.CompanyId + "'";
             var jsondata = Json(_sqlRepository.GetDataCollection(str, null), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
@@ -872,12 +872,12 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
 							LEFT OUTER JOIN ORG.Section S ON S.Id=P.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
 							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            where MP.Active = 1 and EI.EmployeeStatus='Active'";
+                            where MP.Active = 1 and EI.EmployeeStatus='Active' AND MP.Companyid='"+identity.CompanyId+"'";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
-       
-      
+
+
         [Authorize, HttpGet]
         public ActionResult LoadItemEditData(string ItemId)
         {
@@ -1047,7 +1047,7 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
         {
             try
             {
-               
+
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
                 conRack.OpenDataSetThroughAdapter("select * from QualityManagementParameterCheckPoints where CheckPoints='" + ParameterData["CheckPoints"] + "' and ParameterId='" + Pid + "'", out DataSet dsQualityManagementParameterCheckPointsValidation, false, "1");
 
@@ -1341,7 +1341,7 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
             string _Id, Id = string.Empty;
             try
             {
-                
+
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
@@ -1451,7 +1451,7 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
 
                 if (DataList != null)
                 {
-                    
+
 
                     foreach (var item in DataList)
                     {
@@ -1504,7 +1504,7 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
                                 left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
                                 left join hkp.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
 								LEFT JOIN [MST].[ParameterResponsiblePerson] PRP ON PRP.ResponsiblePersonId=EMP.SystemId
-                                where EMP.EmployeeStatus = 'Active' order by PRP.Id desc";
+                                where EMP.EmployeeStatus = 'Active' AND EMP.EmployeeCode<>'' AND EMP.PlantId='" + identity.PlantId + "' order by PRP.Id desc";
             var jsondata = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
@@ -1580,8 +1580,10 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
                                 left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
                                 left join hkp.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
 								LEFT JOIN [MST].[ParameterApprovalResponsiblePerson] ARP ON ARP.ApprovalResponsiblePersonId=EMP.SystemId
-                                where EMP.EmployeeStatus = 'Active' order by ARP.Id desc";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+                                where EMP.EmployeeStatus = 'Active' AND EMP.EmployeeCode<>'' AND EMP.PlantId='"+identity.PlantId+"' order by ARP.Id desc";
+            var jsondata = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         [HttpPost]
@@ -1654,8 +1656,10 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
                                 left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
                                 left join hkp.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
 								LEFT JOIN [MST].[QualityActionResponsiblePerson] QAR ON QAR.QualityActionResponsiblePersonId=EMP.SystemId
-                                where EMP.EmployeeStatus = 'Active' order by QAR.Id desc";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+                                where EMP.EmployeeStatus = 'Active' AND EMP.EmployeeCode<>'' AND EMP.PlantId='" + identity.PlantId + "' order by QAR.Id desc";
+            var jsondata = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         [HttpPost]
