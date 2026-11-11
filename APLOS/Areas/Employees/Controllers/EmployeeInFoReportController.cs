@@ -3158,19 +3158,31 @@ SELECT
     ISNULL(SC.Sanction,0) Sanction,
     ISNULL(A.ActiveEmployee,0) ActiveEmployee,
    -- ISNULL(L5.Absent5DaysEmp,0) AbsentLast5Days,   -- ⭐ NEW COLUMN
-    NetOnroll=ISNULL(A.ActiveEmployee,0),
+    NetOnroll=ISNULL(A.ActiveEmployee,0)-ISNULL(CS.LongAbsenteeism,0)-ISNULL(CS.TBS,0),
     OnrollShortSurplus=ISNULL(A.ActiveEmployee,0)-ISNULL(SC.Sanction,0),
     ISNULL(Y.LeaveEmp,0) LeaveYesterday,
     ISNULL(Y.WeekOffEmp,0) WeekOffYesterday,
-    ISNULL(Y.AbsentEmp,0) AbsentYesterday,
-    AbsentPerYesterday = ISNULL(
-    CAST(
-        ROUND(
-            CAST(ISNULL(Y.AbsentEmp,0) AS DECIMAL(18,4)) * 100.0
-            / NULLIF((ISNULL(A.ActiveEmployee,0)), 0)
-        , 2)
-    AS DECIMAL(10,2))
-, 0),
+    AbsentYesterday =
+    CASE
+        WHEN ISNULL(Y.AbsentEmp,0) - ISNULL(CS.LongAbsenteeism,0) - ISNULL(CS.TBS,0) < 0
+            THEN 0
+        ELSE ISNULL(Y.AbsentEmp,0) - ISNULL(CS.LongAbsenteeism,0) - ISNULL(CS.TBS,0)
+    END,
+AbsentPerYesterday =
+    ISNULL(
+        CAST(
+            ROUND(
+                CAST(
+                    CASE
+                        WHEN ISNULL(Y.AbsentEmp,0) - ISNULL(CS.LongAbsenteeism,0) - ISNULL(CS.TBS,0) < 0
+                            THEN 0
+                        ELSE ISNULL(Y.AbsentEmp,0) - ISNULL(CS.LongAbsenteeism,0) - ISNULL(CS.TBS,0)
+                    END
+                AS DECIMAL(18,4)) * 100.0
+                / NULLIF((ISNULL(A.ActiveEmployee,0) - ISNULL(CS.LongAbsenteeism,0) - ISNULL(CS.TBS,0)), 0)
+            , 2)
+        AS DECIMAL(10,2))
+    , 0),
  LeavePer = ISNULL(
         CAST(ROUND(
             CAST(ISNULL(Y.LeaveEmp,0) AS DECIMAL(18,4)) * 100.0

@@ -62,7 +62,7 @@
                     <label class="col-sm-5 control-label">Order Type<sup>*</sup></label>
                     <div class="col-sm-7 show-message">
                         <div class="select-style">
-                            <select name="Order Type" class="form-control" ng-model="model.OrderType" ng-change="getData();"  ng-options="item.Value as item.Text for item in orderTypeList" required>
+                            <select name="Order Type" class="form-control" ng-model="model.OrderType" ng-change="getData();" ng-options="item.Value as item.Text for item in orderTypeList" required>
                                 <option value="">--Select--</option>
                             </select>
                         </div>
@@ -72,7 +72,7 @@
 
         </div>
         <div class="clearfix"></div>
-        <div class="form-horizontal form-elements" >
+        <div class="form-horizontal form-elements">
             <div class="col-xs-12 col-sm-6 col-md-6" id="ProductionEntity">
                 <div class="form-group">
                     <label class="col-sm-2 control-label">PlanningType1</label>
@@ -592,359 +592,361 @@
                                     </div>
                                 </div>
                                 <div class="clearfix"></div>
-                                <div class="site-tab">
-                                    <ul class="nav nav-tabs" role="tablist">
-                                        <li ng-class="{ active: isSet2(1) }"><a ng-click="setTab2(1)" href="" data-toggle="tab">Operation</a></li>
-                                        <li ng-class="{ active: isSet2(2) }"><a ng-click="setTab2(2);getSavedMacnineOperationData();" href="" data-toggle="tab">Consumption</a></li>
-                                    </ul>
-                                </div>
-                                <div class="tab-content">
-                                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(1), active: isSet2(1) }">
-                                        <div class="col-xs-12">
+                                <div class="row">
+                                    <div class="site-tab">
+                                        <ul class="nav nav-tabs" role="tablist">
+                                            <li ng-class="{ active: isSet2(1) }"><a ng-click="setTab2(1)" href="" data-toggle="tab">Operation</a></li>
+                                            <li ng-class="{ active: isSet2(2) }"><a ng-click="setTab2(2);getSavedMacnineOperationData();" href="" data-toggle="tab">Consumption</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="tab-content">
+                                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(1), active: isSet2(1) }">
+                                            <div class="col-xs-12">
+                                                <div class="common-btn">
+                                                    <ul class="list-inline text-left">
+                                                        <li><button style="margin-left: 5px;" ng-click="AddOperation();" ng-disabled="bulletintab || bulletinTemplateNew.Id==null" class="btn"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i> Add {{Process}} Operation</button></li>
+                                                        <li><button style="margin-left: 5px;" ng-click="AddMultiCode();" ng-disabled="bulletintab || bulletinTemplateNew.Id==null" class="btn"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i> Multi Code</button></li>
+                                                    </ul>
+                                                </div>
+
+                                                <label style="color: blue;font-size: 12px">OperationTarget/Hr: (60 / OperationSPT)</label> || <label style="color: blue;font-size: 12px">Required ManPower: (Planned Target/Hr / OperationTarget/Hr)</label>
+                                            </div>
+                                            <div class="clearfix"></div>
+                                            <div class="col-xs-12">
+                                                <div style="color:black;" id="GridBulOperation" ej-grid e-datasource="operationList" e-recorddoubleclick="GetOperationVaiationCode"
+                                                     e-allowfiltering="true" e-allowResizing="true"
+                                                     e-filtersettings-filterType="excel" e-enabletouch="true" e-templaterefresh="refreshTemplateDelOperation"
+                                                     e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
+                                                    <div e-columns>
+                                                        <div e-column e-field="Id" e-headertext="id" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                                                        <div e-column e-template="#lastOperation" e-headertext="Last Operation" e-width="50" style="height: 20px;"></div>
+
+                                                        <div e-column e-field="OperationCode" e-headertext="Operation Code" e-width="40" style="height: 20px;"></div>
+                                                        <div e-column e-template="#Sequence" e-headertext="Sequence" e-width="50" style="height: 20px;"></div>
+                                                        <div e-column e-field="OperationVariation" e-headertext="Operation Variation" e-width="110" style="height: 20px;"></div>
+                                                        <div e-column e-field="SkillName" e-headertext="Skill Name" e-width="80"></div>
+                                                        <div e-column e-headertext="MachineSkill" e-width="40">
+                                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" title="Machine Skill" class="btn"><i class="glyphicon glyphicon-search" ng-click="$parent.showOperationPopUp($event);" style="margin: -6px;"></i></button>
+                                                        </div>
+                                                        <div e-column e-headertext="Machine" e-width="40">
+                                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.openMachinePopup($event);" style="margin: -6px;"></i></button>
+                                                        </div>
+                                                        <div e-column e-field="MachineName" e-headertext="Machine Name" e-width="80" style="height: 20px;"></div>
+                                                        <div e-column e-template="#AreaCode" e-headertext="AreaCode" e-width="80" style="height: 20px;"></div>
+                                                        <div e-column e-field="VASSAMSOURCE" e-headertext="SAM Source" e-width="50"></div>
+                                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OperationSPT" e-headertext="Operation SPT" e-width="50" style="height: 20px;"></div>
+                                                        <div e-column e-field="VASSAMSOURCE" e-headertext="SAM Source" e-width="50"></div>
+                                                        <div e-column e-template="#AddSPT" e-headertext="Add.SPT" e-width="80" style="height: 20px;"></div>
+                                                        <div e-column e-template="#TotalSPT" e-headertext="Total Operation SPT" e-width="50" style="height: 20px;"></div>
+
+                                                        <div e-column e-template="#RequiredManPower" e-headertext="Required ManPower" e-width="50" style="height: 20px;"></div>
+                                                        <div e-column e-template="#AllotedManpower" e-headertext="Alloted Manpower" e-width="80" style="height: 20px;"></div>
+                                                        <div e-column e-template="#AllotedWorkstation" e-headertext="Alloted Work Station" e-width="50" style="height: 20px;"></div>
+                                                        <div e-column e-template="#AdditionalManpower" e-headertext="Additional Manpower" e-width="80" style="height: 20px;"></div>
+                                                        <div e-column e-template="#AdditionalWorkstation" e-headertext="Additional Work Station" e-width="80" style="height: 20px;"></div>
+                                                        <div e-column e-template="#OperationGroup" e-headertext="Operation Group" e-width="40" style="height: 20px;"></div>
+                                                        <div e-column e-template="#AvgAllotedTime" e-headertext="Avg Alloted Time" e-width="50" style="height: 20px;"></div>
+                                                        <div e-column e-template="#OperationTarget" e-headertext="OperationTarget/Hr" e-width="50" style="height: 20px;"></div>
+
+                                                        <div e-column e-template="#OperationCategory" e-headertext="Operation Category" e-width="80" style="height: 20px;"></div>
+                                                        <div e-column e-template="#FZZone" e-headertext="FG Zone" e-width="80" style="height: 20px;"></div>
+                                                        <div e-column e-template="#FZComponent" e-headertext="FG Component" e-width="80" style="height: 20px;"></div>
+                                                        <div e-column e-template="#Attachment" e-headertext="Attachment" e-width="80" style="height: 20px;"></div>
+                                                        <div e-column e-template="#GaugeFolder" e-headertext="Gauge Folder" e-width="80" style="height: 20px;"></div>
+                                                        <div e-column e-template="#OperationConsumption" e-headertext="Operation Consumption" e-width="80" style="height: 20px;"></div>
+                                                        <div e-column e-template="#OperationType" e-headertext="Operation Type" e-width="80" style="height: 20px;"></div>
+                                                        <div e-column e-template="#Quality" e-headertext="Quality Level" e-width="40" style="height: 20px;"></div>
+                                                        <div e-column e-template="#SPI" e-headertext="SPI" e-width="50" style="height: 20px;"></div>
+                                                        <div e-column e-template="#NoOfStitch" e-headertext="No Of Raw" e-width="50" style="height: 20px;"></div>
+                                                        <div e-column e-template="#OperationLength" e-headertext="Operation Length-cm" e-width="50" style="height: 20px;"></div>
+                                                        <div e-column e-template="#FabWdth" e-headertext="Fabric Width-inch" e-width="50" style="height: 20px;"></div>
+                                                        <div e-column e-template="#StitchCode" e-headertext="Stitch Code" e-width="80" style="height: 20px;"></div>
+                                                        <div e-column e-template="#Frequency" e-headertext="Frequency" e-width="40" style="height: 20px;"></div>
+                                                        <div e-column e-template="#Remark" e-headertext="Remark" e-width="80" style="height: 20px;"></div>
+                                                        <div e-column e-field="IsMaxAllottedTime" e-headertext="IsMaxAllottedTime" e-width="80" style="height: 20px;" e-visible="false"></div>
+                                                        <div e-column e-field="MaterialMaster" e-headertext="Machine Master" e-width="80" style="height: 20px;"></div>
+                                                        <div e-column e-headertext="Actions" e-width="50">
+                                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeProcessOperation($event);" style="margin: -6px;"></i></button>
+                                                        </div>
+                                                        <div e-column e-headertext="" @*e-headertemplateid="#headerDelTemplate"*@ e-template="#checkboxDelTemplate" e-textalign="center" e-width="30"></div>
+                                                    </div>
+                                                </div>
+                                                <script type="text/template" id="checkboxDelTemplate">
+                                                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.DelFlag" />
+                                                </script>
+                                                <script type="text/template" id="lastOperation">
+                                                    <div class="radio">
+                                                        <label>
+                                                            <input type="radio" name="lastoptradio" ng-checked="data.IsLastOperation" ng-click="$parent.setIsLastOperation(this)" value="" />
+                                                            <span class="cr"><i class="cr-icon"></i></span>
+                                                        </label>
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="Sequence">
+                                                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                                                        <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.Sequence" e-width="80" />
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="OperationGroup">
+                                                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                                                        <input type="text" ng-model="data.OperationGroup" style="color:black;" class="form-control" />
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="OperationCategory">
+                                                    @*<div class="col-sm-10" style="padding:0px; width:90px;margin:-12px;">
+                                                            <input ej-dropdownlist e-datasource="$parent.OperationCategoryList" e-value="data.OperationCategoryId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                                                        </div>*@
+                                                    <div class="select-style">
+                                                        <select class="form-control" ng-model="data.OperationCategoryId" name="Operation Category">
+                                                            <option value="">--Select--</option>
+                                                            <option ng-repeat="option in $parent.OperationCategoryList" value="{{option.Value}}">{{option.Text}}</option>
+                                                        </select>
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="FZZone">
+                                                    <div class="select-style">
+                                                        <select class="form-control" ng-model="data.FGZoneId" name="FGZone">
+                                                            <option value="">--Select--</option>
+                                                            <option ng-repeat="option in $parent.FGZoneList" value="{{option.Value}}">{{option.Text}}</option>
+                                                        </select>
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="FZComponent">
+                                                    <div class="select-style">
+                                                        <select class="form-control" ng-model="data.FGComponentId" name="FGComponent">
+                                                            <option value="">--Select--</option>
+                                                            <option ng-repeat="option in $parent.FGComponentList" value="{{option.Value}}">{{option.Text}}</option>
+                                                        </select>
+                                                    </div>
+                                                </script>
+
+                                                <script type="text/template" id="AreaCode">
+                                                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                                                        <input type="text" ng-model="data.AreaCode" ng-maxlength="50" style="color:black;" ng-blur="$parent.UpdateAreaCode(this)" class="form-control" />
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="AddSPT">
+                                                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                                                        <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.AdditionalSPT" e-change="data.TotalSPT=data.AdditionalSPT+data.OperationSPT" e-width="80" />
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="TotalSPT">
+                                                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                                                        @*<input type="text" ng-model="data.TotalSPT| number : 2" disabled style="color:black;" class="form-control" />*@
+                                                        <span>{{data.TotalSPT| number:2}}</span>
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="AllotedWorkstation">
+                                                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                                                        <input type="text" ng-model="data.AllotedWorkstation" only-numbers style="color:black;" class="form-control" />
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="AllotedManpower">
+                                                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                                                        <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.AllotedManpower" e-width="80" />
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="AdditionalWorkstation">
+                                                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                                                        <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.AdditionalWorkstation" e-width="80" />
+                                                        @*<input type="text" ng-model="data.AllotedWorkstation" only-numbers style="color:black;" class="form-control" />*@
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="AdditionalManpower">
+                                                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                                                        <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.AdditionalManpower" e-width="80" />
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="AvgAllotedTime">
+                                                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                                                        <input type="text" ng-model="data.AvgAllotedTime" disabled style="color:black; background-color:{{data.IsMaxAllottedTime==true?'Red':'#d8d7d7'}}" class="form-control" />
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="OperationTarget">
+                                                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                                                        <input type="text" ng-model="data.OperationTargetPerHr" disabled style="color:black;" class="form-control" />
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="RequiredManPower">
+                                                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                                                        <input type="text" ng-model="data.RequiredManPower" disabled style="color:black;" class="form-control" />
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="SPI">
+                                                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                                                        <input type="text" ej-numerictextbox e-decimalplaces="0" e-value="data.SPI" e-width="80" />
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="FabWdth">
+                                                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                                                        <input type="text" ej-numerictextbox e-decimalplaces="4" e-value="data.FabricWidth" e-width="80" />
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="NoOfStitch">
+                                                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                                                        <input type="text" ej-numerictextbox e-decimalplaces="0" e-value="data.NoOfStitch" e-width="80" />
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="OperationLength">
+                                                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                                                        <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.OperationLength" e-width="80" />
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="StitchCode">
+                                                    <div class="select-style">
+                                                        <select class="form-control" ng-model="data.StitchCodeId" name="Stitch Code">
+                                                            <option value="">--Select--</option>
+                                                            <option ng-repeat="option in $parent.stitchCodeList" value="{{option.Value}}">{{option.Text}}</option>
+                                                        </select>
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="Attachment">
+                                                    <div class="select-style">
+                                                        <select class="form-control" ng-model="data.AttachmentId" name="Attachment">
+                                                            <option value="">--Select--</option>
+                                                            <option ng-repeat="option in $parent.attachmentList" value="{{option.Value}}">{{option.Text}}</option>
+                                                        </select>
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="GaugeFolder">
+                                                    <div class="select-style">
+                                                        <select class="form-control" ng-model="data.GaugeFolderId" name="Gauge Folder">
+                                                            <option value="">--Select--</option>
+                                                            <option ng-repeat="option in $parent.gaugeFolderList" value="{{option.Value}}">{{option.Text}}</option>
+                                                        </select>
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="OperationConsumption">
+                                                    <div class="select-style">
+                                                        <select class="form-control" ng-model="data.OperationConsumptionId" name="OperationConsumptionId">
+                                                            <option value="">--Select--</option>
+                                                            <option ng-repeat="option in $parent.OperationConsumptionList" value="{{option.Value}}">{{option.Text}}</option>
+                                                        </select>
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="OperationType">
+                                                    <div class="select-style">
+                                                        <select class="form-control" ng-model="data.OperationTypeId" name="OperationTypeId">
+                                                            <option value="">--Select--</option>
+                                                            <option ng-repeat="option in $parent.OperationTypeList" value="{{option.Value}}">{{option.Text}}</option>
+                                                        </select>
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="Quality">
+                                                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                                                        <input type="text" ng-model="data.QualityLevel" style="color:black;" class="form-control" />
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="Frequency">
+                                                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                                                        <input type="text" ng-model="data.Frequency" style="color:black;" class="form-control" />
+                                                    </div>
+                                                </script>
+                                                <script type="text/template" id="Remark">
+                                                    <div class="col-sm-10" style="padding:0px; width:70px;">
+                                                        <input type="text" ng-model="data.Remark" ng-maxlength="150" style="color:black;" class="form-control" />
+                                                    </div>
+                                                </script>
+                                            </div>
+                                            <div class="clearfix"></div><br />
                                             <div class="common-btn">
-                                                <ul class="list-inline text-left">
-                                                    <li><button style="margin-left: 5px;" ng-click="AddOperation();" ng-disabled="bulletintab || bulletinTemplateNew.Id==null" class="btn"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i> Add {{Process}} Operation</button></li>
-                                                    <li><button style="margin-left: 5px;" ng-click="AddMultiCode();" ng-disabled="bulletintab || bulletinTemplateNew.Id==null" class="btn"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i> Multi Code</button></li>
+                                                <ul class="list-inline text-right">
+                                                    <li><button style="margin-left: 5px;" ng-click="CalculateGroup();" class="btn"><i class="fa fa-calculator"></i> Calculate Avg. All. Time</button></li>
+                                                    <li><button style="margin-left: 5px;" ng-click="SaveOperation();" class="btn"><i class="glyphicon glyphicon-floppy-save" style="top:1px"></i> Save</button></li>
+                                                    <li><button style="margin-left: 5px;" ng-click="removeMultiOperation();" class="btn"><i class="glyphicon glyphicon-trash" style="top:1px"></i> Delete Selected Operations</button></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(2), active: isSet2(2) }">
+                                            <div class="common-btn">
+                                                <ul class="list-inline text-right">
+                                                    <li> <button style="margin-left: 5px;" ng-click="GetMaterialSummary();" class="btn"><i class="glyphicon glyphicon-list" style="top: 1px;"></i> Material Summary</button></li>
                                                 </ul>
                                             </div>
 
-                                            <label style="color: blue;font-size: 12px">OperationTarget/Hr: (60 / OperationSPT)</label> || <label style="color: blue;font-size: 12px">Required ManPower: (Planned Target/Hr / OperationTarget/Hr)</label>
-                                        </div>
-                                        <div class="clearfix"></div>
-                                        <div class="col-xs-12">
-                                            <div style="color:black;" id="GridBulOperation" ej-grid e-datasource="operationList" e-recorddoubleclick="GetOperationVaiationCode"
-                                                 e-allowfiltering="true" e-allowResizing="true"
-                                                 e-filtersettings-filterType="excel" e-enabletouch="true" e-templaterefresh="refreshTemplateDelOperation"
-                                                 e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
-                                                <div e-columns>
-                                                    <div e-column e-field="Id" e-headertext="id" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
-                                                    <div e-column e-template="#lastOperation" e-headertext="Last Operation" e-width="50" style="height: 20px;"></div>
-
-                                                    <div e-column e-field="OperationCode" e-headertext="Operation Code" e-width="40" style="height: 20px;"></div>
-                                                    <div e-column e-template="#Sequence" e-headertext="Sequence" e-width="50" style="height: 20px;"></div>
-                                                    <div e-column e-field="OperationVariation" e-headertext="Operation Variation" e-width="110" style="height: 20px;"></div>
-                                                    <div e-column e-field="SkillName" e-headertext="Skill Name" e-width="80"></div>
-                                                    <div e-column e-headertext="MachineSkill" e-width="40">
-                                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" title="Machine Skill" class="btn"><i class="glyphicon glyphicon-search" ng-click="$parent.showOperationPopUp($event);" style="margin: -6px;"></i></button>
+                                            <div class="content-container-fluid" style="color:black;">
+                                                <div style="color:black;" id="GridBulMacOperation" ej-grid e-datasource="machineOperationList" e-gridlines="vertical" e-allowscrolling="true" e-showstackedheader="true" e-allowpaging="true" e-allowResizing="true" e-enabletouch="true">
+                                                    <div e-stackedheaderrows>
+                                                        <div e-stackedheaderrow>
+                                                            <div e-stackedheadercolumns>
+                                                                <div e-stackedheadercolumn e-headertext="General" e-text-align="center" e-column="Id,OperationVariation,MachineName,StitchCode,SPI,NoOfStitch,OperationLength,FabricWidth,SPIConsumption,Consumption"></div>
+                                                                <div e-stackedheadercolumn e-headertext="Needle" e-text-align="center" e-column="NeedleM,NeedleConsumption,N,NeedleMaterialMaster,NeedleArticle"></div>
+                                                                <div e-stackedheadercolumn e-headertext="Bobbin" e-text-align="center" e-column="BobbinM,BobbinConsumption,B,BobbinMaterialMaster,BobbinArticle"></div>
+                                                                <div e-stackedheadercolumn e-headertext="Looper" e-text-align="center" e-column="LooperM,LooperConsumption,L,LooperMaterialMaster,LooperArticle"></div>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div e-column e-headertext="Machine" e-width="40">
-                                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.openMachinePopup($event);" style="margin: -6px;"></i></button>
+                                                    <div e-columns>
+                                                        <div e-column e-field="Id" e-headertext="Id" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false"></div>
+                                                        <div e-column e-field="OperationVariation" e-headertext="Operation Variation" e-width="120" style="height: 20px;"></div>
+                                                        <div e-column e-field="MachineName" e-headertext="Machine Name" e-width="80" style="height: 20px;"></div>
+                                                        <div e-column e-field="StitchCode" e-headertext="Stitch Code" e-width="110" style="height: 20px;"></div>
+                                                        <div e-column e-field="SPI" e-headertext="SPI" e-width="30" style="height: 20px;"></div>
+                                                        <div e-column e-field="NoOfStitch" e-headertext="No Of Raw" e-width="30" style="height: 20px;"></div>
+                                                        <div e-column e-field="OperationLength" e-headertext="Operation Length-cm" e-width="30" style="height: 20px;"></div>
+                                                        <div e-column e-field="FabricWidth" e-headertext="Fabric Width-inch" e-width="50" style="height: 20px;"></div>
+                                                        <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="SPIConsumption" e-headertext="SPI Consumption" e-width="50" style="height: 20px;"></div>
+                                                        <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="Consumption" e-headertext="Consumption-mt" e-width="50" style="height: 20px;"></div>
+                                                        <div e-column e-field="NeedleM" e-template="#Needle" e-headertext="Description" e-width="100" style="height: 20px;"></div>
+                                                        <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="NeedleConsumption" e-headertext=" Consumption" e-width="50" style="height: 20px;"></div>
+                                                        <div e-column e-field="N" e-headertext="N_Material" e-width="100">
+                                                            <div class="common-btn">
+                                                                <ul class="list-inline text-right">
+                                                                    <li> <button ng-click="$parent.getNeedleMaterialMasterSearchData($event);" ng-disabled="data.NeedleConsumption==0" tooltip="Add Needle Material Master" class="btn" style="top: 1px;"><i class="glyphicon glyphicon-search" style="top: 1px;"></i></button></li>
+                                                                    <li> <button ng-click="$parent.ClearNeedleMaterialMasterSearchData($event);" ng-disabled="data.NeedleConsumption==0" tooltip="Clear" class="btn" style="top: 1px;"><i class="glyphicon glyphicon-refresh" style="top: 1px;"></i></button></li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                        <div e-column e-field="NeedleMaterialMaster" e-headertext="Material Master" e-width="110" style="height: 20px;"></div>
+                                                        <div e-column e-field="NeedleArticle" e-headertext="Article" e-width="110" style="height: 20px;"></div>
+                                                        <div e-column e-field="BobbinM" e-template="#Bobbin" e-headertext="Description" e-width="100" style="height: 20px;"></div>
+                                                        <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="BobbinConsumption" e-headertext=" Consumption" e-width="50" style="height: 20px;"></div>
+                                                        <div e-column e-field="B" e-headertext="B_Material" e-width="100">
+                                                            <div class="common-btn">
+                                                                <ul class="list-inline text-right">
+                                                                    <li> <button ng-click="$parent.getBobbinMaterialMasterSearchData($event);" ng-disabled="data.BobbinConsumption==0" tooltip="Add Bobbin Material Master" class="btn" style="top: 1px;"><i class="glyphicon glyphicon-search" style="top: 1px;"></i></button></li>
+                                                                    <li> <button ng-click="$parent.ClearBobbinMaterialMasterSearchData($event);" ng-disabled="data.BobbinConsumption==0" tooltip="Clear" class="btn" style="top: 1px;"><i class="glyphicon glyphicon-refresh" style="top: 1px;"></i></button></li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                        <div e-column e-field="BobbinMaterialMaster" e-headertext="Material Master" e-width="110" style="height: 20px;"></div>
+                                                        <div e-column e-field="BobbinArticle" e-headertext="Article" e-width="110" style="height: 20px;"></div>
+                                                        <div e-column e-field="LooperM" e-template="#Looper" e-headertext="Description" e-width="100" style="height: 20px;"></div>
+                                                        <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="LooperConsumption" e-headertext=" Consumption" e-width="50" style="height: 20px;"></div>
+                                                        <div e-column e-field="L" e-headertext="L_Looper" e-width="100">
+                                                            <div class="common-btn">
+                                                                <ul class="list-inline text-right">
+                                                                    <li> <button ng-click="$parent.getLooperMaterialMasterSearchData($event);" ng-disabled="data.LooperConsumption==0" tooltip="Add Looper Material Master" class="btn"><i class="glyphicon glyphicon-search" style="top: 1px;"></i></button></li>
+                                                                    <li> <button ng-click="$parent.ClearLooperMaterialMasterSearchData($event);" ng-disabled="data.LooperConsumption==0" tooltip="Clear" class="btn"><i class="glyphicon glyphicon-refresh" style="top: 1px;"></i></button></li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                        <div e-column e-field="LooperMaterialMaster" e-headertext="Material Master" e-width="110" style="height: 20px;"></div>
+                                                        <div e-column e-field="LooperArticle" e-headertext="Article" e-width="110" style="height: 20px;"></div>
                                                     </div>
-                                                    <div e-column e-field="MachineName" e-headertext="Machine Name" e-width="80" style="height: 20px;"></div>
-                                                    <div e-column e-template="#AreaCode" e-headertext="AreaCode" e-width="80" style="height: 20px;"></div>
-                                                    <div e-column e-field="VASSAMSOURCE" e-headertext="SAM Source" e-width="50"></div>
-                                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OperationSPT" e-headertext="Operation SPT" e-width="50" style="height: 20px;"></div>
-                                                    <div e-column e-field="VASSAMSOURCE" e-headertext="SAM Source" e-width="50"></div>
-                                                    <div e-column e-template="#AddSPT" e-headertext="Add.SPT" e-width="80" style="height: 20px;"></div>
-                                                    <div e-column e-template="#TotalSPT" e-headertext="Total Operation SPT" e-width="50" style="height: 20px;"></div>
-
-                                                    <div e-column e-template="#RequiredManPower" e-headertext="Required ManPower" e-width="50" style="height: 20px;"></div>
-                                                    <div e-column e-template="#AllotedManpower" e-headertext="Alloted Manpower" e-width="80" style="height: 20px;"></div>
-                                                    <div e-column e-template="#AllotedWorkstation" e-headertext="Alloted Work Station" e-width="50" style="height: 20px;"></div>
-                                                    <div e-column e-template="#AdditionalManpower" e-headertext="Additional Manpower" e-width="80" style="height: 20px;"></div>
-                                                    <div e-column e-template="#AdditionalWorkstation" e-headertext="Additional Work Station" e-width="80" style="height: 20px;"></div>
-                                                    <div e-column e-template="#OperationGroup" e-headertext="Operation Group" e-width="40" style="height: 20px;"></div>
-                                                    <div e-column e-template="#AvgAllotedTime" e-headertext="Avg Alloted Time" e-width="50" style="height: 20px;"></div>
-                                                    <div e-column e-template="#OperationTarget" e-headertext="OperationTarget/Hr" e-width="50" style="height: 20px;"></div>
-
-                                                    <div e-column e-template="#OperationCategory" e-headertext="Operation Category" e-width="80" style="height: 20px;"></div>
-                                                    <div e-column e-template="#FZZone" e-headertext="FG Zone" e-width="80" style="height: 20px;"></div>
-                                                    <div e-column e-template="#FZComponent" e-headertext="FG Component" e-width="80" style="height: 20px;"></div>
-                                                    <div e-column e-template="#Attachment" e-headertext="Attachment" e-width="80" style="height: 20px;"></div>
-                                                    <div e-column e-template="#GaugeFolder" e-headertext="Gauge Folder" e-width="80" style="height: 20px;"></div>
-                                                    <div e-column e-template="#OperationConsumption" e-headertext="Operation Consumption" e-width="80" style="height: 20px;"></div>
-                                                    <div e-column e-template="#OperationType" e-headertext="Operation Type" e-width="80" style="height: 20px;"></div>
-                                                    <div e-column e-template="#Quality" e-headertext="Quality Level" e-width="40" style="height: 20px;"></div>
-                                                    <div e-column e-template="#SPI" e-headertext="SPI" e-width="50" style="height: 20px;"></div>
-                                                    <div e-column e-template="#NoOfStitch" e-headertext="No Of Raw" e-width="50" style="height: 20px;"></div>
-                                                    <div e-column e-template="#OperationLength" e-headertext="Operation Length-cm" e-width="50" style="height: 20px;"></div>
-                                                    <div e-column e-template="#FabWdth" e-headertext="Fabric Width-inch" e-width="50" style="height: 20px;"></div>
-                                                    <div e-column e-template="#StitchCode" e-headertext="Stitch Code" e-width="80" style="height: 20px;"></div>
-                                                    <div e-column e-template="#Frequency" e-headertext="Frequency" e-width="40" style="height: 20px;"></div>
-                                                    <div e-column e-template="#Remark" e-headertext="Remark" e-width="80" style="height: 20px;"></div>
-                                                    <div e-column e-field="IsMaxAllottedTime" e-headertext="IsMaxAllottedTime" e-width="80" style="height: 20px;" e-visible="false"></div>
-                                                    <div e-column e-field="MaterialMaster" e-headertext="Machine Master" e-width="80" style="height: 20px;"></div>
-                                                    <div e-column e-headertext="Actions" e-width="50">
-                                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeProcessOperation($event);" style="margin: -6px;"></i></button>
-                                                    </div>
-                                                    <div e-column e-headertext="" @*e-headertemplateid="#headerDelTemplate"*@ e-template="#checkboxDelTemplate" e-textalign="center" e-width="30"></div>
+                                                    <script type="text/template" id="Needle">
+                                                        <div class="col-sm-10" style="padding:0px; width:90px;">
+                                                            <input type="text" ng-model="data.NeedleDescription" ng-maxlength="100" style="color:black;" class="form-control" />
+                                                        </div>
+                                                    </script>
+                                                    <script type="text/template" id="Bobbin">
+                                                        <div class="col-sm-10" style="padding:0px; width:90px;">
+                                                            <input type="text" ng-model="data.BobbinDescription" ng-maxlength="100" style="color:black;" class="form-control" />
+                                                        </div>
+                                                    </script>
+                                                    <script type="text/template" id="Looper">
+                                                        <div class="col-sm-10" style="padding:0px; width:90px;">
+                                                            <input type="text" ng-model="data.LooperDescription" ng-maxlength="100" style="color:black;" class="form-control" />
+                                                        </div>
+                                                    </script>
                                                 </div>
                                             </div>
-                                            <script type="text/template" id="checkboxDelTemplate">
-                                                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.DelFlag" />
-                                            </script>
-                                            <script type="text/template" id="lastOperation">
-                                                <div class="radio">
-                                                    <label>
-                                                        <input type="radio" name="lastoptradio" ng-checked="data.IsLastOperation" ng-click="$parent.setIsLastOperation(this)" value="" />
-                                                        <span class="cr"><i class="cr-icon"></i></span>
-                                                    </label>
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="Sequence">
-                                                <div class="col-sm-10" style="padding:0px; width:70px;">
-                                                    <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.Sequence" e-width="80" />
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="OperationGroup">
-                                                <div class="col-sm-10" style="padding:0px; width:70px;">
-                                                    <input type="text" ng-model="data.OperationGroup" style="color:black;" class="form-control" />
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="OperationCategory">
-                                                @*<div class="col-sm-10" style="padding:0px; width:90px;margin:-12px;">
-                                                    <input ej-dropdownlist e-datasource="$parent.OperationCategoryList" e-value="data.OperationCategoryId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
-                                                </div>*@
-                                                <div class="select-style">
-                                                    <select class="form-control" ng-model="data.OperationCategoryId" name="Operation Category">
-                                                        <option value="">--Select--</option>
-                                                        <option ng-repeat="option in $parent.OperationCategoryList" value="{{option.Value}}">{{option.Text}}</option>
-                                                    </select>
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="FZZone">
-                                                <div class="select-style">
-                                                    <select class="form-control" ng-model="data.FGZoneId" name="FGZone">
-                                                        <option value="">--Select--</option>
-                                                        <option ng-repeat="option in $parent.FGZoneList" value="{{option.Value}}">{{option.Text}}</option>
-                                                    </select>
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="FZComponent">
-                                                <div class="select-style">
-                                                    <select class="form-control" ng-model="data.FGComponentId" name="FGComponent">
-                                                        <option value="">--Select--</option>
-                                                        <option ng-repeat="option in $parent.FGComponentList" value="{{option.Value}}">{{option.Text}}</option>
-                                                    </select>
-                                                </div>
-                                            </script>
-
-                                            <script type="text/template" id="AreaCode">
-                                                <div class="col-sm-10" style="padding:0px; width:70px;">
-                                                    <input type="text" ng-model="data.AreaCode" ng-maxlength="50" style="color:black;" ng-blur="$parent.UpdateAreaCode(this)" class="form-control" />
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="AddSPT">
-                                                <div class="col-sm-10" style="padding:0px; width:70px;">
-                                                    <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.AdditionalSPT" e-change="data.TotalSPT=data.AdditionalSPT+data.OperationSPT" e-width="80" />
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="TotalSPT">
-                                                <div class="col-sm-10" style="padding:0px; width:70px;">
-                                                    @*<input type="text" ng-model="data.TotalSPT| number : 2" disabled style="color:black;" class="form-control" />*@
-                                                    <span>{{data.TotalSPT| number:2}}</span>
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="AllotedWorkstation">
-                                                <div class="col-sm-10" style="padding:0px; width:70px;">
-                                                    <input type="text" ng-model="data.AllotedWorkstation" only-numbers style="color:black;" class="form-control" />
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="AllotedManpower">
-                                                <div class="col-sm-10" style="padding:0px; width:70px;">
-                                                    <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.AllotedManpower" e-width="80" />
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="AdditionalWorkstation">
-                                                <div class="col-sm-10" style="padding:0px; width:70px;">
-                                                    <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.AdditionalWorkstation" e-width="80" />
-                                                    @*<input type="text" ng-model="data.AllotedWorkstation" only-numbers style="color:black;" class="form-control" />*@
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="AdditionalManpower">
-                                                <div class="col-sm-10" style="padding:0px; width:70px;">
-                                                    <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.AdditionalManpower" e-width="80" />
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="AvgAllotedTime">
-                                                <div class="col-sm-10" style="padding:0px; width:70px;">
-                                                    <input type="text" ng-model="data.AvgAllotedTime" disabled style="color:black; background-color:{{data.IsMaxAllottedTime==true?'Red':'#d8d7d7'}}" class="form-control" />
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="OperationTarget">
-                                                <div class="col-sm-10" style="padding:0px; width:70px;">
-                                                    <input type="text" ng-model="data.OperationTargetPerHr" disabled style="color:black;" class="form-control" />
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="RequiredManPower">
-                                                <div class="col-sm-10" style="padding:0px; width:70px;">
-                                                    <input type="text" ng-model="data.RequiredManPower" disabled style="color:black;" class="form-control" />
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="SPI">
-                                                <div class="col-sm-10" style="padding:0px; width:70px;">
-                                                    <input type="text" ej-numerictextbox e-decimalplaces="0" e-value="data.SPI" e-width="80" />
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="FabWdth">
-                                                <div class="col-sm-10" style="padding:0px; width:70px;">
-                                                    <input type="text" ej-numerictextbox e-decimalplaces="4" e-value="data.FabricWidth" e-width="80" />
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="NoOfStitch">
-                                                <div class="col-sm-10" style="padding:0px; width:70px;">
-                                                    <input type="text" ej-numerictextbox e-decimalplaces="0" e-value="data.NoOfStitch" e-width="80" />
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="OperationLength">
-                                                <div class="col-sm-10" style="padding:0px; width:70px;">
-                                                    <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.OperationLength" e-width="80" />
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="StitchCode">
-                                                <div class="select-style">
-                                                    <select class="form-control" ng-model="data.StitchCodeId" name="Stitch Code">
-                                                        <option value="">--Select--</option>
-                                                        <option ng-repeat="option in $parent.stitchCodeList" value="{{option.Value}}">{{option.Text}}</option>
-                                                    </select>
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="Attachment">
-                                                <div class="select-style">
-                                                    <select class="form-control" ng-model="data.AttachmentId" name="Attachment">
-                                                        <option value="">--Select--</option>
-                                                        <option ng-repeat="option in $parent.attachmentList" value="{{option.Value}}">{{option.Text}}</option>
-                                                    </select>
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="GaugeFolder">
-                                                <div class="select-style">
-                                                    <select class="form-control" ng-model="data.GaugeFolderId" name="Gauge Folder">
-                                                        <option value="">--Select--</option>
-                                                        <option ng-repeat="option in $parent.gaugeFolderList" value="{{option.Value}}">{{option.Text}}</option>
-                                                    </select>
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="OperationConsumption">
-                                                <div class="select-style">
-                                                    <select class="form-control" ng-model="data.OperationConsumptionId" name="OperationConsumptionId">
-                                                        <option value="">--Select--</option>
-                                                        <option ng-repeat="option in $parent.OperationConsumptionList" value="{{option.Value}}">{{option.Text}}</option>
-                                                    </select>
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="OperationType">
-                                                <div class="select-style">
-                                                    <select class="form-control" ng-model="data.OperationTypeId" name="OperationTypeId">
-                                                        <option value="">--Select--</option>
-                                                        <option ng-repeat="option in $parent.OperationTypeList" value="{{option.Value}}">{{option.Text}}</option>
-                                                    </select>
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="Quality">
-                                                <div class="col-sm-10" style="padding:0px; width:70px;">
-                                                    <input type="text" ng-model="data.QualityLevel" style="color:black;" class="form-control" />
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="Frequency">
-                                                <div class="col-sm-10" style="padding:0px; width:70px;">
-                                                    <input type="text" ng-model="data.Frequency" style="color:black;" class="form-control" />
-                                                </div>
-                                            </script>
-                                            <script type="text/template" id="Remark">
-                                                <div class="col-sm-10" style="padding:0px; width:70px;">
-                                                    <input type="text" ng-model="data.Remark" ng-maxlength="150" style="color:black;" class="form-control" />
-                                                </div>
-                                            </script>
-                                        </div>
-                                        <div class="clearfix"></div><br />
-                                        <div class="common-btn">
-                                            <ul class="list-inline text-right">
-                                                <li><button style="margin-left: 5px;" ng-click="CalculateGroup();" class="btn"><i class="fa fa-calculator"></i> Calculate Avg. All. Time</button></li>
-                                                <li><button style="margin-left: 5px;" ng-click="SaveOperation();" class="btn"><i class="glyphicon glyphicon-floppy-save" style="top:1px"></i> Save</button></li>
-                                                <li><button style="margin-left: 5px;" ng-click="removeMultiOperation();" class="btn"><i class="glyphicon glyphicon-trash" style="top:1px"></i> Delete Selected Operations</button></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(2), active: isSet2(2) }">
-                                        <div class="common-btn">
-                                            <ul class="list-inline text-right">
-                                                <li> <button style="margin-left: 5px;" ng-click="GetMaterialSummary();" class="btn"><i class="glyphicon glyphicon-list" style="top: 1px;"></i> Material Summary</button></li>
-                                            </ul>
-                                        </div>
-
-                                        <div class="content-container-fluid" style="color:black;">
-                                            <div style="color:black;" id="GridBulMacOperation" ej-grid e-datasource="machineOperationList" e-gridlines="vertical" e-allowscrolling="true" e-showstackedheader="true" e-allowpaging="true" e-allowResizing="true" e-enabletouch="true">
-                                                <div e-stackedheaderrows>
-                                                    <div e-stackedheaderrow>
-                                                        <div e-stackedheadercolumns>
-                                                            <div e-stackedheadercolumn e-headertext="General" e-text-align="center" e-column="Id,OperationVariation,MachineName,StitchCode,SPI,NoOfStitch,OperationLength,FabricWidth,SPIConsumption,Consumption"></div>
-                                                            <div e-stackedheadercolumn e-headertext="Needle" e-text-align="center" e-column="NeedleM,NeedleConsumption,N,NeedleMaterialMaster,NeedleArticle"></div>
-                                                            <div e-stackedheadercolumn e-headertext="Bobbin" e-text-align="center" e-column="BobbinM,BobbinConsumption,B,BobbinMaterialMaster,BobbinArticle"></div>
-                                                            <div e-stackedheadercolumn e-headertext="Looper" e-text-align="center" e-column="LooperM,LooperConsumption,L,LooperMaterialMaster,LooperArticle"></div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div e-columns>
-                                                    <div e-column e-field="Id" e-headertext="Id" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false"></div>
-                                                    <div e-column e-field="OperationVariation" e-headertext="Operation Variation" e-width="120" style="height: 20px;"></div>
-                                                    <div e-column e-field="MachineName" e-headertext="Machine Name" e-width="80" style="height: 20px;"></div>
-                                                    <div e-column e-field="StitchCode" e-headertext="Stitch Code" e-width="110" style="height: 20px;"></div>
-                                                    <div e-column e-field="SPI" e-headertext="SPI" e-width="30" style="height: 20px;"></div>
-                                                    <div e-column e-field="NoOfStitch" e-headertext="No Of Raw" e-width="30" style="height: 20px;"></div>
-                                                    <div e-column e-field="OperationLength" e-headertext="Operation Length-cm" e-width="30" style="height: 20px;"></div>
-                                                    <div e-column e-field="FabricWidth" e-headertext="Fabric Width-inch" e-width="50" style="height: 20px;"></div>
-                                                    <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="SPIConsumption" e-headertext="SPI Consumption" e-width="50" style="height: 20px;"></div>
-                                                    <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="Consumption" e-headertext="Consumption-mt" e-width="50" style="height: 20px;"></div>
-                                                    <div e-column e-field="NeedleM" e-template="#Needle" e-headertext="Description" e-width="100" style="height: 20px;"></div>
-                                                    <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="NeedleConsumption" e-headertext=" Consumption" e-width="50" style="height: 20px;"></div>
-                                                    <div e-column e-field="N" e-headertext="N_Material" e-width="100">
-                                                        <div class="common-btn">
-                                                            <ul class="list-inline text-right">
-                                                                <li> <button ng-click="$parent.getNeedleMaterialMasterSearchData($event);" ng-disabled="data.NeedleConsumption==0" tooltip="Add Needle Material Master" class="btn" style="top: 1px;"><i class="glyphicon glyphicon-search" style="top: 1px;"></i></button></li>
-                                                                <li> <button ng-click="$parent.ClearNeedleMaterialMasterSearchData($event);" ng-disabled="data.NeedleConsumption==0" tooltip="Clear" class="btn" style="top: 1px;"><i class="glyphicon glyphicon-refresh" style="top: 1px;"></i></button></li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    <div e-column e-field="NeedleMaterialMaster" e-headertext="Material Master" e-width="110" style="height: 20px;"></div>
-                                                    <div e-column e-field="NeedleArticle" e-headertext="Article" e-width="110" style="height: 20px;"></div>
-                                                    <div e-column e-field="BobbinM" e-template="#Bobbin" e-headertext="Description" e-width="100" style="height: 20px;"></div>
-                                                    <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="BobbinConsumption" e-headertext=" Consumption" e-width="50" style="height: 20px;"></div>
-                                                    <div e-column e-field="B" e-headertext="B_Material" e-width="100">
-                                                        <div class="common-btn">
-                                                            <ul class="list-inline text-right">
-                                                                <li> <button ng-click="$parent.getBobbinMaterialMasterSearchData($event);" ng-disabled="data.BobbinConsumption==0" tooltip="Add Bobbin Material Master" class="btn" style="top: 1px;"><i class="glyphicon glyphicon-search" style="top: 1px;"></i></button></li>
-                                                                <li> <button ng-click="$parent.ClearBobbinMaterialMasterSearchData($event);" ng-disabled="data.BobbinConsumption==0" tooltip="Clear" class="btn" style="top: 1px;"><i class="glyphicon glyphicon-refresh" style="top: 1px;"></i></button></li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    <div e-column e-field="BobbinMaterialMaster" e-headertext="Material Master" e-width="110" style="height: 20px;"></div>
-                                                    <div e-column e-field="BobbinArticle" e-headertext="Article" e-width="110" style="height: 20px;"></div>
-                                                    <div e-column e-field="LooperM" e-template="#Looper" e-headertext="Description" e-width="100" style="height: 20px;"></div>
-                                                    <div e-column e-type="numeric" e-format="{0:0.0000}" e-field="LooperConsumption" e-headertext=" Consumption" e-width="50" style="height: 20px;"></div>
-                                                    <div e-column e-field="L" e-headertext="L_Looper" e-width="100">
-                                                        <div class="common-btn">
-                                                            <ul class="list-inline text-right">
-                                                                <li> <button ng-click="$parent.getLooperMaterialMasterSearchData($event);" ng-disabled="data.LooperConsumption==0" tooltip="Add Looper Material Master" class="btn"><i class="glyphicon glyphicon-search" style="top: 1px;"></i></button></li>
-                                                                <li> <button ng-click="$parent.ClearLooperMaterialMasterSearchData($event);" ng-disabled="data.LooperConsumption==0" tooltip="Clear" class="btn"><i class="glyphicon glyphicon-refresh" style="top: 1px;"></i></button></li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    <div e-column e-field="LooperMaterialMaster" e-headertext="Material Master" e-width="110" style="height: 20px;"></div>
-                                                    <div e-column e-field="LooperArticle" e-headertext="Article" e-width="110" style="height: 20px;"></div>
-                                                </div>
-                                                <script type="text/template" id="Needle">
-                                                    <div class="col-sm-10" style="padding:0px; width:90px;">
-                                                        <input type="text" ng-model="data.NeedleDescription" ng-maxlength="100" style="color:black;" class="form-control" />
-                                                    </div>
-                                                </script>
-                                                <script type="text/template" id="Bobbin">
-                                                    <div class="col-sm-10" style="padding:0px; width:90px;">
-                                                        <input type="text" ng-model="data.BobbinDescription" ng-maxlength="100" style="color:black;" class="form-control" />
-                                                    </div>
-                                                </script>
-                                                <script type="text/template" id="Looper">
-                                                    <div class="col-sm-10" style="padding:0px; width:90px;">
-                                                        <input type="text" ng-model="data.LooperDescription" ng-maxlength="100" style="color:black;" class="form-control" />
-                                                    </div>
-                                                </script>
+                                            <div class="clearfix"></div><br />
+                                            <div class="common-btn">
+                                                <ul class="list-inline text-right">
+                                                    <li><button style="margin-left: 5px;" ng-click="SaveThreadOperation();" class="btn"><i class="glyphicon glyphicon-floppy-save" style="top:1px"></i> Save</button></li>
+                                                </ul>
                                             </div>
-                                        </div>
-                                        <div class="clearfix"></div><br />
-                                        <div class="common-btn">
-                                            <ul class="list-inline text-right">
-                                                <li><button style="margin-left: 5px;" ng-click="SaveThreadOperation();" class="btn"><i class="glyphicon glyphicon-floppy-save" style="top:1px"></i> Save</button></li>
-                                            </ul>
                                         </div>
                                     </div>
                                 </div>
@@ -1050,10 +1052,10 @@
                                     </div>
                                 </script>
                                 @*<script type="text/template" id="UserLotNo">
-                                    <div class="col-sm-12" style="padding:0px;">
-                                        <input type="text" name="UserLotNo" ng-model="data.UserLotNo" class="form-control" maxlength="50">
-                                    </div>
-                                </script>*@
+                                        <div class="col-sm-12" style="padding:0px;">
+                                            <input type="text" name="UserLotNo" ng-model="data.UserLotNo" class="form-control" maxlength="50">
+                                        </div>
+                                    </script>*@
                                 <script type="text/template" id="LCRemark">
                                     <div class="col-sm-12" style="padding:0px;">
                                         <input type="text" name="Remark" ng-model="data.Remark" class="form-control" maxlength="250">
@@ -1585,61 +1587,61 @@
 </div>
 
 @*<div class="row">
-    <div class="form-group">
-        <ej-dialog id="BullPoUp" title="Bulletin" e-enablemodal="true" e-position-y="0" e-showoninit="false"
-                   e-close="onDialogClose" e-minwidth="1000" e-minheight="80" e-open="enableBtn" e-target="#ProductionEntity">
-            <div class="row">
-                <div id="GridBull" ej-grid e-datasource="bulletinList" e-gridlines="vertical" e-templaterefresh="refreshTemplateOperation"
-                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                     e-allowResizing="true" e-recorddoubleclick="GetBulletin" e-allowselection="true" e-filtersettings-filterType="excel">
-                    <div e-columns>
-                        <div e-column e-field="Id" e-headertext="Bulletin ID" e-headertext-color="black" e-textalign="left" e-width="40"></div>
-                        <div e-column e-field="BulletinName" e-headertext="Bulletin Name" e-width="80"></div>
-                        <div e-column e-field="AlternativeName" e-headertext="AlternativeName" e-width="80"></div>
-                        <div e-column e-field="ProductMaster" e-headertext="Product Master" e-width="50"></div>
-                        <div e-column e-field="SizeGroup" e-headertext="SizeGroup" e-width="20"></div>
-                        <div e-column e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
-                        <div e-column e-field="BuyerItemRefNo" e-headertext="Customer RefNo" e-width="50"></div>
-                        <div e-column e-field="OwnStyleRefNo" e-headertext="Own Style RefNo" e-width="50"></div>
-                        <div e-column e-field="Process" e-headertext="Process" e-width="80"></div>
+        <div class="form-group">
+            <ej-dialog id="BullPoUp" title="Bulletin" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+                       e-close="onDialogClose" e-minwidth="1000" e-minheight="80" e-open="enableBtn" e-target="#ProductionEntity">
+                <div class="row">
+                    <div id="GridBull" ej-grid e-datasource="bulletinList" e-gridlines="vertical" e-templaterefresh="refreshTemplateOperation"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowResizing="true" e-recorddoubleclick="GetBulletin" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="Bulletin ID" e-headertext-color="black" e-textalign="left" e-width="40"></div>
+                            <div e-column e-field="BulletinName" e-headertext="Bulletin Name" e-width="80"></div>
+                            <div e-column e-field="AlternativeName" e-headertext="AlternativeName" e-width="80"></div>
+                            <div e-column e-field="ProductMaster" e-headertext="Product Master" e-width="50"></div>
+                            <div e-column e-field="SizeGroup" e-headertext="SizeGroup" e-width="20"></div>
+                            <div e-column e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
+                            <div e-column e-field="BuyerItemRefNo" e-headertext="Customer RefNo" e-width="50"></div>
+                            <div e-column e-field="OwnStyleRefNo" e-headertext="Own Style RefNo" e-width="50"></div>
+                            <div e-column e-field="Process" e-headertext="Process" e-width="80"></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </ej-dialog>
-    </div>
-</div>*@
+            </ej-dialog>
+        </div>
+    </div>*@
 
 @*<div class="row">
-    <div class="form-group">
-        <ej-dialog id="ProdBullPoUp" title="ProductionBulletin" e-enablemodal="true" e-position-y="0" e-showoninit="false"
-                   e-close="onDialogClose" e-minwidth="1000" e-minheight="80" e-open="enableBtn" e-target="#ProductionEntity">
-            <div class="row">
-                <div id="GridProdBull" ej-grid e-datasource="bulletinList" e-gridlines="vertical" e-templaterefresh="refreshTemplateOperation"
-                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-allowscrolling="true"
-                     e-allowResizing="true" e-recorddoubleclick="SetProdBulletin" e-allowselection="true" e-filtersettings-filterType="excel">
-                    <div e-columns>
-                        <div e-column e-field="ProductionOrderId" e-headertext="ProductionOrderNo" e-width="80"></div>
-                        <div e-column e-field="BuyerRefNo" e-headertext="Customer Ord#" e-width="80"></div>
-                        <div e-column e-field="OwnRefNo" e-headertext="Own Ord#" e-width="80"></div>
-                        <div e-column e-field="Description" e-headertext="Description" e-width="80" e-textalign="right"></div>
-                        <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
-                        <div e-column e-field="LSD" e-headertext="LSD" e-width="80"></div>
-                        <div e-column e-field="CommitmentDate" e-headertext="Commitment Date" e-width="80"></div>
-                        <div e-column e-field="ProductionStatus" e-headertext="Production Status" e-width="80"></div>
-                        <div e-column e-field="StyleNo" e-headertext="Customer Item#" e-width="80"></div>
-                        <div e-column e-field="OwnStyleNo" e-headertext="Own Item#" e-width="80"></div>
-                        <div e-column e-field="ProductCategory" e-headertext="Product Category" e-width="80"></div>
-                        <div e-column e-field="Product" e-headertext="Product" e-width="80"></div>
-                        <div e-column e-field="Customer" e-headertext="Customer" e-width="80"></div>
-                        <div e-column e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
-                        <div e-column e-field="PONumber" e-headertext="PO Number" e-width="80"></div>
-                        <div e-column e-field="RequiredTimeUnit" e-headertext="Required Time Unit" e-width="80"></div>
+        <div class="form-group">
+            <ej-dialog id="ProdBullPoUp" title="ProductionBulletin" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+                       e-close="onDialogClose" e-minwidth="1000" e-minheight="80" e-open="enableBtn" e-target="#ProductionEntity">
+                <div class="row">
+                    <div id="GridProdBull" ej-grid e-datasource="bulletinList" e-gridlines="vertical" e-templaterefresh="refreshTemplateOperation"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-allowscrolling="true"
+                         e-allowResizing="true" e-recorddoubleclick="SetProdBulletin" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="ProductionOrderId" e-headertext="ProductionOrderNo" e-width="80"></div>
+                            <div e-column e-field="BuyerRefNo" e-headertext="Customer Ord#" e-width="80"></div>
+                            <div e-column e-field="OwnRefNo" e-headertext="Own Ord#" e-width="80"></div>
+                            <div e-column e-field="Description" e-headertext="Description" e-width="80" e-textalign="right"></div>
+                            <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
+                            <div e-column e-field="LSD" e-headertext="LSD" e-width="80"></div>
+                            <div e-column e-field="CommitmentDate" e-headertext="Commitment Date" e-width="80"></div>
+                            <div e-column e-field="ProductionStatus" e-headertext="Production Status" e-width="80"></div>
+                            <div e-column e-field="StyleNo" e-headertext="Customer Item#" e-width="80"></div>
+                            <div e-column e-field="OwnStyleNo" e-headertext="Own Item#" e-width="80"></div>
+                            <div e-column e-field="ProductCategory" e-headertext="Product Category" e-width="80"></div>
+                            <div e-column e-field="Product" e-headertext="Product" e-width="80"></div>
+                            <div e-column e-field="Customer" e-headertext="Customer" e-width="80"></div>
+                            <div e-column e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
+                            <div e-column e-field="PONumber" e-headertext="PO Number" e-width="80"></div>
+                            <div e-column e-field="RequiredTimeUnit" e-headertext="Required Time Unit" e-width="80"></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </ej-dialog>
-    </div>
-</div>*@
+            </ej-dialog>
+        </div>
+    </div>*@
 
 <div class="modal fade site-modal in" id="ProdBullPoUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
     <div class="modal-dialog modal-lg">
@@ -2656,28 +2658,28 @@
 </div>
 
 @*<ej-dialog id="confirmBulletinSavePopUp" title="Confirmation" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#ProductionEntity" e-close="onDialogClose" e-minwidth="240" e-minheight="165" e-open="enableBtn">
-    <p>
-        {{message_BulletinSave}}
-    </p>
-    <p class="text-right">
-        <ul class="list-inline text-right">
-            <li><button ng-click="SaveBulletin();ConfirmBulletinSavePopUpClose()" class="btn"> Yes</button></li>
-            <li><button ng-click="ConfirmBulletinSavePopUpClose();" class="btn"> No</button></li>
-        </ul>
-    </p>
-</ej-dialog>*@
+        <p>
+            {{message_BulletinSave}}
+        </p>
+        <p class="text-right">
+            <ul class="list-inline text-right">
+                <li><button ng-click="SaveBulletin();ConfirmBulletinSavePopUpClose()" class="btn"> Yes</button></li>
+                <li><button ng-click="ConfirmBulletinSavePopUpClose();" class="btn"> No</button></li>
+            </ul>
+        </p>
+    </ej-dialog>*@
 
 @*<ej-dialog id="confirmProdBulletinSavePopUp" title="Confirmation" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#ProductionEntity" e-close="onDialogClose" e-minwidth="240" e-minheight="165" e-open="enableBtn">
-    <p>
-        {{message_BulletinSave}}
-    </p>
-    <p class="text-right">
-        <ul class="list-inline text-right">
-            <li><button ng-click="SaveProdBulletin();ConfirmprodBulletinSavePopUpClose()" class="btn"> Yes</button></li>
-            <li><button ng-click="ConfirmprodBulletinSavePopUpClose();" class="btn"> No</button></li>
-        </ul>
-    </p>
-</ej-dialog>*@
+        <p>
+            {{message_BulletinSave}}
+        </p>
+        <p class="text-right">
+            <ul class="list-inline text-right">
+                <li><button ng-click="SaveProdBulletin();ConfirmprodBulletinSavePopUpClose()" class="btn"> Yes</button></li>
+                <li><button ng-click="ConfirmprodBulletinSavePopUpClose();" class="btn"> No</button></li>
+            </ul>
+        </p>
+    </ej-dialog>*@
 
 <div class="modal fade site-modal in" id="MaterialSummaryPoUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
