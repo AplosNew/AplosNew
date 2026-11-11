@@ -2915,15 +2915,7 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                             string productionOrderIds = string.Join(",",
                             dt.AsEnumerable().Where(row => row["ProductionOrderId"] != DBNull.Value)
                             .Select(row => row["ProductionOrderId"].ToString()));
-
-
-                            //// string workcenterIncharges = string.Join(",",
-                            //// dt.AsEnumerable().Where(row => row["WorkCenterIncharge"] != DBNull.Value)
-                            //// .Select(row => "'" + row["WorkCenterIncharge"].ToString().Replace("'", "''") + "'"));
-
-                            //// string qcIncharges = string.Join(",",
-                            ////dt.AsEnumerable().Where(row => row["QCIncharge"] != DBNull.Value)
-                            ////.Select(row => "'" + row["QCIncharge"].ToString().Replace("'", "''") + "'"));
+ 
                             ///
                             // ফাঁকা/NULL/স্পেস মান বাদ + ডুপ্লিকেট বাদ + একক উদ্ধৃতি escape
                             Func<DataTable, string, string> BuildInList = (table, column) =>
@@ -2941,8 +2933,6 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
 
                             objCon = new ConnectionManager.DAL.ConManager("1");
                             objCon.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[ProductionOrder]  where Id in (" + productionOrderIds + " )", out dsBC, false, "1");
-                            //objCon.OpenDataSetThroughAdapter("SELECT * FROM [DBO].[EmployeeInformation]  where EmployeeCode in (" + workcenterIncharges + " )", out dsWorkCenIncharge, false, "1");
-                            //objCon.OpenDataSetThroughAdapter("SELECT * FROM [DBO].[EmployeeInformation]  where EmployeeCode in (" + qcIncharges + " )", out dsQCIncharge, false, "1");
 
                             if (!string.IsNullOrEmpty(workcenterIncharges))
                                 objCon.OpenDataSetThroughAdapter(
@@ -2976,16 +2966,7 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                                         throw new Exception("ProductionOrder no '" + dsExcel.Tables[0].Rows[i][4].ToString().Trim() + "' not valid PO. Please check !!");
 
                                     }
-                                    //if (dsWorkCenIncharge.Tables[0].DefaultView.Count == 0)
-                                    //{
-                                    //    throw new Exception("WorkcenterIncharge '" + dsExcel.Tables[0].Rows[i][11].ToString().Trim() + "' not valid Code. Please check !!");
-
-                                    //}
-                                    //if (dsQCIncharge.Tables[0].DefaultView.Count == 0)
-                                    //{
-                                    //    throw new Exception("QCIncharge '" + dsExcel.Tables[0].Rows[i][12].ToString().Trim() + "' not valid Code. Please check !!");
-
-                                    //}
+                                   
 
                                     vm.TargetDate = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
                                     vm.ShiftName = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
@@ -2995,13 +2976,12 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                                     vm.StyleNo = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
                                     vm.QtyPerHour = ParseDecimalOrFormula(dsExcel.Tables[0].Rows[i][6]);
                                     vm.Operator = Convert.ToInt16(dsExcel.Tables[0].Rows[i][7]);
-                                    //vm.Helper = dsExcel.Tables[0].Rows[i][8] != null ? Convert.ToInt32(dsExcel.Tables[0].Rows[i][8]) : 0;
-                                    //vm.SPT = dsExcel.Tables[0].Rows[i][9]!=null? Convert.ToDecimal(dsExcel.Tables[0].Rows[i][9]):0;
                                     vm.Helper = ParseIntOrDefault(dsExcel.Tables[0].Rows[i][8]);
                                     vm.SPT = ParseDecimalOrFormula(dsExcel.Tables[0].Rows[i][9]);
                                     vm.Remarks = dsExcel.Tables[0].Rows[i][10].ToString().Trim();
                                     //vm.WorkCenterIncharge = dsWorkCenIncharge.Tables[0].DefaultView[0]["SystemId"].ToString();
                                     vm.TargetQty = vm.QtyPerHour * Convert.ToDecimal(dsExcel.Tables[0].Rows[i][13]);
+                                    vm.WorkingHour =  Convert.ToDecimal(dsExcel.Tables[0].Rows[i][13]);
 
                                     Func<DataSet, object, string> SystemIdByCode = (ds, code) =>
                                     {
@@ -3013,9 +2993,6 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
 
                                     vm.WorkCenterIncharge = SystemIdByCode(dsWorkCenIncharge, dt.Rows[i]["WorkCenterIncharge"]);
                                     vm.QCIncharge = SystemIdByCode(dsQCIncharge, dt.Rows[i]["QCIncharge"]);
-
-                                    //vm.QCIncharge = dsQCIncharge.Tables[0].DefaultView[0]["SystemId"].ToString();
-                                    //vm.WorkingHour = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][13]);
 
                                     data.Add(vm);
                                 }
@@ -3602,15 +3579,15 @@ left join ORG.Entity EN on EN.Id = dte.EntityId";
 SELECT  
     DT.StyleNo Style, DT.ProductionOrderId PO,
     DT.WorkCenterMasterId, wcm.UserName WorkCenterName,
-    ISNULL(PBC.MCtotalMP,0) MO, ISNULL(PBC.NonMCtotalMP,0) Carder,
+    ISNULL(PBC.MCtotalMP,0) MO, ISNULL(PBC.TotalManpower,0) Carder,
     SUM(ISNULL(PS.Quantity,0)) [Output],
     SUM(DT.SPT) SMV,
     SUM(ISNULL(PS.Quantity,0)*DT.SPT) ProduceMinute,
     SUM(DT.WorkingHour*60) WorkingHour,
     SUM(DT.TargetQty) TargetQty,
-    SUM(ISNULL(PBC.NonMCtotalMP*(DT.WorkingHour*60),0)) AvailableMinute,
-    ISNULL(SUM(PS.Quantity*DT.SPT) / NULLIF(SUM(ISNULL(PBC.NonMCtotalMP*(DT.WorkingHour*60),0)),0), 0) OverAllEfficiency,
-    ISNULL(SUM(PS.Quantity*DT.SPT) / NULLIF(SUM(ISNULL(PBC.NonMCtotalMP*(DT.WorkingHour*60),0)),0), 0) StandardEfficiency
+    SUM(ISNULL(PBC.TotalManpower*(DT.WorkingHour*60),0)) AvailableMinute,
+    ISNULL(SUM(PS.Quantity*DT.SPT) / NULLIF(SUM(ISNULL(PBC.TotalManpower*(DT.WorkingHour*60),0)),0), 0) OverAllEfficiency,
+    ISNULL(SUM(PS.Quantity*DT.SPT) / NULLIF(SUM(ISNULL(PBC.TotalManpower*(DT.WorkingHour*60),0)),0), 0) StandardEfficiency
 ,PartyName = REPLACE(REPLACE(STUFF((select distinct ','+P.UserName from hkp.Party P
 																LEFT JOIN	trn.MasterOrder XMOI ON P.Id=XMOI.PartyId	 
 								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
@@ -3638,8 +3615,8 @@ LEFT JOIN trn.ProductionBulletinTemplate pb ON DT.ProductionOrderId = pb.Product
 LEFT JOIN trn.ProductionBulletinTemplateMaster pbm ON pbm.ProductionBulletinTemplateId = pb.Id
 LEFT JOIN DBO.ProducitonBulletinCalculation PBC ON PBC.ProductionBulletinTemplateMasterId=pbm.Id
 WHERE DT.TargetDate BETWEEN @fromDate AND @toDate
-GROUP BY DT.StyleNo,PO.Id, DT.ProductionOrderId, DT.WorkCenterMasterId, wcm.UserName, ISNULL(PBC.MCtotalMP,0), ISNULL(PBC.NonMCtotalMP,0)
-ORDER BY ISNULL(SUM(PS.Quantity*DT.SPT) / NULLIF(SUM(ISNULL(PBC.NonMCtotalMP*(DT.WorkingHour*60),0)),0), 0) DESC
+GROUP BY DT.StyleNo,PO.Id, DT.ProductionOrderId, DT.WorkCenterMasterId, wcm.UserName, ISNULL(PBC.MCtotalMP,0), ISNULL(PBC.TotalManpower,0)
+ORDER BY ISNULL(SUM(PS.Quantity*DT.SPT) / NULLIF(SUM(ISNULL(PBC.TotalManpower*(DT.WorkingHour*60),0)),0), 0) DESC
             ";
             return _sqlRepository.GetDataTable(cmdText);
         }

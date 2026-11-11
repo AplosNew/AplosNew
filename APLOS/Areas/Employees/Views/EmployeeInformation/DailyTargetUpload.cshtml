@@ -108,6 +108,7 @@
                             <div e-column e-field="SPT" e-headertext="SPT" e-width="100"></div>
                             <div e-column e-field="Operator" e-headertext="Operator" e-width="80"></div>
                             <div e-column e-field="Helper" e-headertext="Helper" e-width="80"></div>
+                            <div e-column  e-template="#wkQty" e-headertext="Working Hour" e-width="80"></div>
                         </div>
                     </div>
                     <script type="text/template" id="po">
@@ -121,6 +122,9 @@
                     </script>
                     <script type="text/template" id="style">
                         <input type="text" class="form-control" ng-model="data.StyleNo" style="color:black; text-align:center" />
+                    </script>
+                    <script type="text/template" id="wkQty">
+                        <input type="text" class="form-control" ng-model="data.WorkingHour" style="color:black; text-align:center" />
                     </script>
                 </div>
                 <div class="col-xs-12 col-sm-12 col-md-12 ">
