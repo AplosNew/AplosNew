@@ -523,9 +523,9 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                     }
                 }
 
-                
 
-                
+
+
                 master.PlantId = identity.PlantId;
                 dtTemp = _sqlRepository.GetDataTable("select Min(LSD) AS LSD,max(CommitmentDate) AS CommitmentDate  from trn.SalesOrder where id in (" + s + ")");
                 if (dtTemp.Rows.Count > 0)
@@ -1457,8 +1457,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
         {
             try
             {
-                SaveOperationData(entities, productionBulletinTemplateMasterId, calculateddata, pId
-                    );
+                SaveOperationData(entities, productionBulletinTemplateMasterId, calculateddata, pId);
                 return Json(new { Message = AplosMessage.Insert });
             }
             catch (Exception ex)
@@ -1747,6 +1746,52 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                     }
 
                 }
+
+                if (bulletinCalculation != null)
+                {
+                    if (dsBC.Tables[0].Rows.Count == 0)
+                    {
+                        AddNewRow(dsBC.Tables[0], bulletinCalculation);
+                    }
+                    else
+                    {
+                        EditRow(dsBC.Tables[0].Rows[0], bulletinCalculation);
+                    }
+                }
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster, dsBC);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateUpdateBulCal(Dictionary<string, object> calculateddata, string productionBulletinTemplateMasterId)
+        {
+            try
+            {
+                SaveUpdateBulCal(calculateddata, productionBulletinTemplateMasterId);
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
+
+        private void SaveUpdateBulCal(Dictionary<string, object> bulletinCalculation, string productionBulletinTemplateMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            try
+            {
+                DataSet dsEO = null;
+                DataSet dsBC = null;
+                DataSet dsMaster = null;
+                GetBulletinCalculation(productionBulletinTemplateMasterId, out dsBC);
 
                 if (bulletinCalculation != null)
                 {
@@ -2946,7 +2991,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
                 string s = "''";
-               
+
                 foreach (var item in detaillist)
                 {
                     s += ",'" + item["SalesOrderId"] + "'";
@@ -2965,7 +3010,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                     bplib.clsGenID objID = new bplib.clsGenID();
                     objID.GenHRID(System.DateTime.Now.ToShortDateString(), "PRODUCTION ORDER", out _Id);
                     data["Id"] = _Id;
-                     _EntityId= data["EntityId"].ToString();
+                    _EntityId = data["EntityId"].ToString();
                     data["OrderType"] = "PlanningType2";
                     AddNewRow(dsMaster.Tables[0], data);
                 }
@@ -2997,7 +3042,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                             string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
                             item["Id"] = detailid;
                             item["ProductionOrderId"] = _MasterId;
-                           
+
 
 
                             materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
@@ -3724,7 +3769,7 @@ LEFT JOIN hkp.Process P ON P.Id=M.ProcessId) AS TEMP WHERE " + strkey + " order 
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetSRSalesOrderListSearch(string column, string value, string packetRegistrationMasterId,string ProcessId)
+        public ActionResult GetSRSalesOrderListSearch(string column, string value, string packetRegistrationMasterId, string ProcessId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string strkey = "1=1";
@@ -3781,7 +3826,7 @@ LEFT JOIN hkp.Process P ON P.Id=M.ProcessId) AS TEMP WHERE " + strkey + " order 
     FROM dbo.PacketRegistrationDetail d
     JOIN dbo.PacketRegistrationMaster m ON m.Id = d.PacketRegistrationMasterId
     WHERE d.SalesOrderId = SO.Id
-      AND COALESCE(d.ProcessId, m.ProcessId) = '"+ ProcessId + @"'
+      AND COALESCE(d.ProcessId, m.ProcessId) = '" + ProcessId + @"'
 )
 AND NOT EXISTS (                                   -- already in the packet being edited
     SELECT 1
@@ -4431,7 +4476,7 @@ ORDER BY P.SortOrder";
         {
             try
             {
-                string sql = @"Select * from ItemScanChild Where RefNo IN(Select Id from dbo.CartonGeneration Where PacketRegistrationId='"+id+"')";
+                string sql = @"Select * from ItemScanChild Where RefNo IN(Select Id from dbo.CartonGeneration Where PacketRegistrationId='" + id + "')";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)
@@ -4769,7 +4814,7 @@ ORDER BY P.SortOrder";
                 // -----------------------------------------
                 //string fileName = $"QRCode_{packetRegistrationId}_{DateTime.Now:yyyyMMddHHmmss}.pdf";
                 string fileName = $"QRCode_{packetRegistrationId}.pdf";
-               
+
                 //save the file to server temp folder
                 string fullPath = Path.Combine(HostingEnvironment.MapPath("~/") + fileName);
                 System.IO.File.WriteAllBytes(fullPath, pdfBytes);
@@ -4912,9 +4957,12 @@ ORDER BY P.SortOrder";
                 List<QRCodeItem> qrCodeItems = dt.AsEnumerable().Select(row => new QRCodeItem
                 {
                     LotNumber = Convert.ToString(row["LotNumber"])
-                    ,LotWeight = Convert.ToString(row["LotWeight"])
-                    ,PerUnitWeight = Convert.ToString(row["PerUnitWeight"])
-                    ,NoOfUnit = Convert.ToString(row["NoOfUnit"])
+                    ,
+                    LotWeight = Convert.ToString(row["LotWeight"])
+                    ,
+                    PerUnitWeight = Convert.ToString(row["PerUnitWeight"])
+                    ,
+                    NoOfUnit = Convert.ToString(row["NoOfUnit"])
                 }).ToList();
 
                 byte[] pdfBytes = BuildLotQRCodePdf(qrCodeItems);

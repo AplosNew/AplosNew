@@ -41,6 +41,8 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         }
     }
 
+    $scope.calculatedBulletinModel = { Id: Math.floor(Math.random() * 1000) - 10, TotalSPT: 0, TotalManpower: 0, TotalWorkStation: 0, MCtotalspt: 0, MCtotalMP: 0, NonMCtotalspt: 0, NonMCtotalMP: 0, PitchTime: 0, ProductionEfficiencyPerHour: 0, MaxAllottedTime: 0, ProductionEfficiencyPerDay: 0, OrganizationEfficiency: 0, LineTargetPerHour: 0 };
+
     $scope.orderTypeList = [
         { Value: "PlanningType1", Text: "PlanningType1" },
         { Value: "PlanningType2", Text: "PlanningType2" }
@@ -2973,13 +2975,15 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     }
 
     $scope.closeBullPop = function () {
-        var eDialog = $("#BullPoUp").data("ejDialog");
-        eDialog.close();
+        //var eDialog = $("#BullPoUp").data("ejDialog");
+        //eDialog.close();
+        angular.element(document.querySelector('#BullPoUp')).modal('hide');
     }
 
     $scope.closeProdBullPop = function () {
-        var eDialog = $("#ProdBullPoUp").data("ejDialog");
-        eDialog.close();
+        //var eDialog = $("#ProdBullPoUp").data("ejDialog");
+        //eDialog.close();
+        angular.element(document.querySelector('#ProdBullPoUp')).modal('hide');
     }
 
     $scope.message_BulletinSave = null;
@@ -3833,7 +3837,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             $scope.NonMCtotalMP = NonMCtotalMP.toFixed(2);
 
         }
-
+        $scope.CreateUpdateBulCal();
         var gridObj = $("#GridBulOperation").data("ejGrid");
         gridObj.refreshContent(true);
         gridObj.refreshTemplate();
@@ -3885,7 +3889,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         }
         return false;
     }
-    $scope.calculatedBulletinModel = { Id: Math.floor(Math.random() * 1000) - 10, TotalSPT: 0, TotalManpower: 0, TotalWorkStation: 0, MCtotalspt: 0, MCtotalMP: 0, NonMCtotalspt: 0, NonMCtotalMP: 0, PitchTime: 0, ProductionEfficiencyPerHour: 0, MaxAllottedTime: 0, ProductionEfficiencyPerDay: 0, OrganizationEfficiency: 0, LineTargetPerHour: 0 };
+  
 
     $scope.setIsLastOperation = function (data) {
         for (var i = 0; i <= $scope.operationList.length - 1; i++) {
@@ -3937,6 +3941,46 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                     ShowResult(response.data.Message, 'success');
                     $scope.getProductionBulletinOperation($scope.BulletinTemplateMasterId);
 
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.CreateUpdateBulCal = function () {
+        try {
+           
+            $scope.calculatedBulletinModel.TotalSPT = $scope.TotalSPT;
+            $scope.calculatedBulletinModel.TotalManpower = $scope.TotalManpower;
+            $scope.calculatedBulletinModel.TotalWorkStation = $scope.TotalWorkStation;
+            $scope.calculatedBulletinModel.MCtotalspt = $scope.MCtotalspt;
+            $scope.calculatedBulletinModel.MCtotalMP = $scope.MCtotalMP;
+            $scope.calculatedBulletinModel.NonMCtotalspt = $scope.NonMCtotalspt;
+            $scope.calculatedBulletinModel.NonMCtotalMP = $scope.NonMCtotalMP;
+            $scope.calculatedBulletinModel.PitchTime = $scope.PitchTime;
+            $scope.calculatedBulletinModel.ProductionEfficiencyPerHour = $scope.ProductionEfficiencyPerHour;
+            $scope.calculatedBulletinModel.MaxAllottedTime = $scope.MaxAllottedTime;
+            $scope.calculatedBulletinModel.ProductionEfficiencyPerDay = $scope.ProductionEfficiencyPerDay;
+            $scope.calculatedBulletinModel.OrganizationEfficiency = $scope.OrganizationEfficiency;
+            $scope.calculatedBulletinModel.LineTargetPerHour = $scope.LineTargetPerHour;
+            $scope.calculatedBulletinModel.ProductionBulletinTemplateMasterId = $scope.BulletinTemplateMasterId;
+            
+
+            $http({
+                method: 'POST',
+                url: 'OrderManagements/ProductionOrder/CreateUpdateBulCal',
+                data: { 'calculateddata': $scope.calculatedBulletinModel,'productionBulletinTemplateMasterId': $scope.BulletinTemplateMasterId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
