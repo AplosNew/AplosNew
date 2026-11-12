@@ -3594,5 +3594,324 @@ EXEC sp_executesql
 
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetDailyGraphData(Dictionary<string, string> parameters, string fdate, string tdate)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                DataTable dtTask = null;
+                dtTask = GetDailyGraphReportData(parameters, fdate,tdate, identity.PlantId);
+                var jsondata = Json(CustomJsonResultService.DataTableToJson(dtTask), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public DataTable GetDailyGraphReportData(Dictionary<string, string> parameters, string fdate, string tdate, string plantId)
+        {
+            string strSql = @"DECLARE @PlantId VARCHAR(10) = '"+ plantId + @"';
+DECLARE @FromDate DATE = '"+fdate+@"';
+DECLARE @ToDate   DATE = '"+tdate+ @"';
+ 
+;WITH
+-- ============================================================
+-- 1. REPORT DATES
+-- ============================================================
+Dates AS
+(
+    SELECT @FromDate AS ReportDate 
+    UNION ALL 
+    SELECT DATEADD(DAY, 1, ReportDate) FROM Dates
+    WHERE ReportDate < @ToDate
+),
+ 
+-- ============================================================
+-- 2. ELIGIBLE BUDGETS
+-- ============================================================
+EligibleBudget AS
+(
+    SELECT MB.Id AS BudgetId
+    FROM MST.ManpowerBudget MB
+    INNER JOIN ORG.Position PR ON PR.Id = MB.PositionId
+    WHERE EXISTS
+    (
+        SELECT 1 FROM EmployeeInformation E
+        WHERE E.BudgetCode = MB.Id AND E.PlantId = @PlantId
+    )
+   
+AND mb.ShiftDefinationId IN(" + parameters["ShiftId"] + @") 
+AND PR.PositionCategory IN(" + parameters["PositionCategory"] + @") 
+AND MB.EntityId IN(" + parameters["EntityId"] + @")
+AND PR.SectionId IN(" + parameters["SectionId"] + @")
+AND PR.SubSectionId IN(" + parameters["SubSectionId"] + @")
+AND PR.DepartmentId IN(" + parameters["DepartmentId"] + @")
+),
+ 
+-- ============================================================
+-- 3. ELIGIBLE EMPLOYEES
+-- ============================================================
+EligibleEmployees AS
+(
+    SELECT E.SystemId,E.BudgetCode,E.DOJ,E.DOS,E.EmployeeStatus,E.EmploymentType,E.GivenDesignationId
+    FROM EmployeeInformation E
+    INNER JOIN EligibleBudget EB ON EB.BudgetId = E.BudgetCode
+    WHERE E.PlantId = @PlantId
+AND E.EmploymentType IN(" + parameters["EmploymentType"] + @")
+),
+ 
+-- ============================================================
+-- 4. ACTUAL ACTIVE EMPLOYEES
+-- ============================================================
+ActualActive AS
+(
+    SELECT DT.ReportDate,COUNT(DISTINCT E.SystemId) AS ActualActiveCount
+    FROM Dates DT
+    INNER JOIN EligibleEmployees E ON E.DOJ <= DT.ReportDate
+       AND (E.EmployeeStatus <> 'Separated' OR E.DOS IS NULL OR E.DOS > DT.ReportDate)
+    GROUP BY DT.ReportDate
+),
+ 
+-- ============================================================
+-- 5. JOINED AND LEFT
+-- ============================================================
+Movement AS
+(
+    SELECT DT.ReportDate, COUNT(DISTINCT CASE
+            WHEN CAST(E.DOJ AS DATE) = DT.ReportDate
+            THEN E.SystemId
+        END) AS JoinedCount, 
+        COUNT(DISTINCT CASE
+            WHEN CAST(E.DOS AS DATE) = DT.ReportDate
+            THEN E.SystemId
+        END) AS LeftCount 
+    FROM Dates DT
+    CROSS JOIN EligibleEmployees E
+    WHERE CAST(E.DOJ AS DATE) = DT.ReportDate OR CAST(E.DOS AS DATE) = DT.ReportDate
+    GROUP BY DT.ReportDate
+),
+ 
+-- ============================================================
+-- 6. TBS AND LONG ABSENTEEISM
+-- ============================================================
+CurrentStatusEmp AS
+(
+    SELECT
+        DT.ReportDate,
+            COUNT(DISTINCT CASE
+            WHEN A.EmployeeCurrentStatus = 'TBS'
+            THEN A.EmpSystemID
+             END) AS TBSCount, 
+        COUNT(DISTINCT CASE
+            WHEN A.EmployeeCurrentStatus = 'LONG ABSENTEEISM'
+            THEN A.EmpSystemID
+        END) AS LongAbsenteeismCount
+ 
+    FROM Dates DT
+    INNER JOIN AttdnProcessData A
+        ON A.WorkDate >= DT.ReportDate
+       AND A.WorkDate < DATEADD(DAY, 1, DT.ReportDate)
+       AND A.PlantId = @PlantId
+    INNER JOIN EligibleEmployees E  ON E.SystemId = A.EmpSystemID
+       AND E.DOJ <= DT.ReportDate
+       AND(E.EmployeeStatus <> 'Separated' OR E.DOS IS NULL OR E.DOS > DT.ReportDate)
+    GROUP BY DT.ReportDate
+),
+ 
+-- ============================================================
+-- 7. NET DEPLOYMENT
+-- Exclude TBS / Long Absenteeism only when not punched
+-- ============================================================
+NetDeployment AS
+(
+    SELECT
+        DT.ReportDate, COUNT(DISTINCT E.SystemId) AS NetDeploymentCount
+ 
+    FROM Dates DT
+    INNER JOIN EligibleEmployees E ON E.DOJ <= DT.ReportDate
+       AND (E.EmployeeStatus <> 'Separated' OR E.DOS IS NULL OR E.DOS > DT.ReportDate)
+ 
+    WHERE NOT EXISTS
+    (
+        SELECT 1  FROM AttdnProcessData A
+        WHERE A.EmpSystemID = E.SystemId
+          AND A.PlantId = @PlantId
+          AND A.WorkDate >= DT.ReportDate
+          AND A.WorkDate < DATEADD(DAY, 1, DT.ReportDate)
+          AND ISNULL(A.EmployeeCurrentStatus, '') IN ('TBS','LONG ABSENTEEISM')
+          AND A.InTime IS NULL
+    )
+ 
+    GROUP BY DT.ReportDate
+),
+ 
+-- ============================================================
+-- 8. DAILY ATTENDANCE
+-- ============================================================
+DailyAttendance AS
+(
+    SELECT DT.ReportDate, 
+        COUNT(DISTINCT CASE
+            WHEN A.ProcessFinalDayStatus IN ('P','L','HDP','HWP','SDP')
+            THEN A.EmpSystemID
+        END) AS PresentCount, 
+        COUNT(DISTINCT CASE
+            WHEN A.ProcessFinalDayStatus = 'A'
+            THEN A.EmpSystemID
+        END) AS AbsentCount, 
+        COUNT(DISTINCT CASE
+            WHEN A.ProcessFinalDayStatus IN ('CL','ML','PL','LWP')
+            THEN A.EmpSystemID
+        END) AS LeaveCount, 
+        COUNT(DISTINCT CASE
+            WHEN A.ProcessFinalDayStatus = 'W'
+            THEN A.EmpSystemID
+        END) AS WeekoffCount
+ 
+    FROM Dates DT
+    INNER JOIN AttdnProcessData A  ON A.WorkDate >= DT.ReportDate
+       AND A.WorkDate < DATEADD(DAY, 1, DT.ReportDate)
+       AND A.PlantId = @PlantId
+ 
+    INNER JOIN EligibleEmployees E ON E.SystemId = A.EmpSystemID
+       AND E.DOJ <= DT.ReportDate
+       AND (E.EmployeeStatus <> 'Separated' OR E.DOS IS NULL OR E.DOS > DT.ReportDate) 
+    WHERE ISNULL(A.EmployeeCurrentStatus, '') NOT IN ('TBS','LONG ABSENTEEISM') OR A.InTime IS NOT NULL 
+    GROUP BY DT.ReportDate
+),
+ 
+-- ============================================================
+-- 9. DAILY SUMMARY
+-- ============================================================
+DailySummary AS
+(
+    SELECT
+        DT.ReportDate, 
+        ISNULL(AA.ActualActiveCount, 0) AS ActualActiveCount,
+        ISNULL(ND.NetDeploymentCount, 0) AS NetDeploymentCount, 
+        ISNULL(M.JoinedCount, 0) AS JoinedCount,
+        ISNULL(M.LeftCount, 0) AS LeftCount, 
+        ISNULL(CS.TBSCount, 0) AS TBSCount,
+        ISNULL(CS.LongAbsenteeismCount, 0) AS LongAbsenteeismCount, 
+        ISNULL(DA.PresentCount, 0) AS PresentCount,
+        ISNULL(DA.AbsentCount, 0) AS AbsentCount,
+        ISNULL(DA.LeaveCount, 0) AS LeaveCount,
+        ISNULL(DA.WeekoffCount, 0) AS WeekoffCount
+ 
+    FROM Dates DT 
+    LEFT JOIN ActualActive AA ON AA.ReportDate = DT.ReportDate 
+    LEFT JOIN NetDeployment ND ON ND.ReportDate = DT.ReportDate 
+    LEFT JOIN Movement M ON M.ReportDate = DT.ReportDate 
+    LEFT JOIN CurrentStatusEmp CS ON CS.ReportDate = DT.ReportDate 
+    LEFT JOIN DailyAttendance DA ON DA.ReportDate = DT.ReportDate
+)
+ 
+-- ============================================================
+-- 10. FINAL OUTPUT
+-- ============================================================
+SELECT
+    FORMAT(DS.ReportDate,'dd-MMM-yyyy')ReportDate,  V.Particular, V.EmployeeCount, V.Denominator, 
+    CAST
+    (
+        CASE
+            WHEN V.Denominator = 0 THEN 0
+            ELSE V.EmployeeCount * 100.0 / V.Denominator
+        END
+        AS DECIMAL(10,2)
+    ) AS Percentage
+ 
+FROM DailySummary DS
+ 
+CROSS APPLY
+(
+    VALUES
+    (
+        'Present',
+        DS.PresentCount,
+        CAST(DS.NetDeploymentCount AS DECIMAL(18,2)),
+        1
+    ),
+    (
+        'Absent',
+        DS.AbsentCount,
+        CAST(DS.NetDeploymentCount AS DECIMAL(18,2)),
+        2
+    ),
+    (
+        'Leave',
+        DS.LeaveCount,
+        CAST(DS.NetDeploymentCount AS DECIMAL(18,2)),
+        3
+    ),
+    (
+        'Weekoff',
+        DS.WeekoffCount,
+        CAST(DS.NetDeploymentCount AS DECIMAL(18,2)),
+        4
+    ),
+    (
+        'TBS',
+        DS.TBSCount,
+        CAST(DS.ActualActiveCount AS DECIMAL(18,2)),
+        5
+    ),
+    (
+        'LongAbsenteeism',
+        DS.LongAbsenteeismCount,
+        CAST(DS.ActualActiveCount AS DECIMAL(18,2)),
+        6
+    ),
+    (
+        'Joined',
+        DS.JoinedCount,
+        CAST
+        (
+            (
+                DS.ActualActiveCount
+                - DS.JoinedCount
+                + DS.LeftCount
+                + DS.ActualActiveCount
+            ) / 2.0
+            AS DECIMAL(18,2)
+        ),
+        7
+    ),
+    (
+        'Left',
+        DS.LeftCount,
+        CAST
+        (
+            (
+                DS.ActualActiveCount
+                - DS.JoinedCount
+                + DS.LeftCount
+                + DS.ActualActiveCount
+            ) / 2.0
+            AS DECIMAL(18,2)
+        ),
+        8
+    )
+) V
+(
+    Particular,
+    EmployeeCount,
+    Denominator,
+    SortOrder
+)
+ 
+ORDER BY
+    DS.ReportDate,
+    V.SortOrder
+ 
+OPTION (MAXRECURSION 0);";
+            return _sqlRepository.GetDataTable(strSql);
+
+        }
+
     }
 }

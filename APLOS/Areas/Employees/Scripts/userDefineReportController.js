@@ -113,7 +113,6 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
         }
     }
 
-
     $scope.FavouriteFilters = [];
     function getUniqueValues(data, field) {
         var result = [];
@@ -127,64 +126,6 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
         return result;
     }
 
-    //$scope.getFavouriteFiltersData = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'Employees/EmployeeInFoReport/getFavouriteFiltersData'
-    //    }).then(function (response) {
-
-    //        $scope.FavouriteFilters = response.data;
-
-    //        setTimeout(function () {
-    //            applyFavouriteFilters();
-    //        }, 500);
-    //    });
-    //};
-
-
-
-    //function applyFavouriteFilters() {
-
-    //    var gridObj = $("#filters").ejGrid("instance");
-    //    if (!gridObj) return;
-
-    //    var excelFilters = buildExcelFilterCollection();
-
-    //    // ⭐ THIS LINE makes checkboxes ticked
-    //    gridObj.model.filterSettings.filteredColumns = excelFilters;
-
-    //    // refresh grid with filters
-    //    gridObj.refreshContent();
-    //}
-
-
-    //function buildExcelFilterCollection() {
-
-    //    var fav = $scope.FavouriteFilters;
-
-    //    var filters = [];
-
-    //    function pushFilters(field, values) {
-    //        for (var i = 0; i < values.length; i++) {
-    //            filters.push({
-    //                field: field,
-    //                operator: "equal",
-    //                value: values[i],
-    //                predicate: i == 0 ? "and" : "or",
-    //                matchcase: false
-    //            });
-    //        }
-    //    }
-
-    //    pushFilters("ShiftName", getUniqueValues(fav, "ShiftName"));
-    //    pushFilters("PositionCategory", getUniqueValues(fav, "PositionCategory"));
-    //    pushFilters("EntityName", getUniqueValues(fav, "EntityName"));
-    //    pushFilters("Section", getUniqueValues(fav, "Section"));
-
-    //    return filters;
-    //}
-
-
     $scope.parameters = [];
     $scope.filterComplete = function () {
 
@@ -192,6 +133,9 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
         var fl = g.getFilteredRecords();
         if (fl.length == 0) {
             fl = $scope.filters;
+        }
+        if (fl.length == 0) {
+            fl = $scope.filtersdata;
         }
 
 
@@ -219,53 +163,7 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
         }
         return string;
     }
-
- 
-
-    //$scope.ShiftList = [];
-    //$scope.getShiftCbo = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'Employees/EmployeeInFoReport/getShiftCbo'
-    //    }).then(function successCallback(response) {
-    //        $scope.ShiftList = response.data;
-    //    });
-    //}
-    //$scope.getShiftCbo();
-
-
-    //$scope.PositionList = [];
-    //$scope.getPositionCbo = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'Employees/EmployeeInFoReport/getPositionCbo'
-    //    }).then(function successCallback(response) {
-    //        $scope.PositionList = response.data;
-    //    });
-    //}
-    //$scope.getPositionCbo();
-
-    //$scope.EntityList = [];
-    //$scope.getEntityCbo = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'Employees/EmployeeInFoReport/getEntityCbo'
-    //    }).then(function successCallback(response) {
-    //        $scope.EntityList = response.data;
-    //    });
-    //}
-    //$scope.getEntityCbo();
-
-    //$scope.SectionList = [];
-    //$scope.getSectionCbo = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'Employees/EmployeeInFoReport/getSectionCbo'
-    //    }).then(function successCallback(response) {
-    //        $scope.SectionList = response.data;
-    //    });
-    //}
-    //$scope.getSectionCbo();
+    
 
     $scope.DailyHRReportList = [];
     $scope.GetDailyReportData = function () {
@@ -423,9 +321,7 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
         } catch (e) {
             ShowResult(e, 'failure');
         }
-    }
-
-   
+    }   
 
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
@@ -459,5 +355,303 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
         });
 
     };
+
+    $scope.filtersdata = [];
+    $scope.getGraphFiltersData = function () {
+        try {
+            if (baseService.isUndefinedOrNull($scope.FromDate)) {
+                throw "From Date is required.";
+            }
+            if (baseService.isUndefinedOrNull($scope.ToDate)) {
+                throw "To Date is required.";
+            }
+
+            $http({
+                method: 'GET',
+                url: 'Employees/EmployeeInFoReport/getFiltersData',
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.filtersdata = response.data;
+                var columnList = [
+                    { field: 'ShiftName', width: 20, headerText: "Shift Name", type: "string" },
+                    { field: 'PositionCategory', width: 20, headerText: "Position Category", type: "string" },
+                    { field: 'EntityName', width: 20, headerText: "Entity Name", type: "string" },
+                    { field: 'Section', width: 20, headerText: "Section", type: "string" },
+                    { field: 'SubSection', width: 20, headerText: "SubSection", type: "string" },
+                    { field: 'Department', width: 20, headerText: "Department", type: "string" },
+                    { field: 'EmploymentType', width: 20, headerText: "EmploymentType", type: "string" }
+
+                ];
+                $("#filtersdata").ejGrid({
+                    dataSource: $scope.filters,
+                    minWidth: 450, minHeight: 400,
+                    allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
+                    filterSettings: { filterType: "excel" },
+                    columns: columnList
+                });
+
+                var gridObj = $("#filtersdata").data("ejGrid");
+                gridObj.refreshContent(true);
+                gridObj.refreshTemplate();
+                $("#filtersdata").children('.e-pager.e-js.e-pager').hide();
+                $("#filtersdata").children('.e-gridcontent.e-droppable.e-js').hide();
+                $("#filtersdata").children('.e-gridcontent').hide();
+                //$scope.getFavouriteFiltersData();
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.parameters = [];
+    $scope.graphfilterComplete = function () {
+
+        var g = $("#filtersdata").data("ejGrid");
+        var fl = g.getFilteredRecords();
+       
+        if (fl.length == 0) {
+            fl = $scope.filtersdata;
+        }
+
+
+        var parameters = [];
+        parameters.push({ "Key": "ShiftId", "Value": getString(fl, "ShiftId") });
+        parameters.push({ "Key": "PositionCategory", "Value": getString(fl, "PositionCategory") });
+        parameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
+        parameters.push({ "Key": "SectionId", "Value": getString(fl, "SectionId") });
+        parameters.push({ "Key": "SubSectionId", "Value": getString(fl, "SubSectionId") });
+        parameters.push({ "Key": "DepartmentId", "Value": getString(fl, "DepartmentId") });
+        parameters.push({ "Key": "EmploymentType", "Value": getString(fl, "EmploymentType") });
+
+        $scope.parameters = parameters;
+    }
+
+    $scope.FromDate = null;
+    $scope.ToDate = null;
+    $scope.rowsList = [];
+
+    var countChartObj = null;
+    var pctChartObj = null;
+
+    $scope.GetDailyGraphData = function () {
+        try {
+            if (baseService.isUndefinedOrNull($scope.FromDate)) {
+                throw "From Date is required.";
+            }
+            if (baseService.isUndefinedOrNull($scope.ToDate)) {
+                throw "To Date is required.";
+            }
+
+            $scope.rowsList = [];
+            $scope.graphfilterComplete();
+
+            $http({
+                method: 'POST',
+                url: "Employees/EmployeeInFoReport/GetDailyGraphData",
+                data: { 'parameters': $scope.parameters, 'fdate': $scope.FromDate, 'tdate': $scope.ToDate },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $scope.rowsList = response.data;
+
+                    // draw the charts only after the data has arrived
+                    countChartObj = drawLine('countChart', countChartObj,
+                        buildChartData($scope.rowsList, 'EmployeeCount'), 'Employee Count');
+                    pctChartObj = drawLine('pctChart', pctChartObj,
+                        buildChartData($scope.rowsList, 'Percentage'), 'Percentage (%)');
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    // 'rows' is a normal parameter name
+    function buildChartData(rows, valueField) {
+        const labels = [...new Set(rows.map(r => r.ReportDate))].sort();
+        const particulars = [...new Set(rows.map(r => r.Particular))];
+
+        const datasets = particulars.map(p => ({
+            label: p,
+            data: labels.map(d => {
+                const row = rows.find(r => r.ReportDate === d && r.Particular === p);
+                return row ? row[valueField] : null;
+            }),
+            tension: 0.3,
+            borderWidth: 2,
+            spanGaps: true
+        }));
+
+        return { labels, datasets };
+    }
+
+    function drawLine(canvasId, oldChart, data, yTitle) {
+        if (oldChart) { oldChart.destroy(); }   // remove the previous chart
+
+        return new Chart(document.getElementById(canvasId), {
+            type: 'line',
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: { legend: { position: 'top' } },
+                scales: {
+                    x: { title: { display: true, text: 'Report Date' } },
+                    y: { beginAtZero: true, title: { display: true, text: yTitle } }
+                }
+            }
+        });
+    }
+
+
+    //var ManPowerbarChart;
+
+    //$scope.headerNav = function (x) {
+    //    $http({
+    //        method: 'POST',
+    //        url: 'ManpowerBudgetDashboard/GetGroupWiseCompanyList/',
+    //        params: {
+    //            'date': $scope.hrDate, 'EmplyeeTypeOrCategoryId': $scope.hrDrpDownModel.EmplyeeTypeOrCategoryId
+    //        },
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        setMPList(response.data);
+    //        createMPChart();
+    //    });
+    //};
+
+    //function setMPList(list) {
+
+    //    for (var i = 0; i < list.length; i++) {
+
+    //        if (baseService.isUndefinedOrNull($scope.hrDrpDownModel.PODirectIndirectStatus) || $scope.hrDrpDownModel.PODirectIndirectStatus == "") {
+
+    //            list = list.filter(function (ls) {
+    //                return ls.IsDirect == "General";
+    //            });
+    //        }
+    //        else if ($scope.hrDrpDownModel.PODirectIndirectStatus === "Indirect") {
+    //            list = list.filter(function (ls) {
+    //                return ls.IsDirect == "Indirect";
+    //            });
+
+    //        }
+    //        else if ($scope.hrDrpDownModel.PODirectIndirectStatus === "Direct") {
+    //            list = list.filter(function (ls) {
+    //                return ls.IsDirect == "Direct";
+    //            });
+
+    //        }
+    //    }
+
+
+    //    $scope.date = new Date();
+    //    $scope.chartAttdnLabelSal = [];
+    //    var CurrentTotalEmp = 0;
+    //    var proposedTotalEmp = 0;
+    //    var Short = 0;
+    //    var excess = 0;
+    //    var unallocated = 0;
+
+    //    var OnRoleSal = 0;
+    //    var BudgetedSal = 0;
+
+    //    $scope.list = list;
+    //    angular.forEach(list, function (item, i) {
+    //        CurrentTotalEmp += item.TotalManpower;
+    //        proposedTotalEmp += item.ProposedManpowerBudget;
+    //        Short += item.Short;
+    //        excess += item.Excess;
+    //        unallocated += item.Unallocated;
+    //        OnRoleSal += item.OnRoleSalaryC;
+    //        BudgetedSal += item.ProposedSalaryC;
+    //    });
+    //    $scope.currentTotalEmp = CurrentTotalEmp;
+    //    $scope.proposedTotalEmp = proposedTotalEmp;
+    //    $scope.Short = Short;
+    //    $scope.excess = excess;
+    //    $scope.unallocated = unallocated;
+
+    //    $scope.chartMPList = [];
+    //    $scope.chartMPList.push(proposedTotalEmp);
+    //    $scope.chartMPList.push(CurrentTotalEmp);
+
+    //    $scope.chartDataSalary = [];
+    //    $scope.chartDataSalary.push(BudgetedSal);
+    //    $scope.chartDataSalary.push(OnRoleSal);
+
+    //    $scope.chartMPLabel = ['Budgeted', 'On Role'];
+    //    $scope.chartAttdnLabelSal = ['Budgeted Salary', 'On Role Salary'];
+    //}
+
+    //function createMPChart() {
+    //    Chart.defaults.global.legend.display = false;
+    //    var MPctx = document.getElementById("ManPowerbarChart").getContext('2d');
+    //    if (ManPowerbarChart !== undefined && typeof ManPowerbarChart === 'object' && typeof ManPowerbarChart.destroy === 'function') ManPowerbarChart.destroy();
+    //    ManPowerbarChart = new Chart(MPctx, {
+    //        type: 'bar',
+    //        data: {
+    //            labels: $scope.chartMPLabel,
+    //            datasets: [{
+    //                data: $scope.chartMPList,
+    //                backgroundColor: ['rgba(46, 204, 113,.6)', 'rgba(240, 52, 52, .6)'],
+    //                borderColor: ['rgba(46, 204, 113,.8)', 'rgba(240, 52, 52, .8)'],
+    //                fill: true,
+    //                borderWidth: 2
+    //            }]
+    //        },
+    //        options: {
+    //            legend: {
+    //                onClick: (e) => e.stopPropagation()
+    //            },
+    //            title: {
+    //                display: true,
+    //                text: 'Manpower Forecast'
+    //            },
+    //            label: false,
+    //            hover: { mode: null },
+    //            tooltips: {
+    //                callbacks: {
+    //                    label: function (tooltipItem, data) {
+    //                        var value = data.datasets[0].data[tooltipItem.index];
+    //                        value = value.toString();
+    //                        value = value.split(/(?=(?:...)*$)/);
+    //                        value = value.join(',');
+    //                        return value;
+    //                    }
+    //                }
+    //            },
+    //            scales: {
+    //                yAxes: [{
+    //                    ticks: {
+    //                        beginAtZero: true,
+    //                        userCallback: function (value, index, values) {
+    //                            value = value.toString();
+    //                            value = value.split(/(?=(?:...)*$)/);
+    //                            value = value.join(',');
+    //                            return value;
+    //                        }
+    //                    }
+    //                }],
+    //                xAxes: [{
+    //                    ticks: {
+    //                    },
+    //                    barThickness: 60
+    //                }]
+    //            }
+    //        }
+    //    });
+    //}
+
+
+
+
+
 
 }
