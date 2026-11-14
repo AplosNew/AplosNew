@@ -1,4 +1,55 @@
 ﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign" id="MainContainer"></span>Production Dashboard</h3>
+
+<style type="text/css">
+
+    /* Production Hover Chart Tooltip */
+
+    .production-hover-tooltip {
+        display: none;
+        position: fixed;
+        width: 370px;
+        background: #ffffff;
+        border: 1px solid #dce3eb;
+        border-radius: 8px;
+        padding: 14px;
+        z-index: 99999;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.18);
+        font-family: Arial, sans-serif;
+        box-sizing: border-box;
+        pointer-events: auto;
+    }
+
+    .tooltip-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #172b4d;
+        margin-bottom: 12px;
+    }
+
+    .chart-section {
+        margin-bottom: 12px;
+    }
+
+    .chart-label {
+        font-size: 12px;
+        font-weight: bold;
+        color: #526174;
+        margin-bottom: 5px;
+    }
+
+    .chart-canvas-wrap {
+        position: relative;
+        width: 100%;
+        height: 115px;
+    }
+
+        .chart-canvas-wrap canvas {
+            display: block;
+            width: 100% !important;
+            height: 115px !important;
+        }
+</style>
+
 <div class="form-elements form-horizontal" ng-form name="CostingTypeForm">
     <div class="row" style="border-bottom:1px solid #cdcdcd;padding:10px;">
         <div class="col-xs-12 col-sm-8 col-sm-8 small" style="padding:0px;margin:0px;">
@@ -78,9 +129,10 @@
     </div>
     <div class="row" style="padding-top:10px;">
         <div class="col-xs-12 col-sm-12 col-sm-12 small" style="padding-bottom:10px;">
-            <div valign="bottom" style="color:black;" id="GridProductionStatistics" ej-grid e-datasource="DayStatistics"
+            <div valign="bottom" style="color:black;" id="GridProductionStatistics" ej-grid e-datasource="DayStatistics" e-rowhover="onProductionRowHover"
                  e-allowfiltering="false" e-allowpaging="false" e-allowsorting="true" e-allowresizetofit="true"
                  e-allowselection="true" e-filtersettings-filterType="excel">
+
                 <div e-columns>
                     <div e-column e-field="Caption" e-headertext=""></div>
                     <div e-column e-field="TotalTargetQty" e-headertext="Ttl. Tgt Qty" e-type="number" e-format="{0:N0}" e-textalign="right" e-width="90"></div>
@@ -97,6 +149,29 @@
 
                 </div>
             </div>
+
+            <!-- Tooltip is a sibling of the Grid, not a child of EJ1 Grid -->
+            <div id="productionHoverTooltip" class="production-hover-tooltip">
+                <div class="tooltip-title">Production Performance</div>
+
+                <div class="chart-section">
+                    <div class="chart-label">Quantity Comparison</div>
+                    <div class="chart-canvas-wrap">
+                        <canvas id="productionQtyChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-section">
+                    <div class="chart-label">Amount Comparison</div>
+                    <div class="chart-canvas-wrap">
+                        <canvas id="productionAmountChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Load once only. Chart is accessed when the user hovers a row. -->
+            <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
         </div>
         <div class="col-xs-12 col-sm-8 col-md-8">
             <div class="text-center" style="position:center;font-weight:bold; background-color:#f2f2f2;">
@@ -358,10 +433,10 @@
                  e-allowselection="true" e-filtersettings-filterType="excel" e-showsummary="true" e-summaryrows="summaryRowHours">
             </div>
             @*<table>
-            <tr>
-                <td ng-repeat="(key, val) in HourlyProductionDisplayList[ENTkey][0]">{{key}}</td>
-            </tr>
-        </table>*@
+                    <tr>
+                        <td ng-repeat="(key, val) in HourlyProductionDisplayList[ENTkey][0]">{{key}}</td>
+                    </tr>
+                </table>*@
         </div>
     </div>
 </div>

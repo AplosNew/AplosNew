@@ -890,4 +890,154 @@ function ProductionDashboardController(cboService, commonMessage, $scope, $rootS
     }
     //#endregion
 
+    // Production Statistics Grid hover charts (Chart.js 4.x)
+    var productionQtyChart = null;
+    var productionAmountChart = null;
+
+    function createProductionChart(canvasId, target, production) {
+        var canvas = document.getElementById(canvasId);
+        if (!canvas || typeof window.Chart === 'undefined') return;
+
+        var chartInstance = canvasId === 'productionQtyChart'
+            ? productionQtyChart
+            : productionAmountChart;
+
+        if (chartInstance) {
+            chartInstance.data.datasets[0].data = [target];
+            chartInstance.data.datasets[1].data = [production];
+            chartInstance.resize();
+            chartInstance.update('none');
+            return;
+        }
+
+        var chart = new window.Chart(canvas.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['Performance'],
+                datasets: [
+                    {
+                        label: 'Target',
+                        data: [target],
+                        backgroundColor: '#3498db',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Production',
+                        data: [production],
+                        backgroundColor: '#27ae60',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 10,
+                            font: { size: 10 }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return context.dataset.label + ': ' +
+                                    Number(context.raw || 0).toLocaleString();
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: { precision: 0 }
+                    },
+                    y: { display: false }
+                }
+            }
+        });
+
+        if (canvasId === 'productionQtyChart') {
+            productionQtyChart = chart;
+        } else {
+            productionAmountChart = chart;
+        }
+    }
+
+    function hideProductionTooltipWhenLeaving(e) {
+        var grid = document.getElementById('GridProductionStatistics');
+        var tooltip = document.getElementById('productionHoverTooltip');
+        var next = e.relatedTarget;
+
+        // Keep the tooltip open while the pointer moves between the grid and tooltip.
+        if (next && ((grid && grid.contains(next)) ||
+            (tooltip && tooltip.contains(next)))) {
+            return;
+        }
+
+        if (tooltip) tooltip.style.display = 'none';
+    }
+
+    function bindProductionTooltipEvents() {
+        var grid = document.getElementById('GridProductionStatistics');
+        var tooltip = document.getElementById('productionHoverTooltip');
+        if (!grid || !tooltip) return;
+
+        // Namespaced handlers prevent duplicate event registration.
+        $(grid).off('mouseleave.productionHover')
+            .on('mouseleave.productionHover', hideProductionTooltipWhenLeaving);
+        $(tooltip).off('mouseleave.productionHover')
+            .on('mouseleave.productionHover', hideProductionTooltipWhenLeaving);
+    }
+
+    // Syncfusion EJ1 Grid rowHover event.
+    // EJ1 event arguments expose rowData and row.
+    $scope.onProductionRowHover = function (args) {
+        if (!args || !args.rowData || !args.row) return;
+
+        var tooltip = document.getElementById('productionHoverTooltip');
+        if (!tooltip) return;
+
+        var rowElement = args.row.jquery ? args.row[0] : args.row;
+        if (!rowElement || !rowElement.getBoundingClientRect) return;
+
+        var data = args.rowData;
+        var rect = rowElement.getBoundingClientRect();
+
+        // Make the tooltip visible before Chart.js measures its canvas sizes.
+        tooltip.style.display = 'block';
+
+        var tooltipWidth = tooltip.offsetWidth || 370;
+        var tooltipHeight = tooltip.offsetHeight || 340;
+        var left = rect.right + 10;
+        var top = rect.top;
+
+        if (left + tooltipWidth > window.innerWidth) {
+            left = rect.left - tooltipWidth - 10;
+        }
+        left = Math.max(5, Math.min(left, window.innerWidth - tooltipWidth - 5));
+        top = Math.max(5, Math.min(top, window.innerHeight - tooltipHeight - 5));
+
+        tooltip.style.left = left + 'px';
+        tooltip.style.top = top + 'px';
+
+        createProductionChart(
+            'productionQtyChart',
+            Number(data.TotalTargetQty) || 0,
+            Number(data.TotalProductionQty) || 0
+        );
+
+        createProductionChart(
+            'productionAmountChart',
+            Number(data.TotalTargetAmount) || 0,
+            Number(data.TotalProductionAmount) || 0
+        );
+
+        bindProductionTooltipEvents();
+    };
+
 }
