@@ -471,9 +471,28 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
         }
     };
 
-    // 'rows' is a normal parameter name
+    //// 'rows' is a normal parameter name
+    //function buildChartData(rows, valueField) {
+    //    const labels = [...new Set(rows.map(r => r.ReportDate))].sort();
+    //    const particulars = [...new Set(rows.map(r => r.Particular))];
+
+    //    const datasets = particulars.map(p => ({
+    //        label: p,
+    //        data: labels.map(d => {
+    //            const row = rows.find(r => r.ReportDate === d && r.Particular === p);
+    //            return row ? row[valueField] : null;
+    //        }),
+    //        tension: 0.3,
+    //        borderWidth: 2,
+    //        spanGaps: true
+    //    }));
+
+    //    return { labels, datasets };
+    //}
+
     function buildChartData(rows, valueField) {
-        const labels = [...new Set(rows.map(r => r.ReportDate))].sort();
+        // Set keeps insertion order, so labels follow the SQL ORDER BY (25-Oct → 10-Nov)
+        const labels = [...new Set(rows.map(r => r.ReportDate))];
         const particulars = [...new Set(rows.map(r => r.Particular))];
 
         const datasets = particulars.map(p => ({
@@ -508,148 +527,6 @@ function userDefineReportController(commonMessage, $scope, $rootScope, baseServi
             }
         });
     }
-
-
-    //var ManPowerbarChart;
-
-    //$scope.headerNav = function (x) {
-    //    $http({
-    //        method: 'POST',
-    //        url: 'ManpowerBudgetDashboard/GetGroupWiseCompanyList/',
-    //        params: {
-    //            'date': $scope.hrDate, 'EmplyeeTypeOrCategoryId': $scope.hrDrpDownModel.EmplyeeTypeOrCategoryId
-    //        },
-    //        dataType: 'JSON'
-    //    }).then(function successCallback(response) {
-    //        setMPList(response.data);
-    //        createMPChart();
-    //    });
-    //};
-
-    //function setMPList(list) {
-
-    //    for (var i = 0; i < list.length; i++) {
-
-    //        if (baseService.isUndefinedOrNull($scope.hrDrpDownModel.PODirectIndirectStatus) || $scope.hrDrpDownModel.PODirectIndirectStatus == "") {
-
-    //            list = list.filter(function (ls) {
-    //                return ls.IsDirect == "General";
-    //            });
-    //        }
-    //        else if ($scope.hrDrpDownModel.PODirectIndirectStatus === "Indirect") {
-    //            list = list.filter(function (ls) {
-    //                return ls.IsDirect == "Indirect";
-    //            });
-
-    //        }
-    //        else if ($scope.hrDrpDownModel.PODirectIndirectStatus === "Direct") {
-    //            list = list.filter(function (ls) {
-    //                return ls.IsDirect == "Direct";
-    //            });
-
-    //        }
-    //    }
-
-
-    //    $scope.date = new Date();
-    //    $scope.chartAttdnLabelSal = [];
-    //    var CurrentTotalEmp = 0;
-    //    var proposedTotalEmp = 0;
-    //    var Short = 0;
-    //    var excess = 0;
-    //    var unallocated = 0;
-
-    //    var OnRoleSal = 0;
-    //    var BudgetedSal = 0;
-
-    //    $scope.list = list;
-    //    angular.forEach(list, function (item, i) {
-    //        CurrentTotalEmp += item.TotalManpower;
-    //        proposedTotalEmp += item.ProposedManpowerBudget;
-    //        Short += item.Short;
-    //        excess += item.Excess;
-    //        unallocated += item.Unallocated;
-    //        OnRoleSal += item.OnRoleSalaryC;
-    //        BudgetedSal += item.ProposedSalaryC;
-    //    });
-    //    $scope.currentTotalEmp = CurrentTotalEmp;
-    //    $scope.proposedTotalEmp = proposedTotalEmp;
-    //    $scope.Short = Short;
-    //    $scope.excess = excess;
-    //    $scope.unallocated = unallocated;
-
-    //    $scope.chartMPList = [];
-    //    $scope.chartMPList.push(proposedTotalEmp);
-    //    $scope.chartMPList.push(CurrentTotalEmp);
-
-    //    $scope.chartDataSalary = [];
-    //    $scope.chartDataSalary.push(BudgetedSal);
-    //    $scope.chartDataSalary.push(OnRoleSal);
-
-    //    $scope.chartMPLabel = ['Budgeted', 'On Role'];
-    //    $scope.chartAttdnLabelSal = ['Budgeted Salary', 'On Role Salary'];
-    //}
-
-    //function createMPChart() {
-    //    Chart.defaults.global.legend.display = false;
-    //    var MPctx = document.getElementById("ManPowerbarChart").getContext('2d');
-    //    if (ManPowerbarChart !== undefined && typeof ManPowerbarChart === 'object' && typeof ManPowerbarChart.destroy === 'function') ManPowerbarChart.destroy();
-    //    ManPowerbarChart = new Chart(MPctx, {
-    //        type: 'bar',
-    //        data: {
-    //            labels: $scope.chartMPLabel,
-    //            datasets: [{
-    //                data: $scope.chartMPList,
-    //                backgroundColor: ['rgba(46, 204, 113,.6)', 'rgba(240, 52, 52, .6)'],
-    //                borderColor: ['rgba(46, 204, 113,.8)', 'rgba(240, 52, 52, .8)'],
-    //                fill: true,
-    //                borderWidth: 2
-    //            }]
-    //        },
-    //        options: {
-    //            legend: {
-    //                onClick: (e) => e.stopPropagation()
-    //            },
-    //            title: {
-    //                display: true,
-    //                text: 'Manpower Forecast'
-    //            },
-    //            label: false,
-    //            hover: { mode: null },
-    //            tooltips: {
-    //                callbacks: {
-    //                    label: function (tooltipItem, data) {
-    //                        var value = data.datasets[0].data[tooltipItem.index];
-    //                        value = value.toString();
-    //                        value = value.split(/(?=(?:...)*$)/);
-    //                        value = value.join(',');
-    //                        return value;
-    //                    }
-    //                }
-    //            },
-    //            scales: {
-    //                yAxes: [{
-    //                    ticks: {
-    //                        beginAtZero: true,
-    //                        userCallback: function (value, index, values) {
-    //                            value = value.toString();
-    //                            value = value.split(/(?=(?:...)*$)/);
-    //                            value = value.join(',');
-    //                            return value;
-    //                        }
-    //                    }
-    //                }],
-    //                xAxes: [{
-    //                    ticks: {
-    //                    },
-    //                    barThickness: 60
-    //                }]
-    //            }
-    //        }
-    //    });
-    //}
-
-
 
 
 
