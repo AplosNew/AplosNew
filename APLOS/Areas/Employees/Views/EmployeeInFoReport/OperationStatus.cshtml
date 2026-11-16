@@ -1,0 +1,204 @@
+﻿
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@*<togglable name="Operation Status"></togglable>*@
+<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Operation Status</h3>
+
+<div class="form-horizontal">
+    <div class="tab-design">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">OS2.1</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">OS2.2</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="general" role="tab" data-toggle="tab">OMS</a></li>
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="general" role="tab" data-toggle="tab">WS</a></li>
+                <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="general" role="tab" data-toggle="tab">Production</a></li>
+                <li role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6)" href="" aria-controls="general" role="tab" data-toggle="tab">Setting</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(6), active: isSet(6) }">
+                <togglable name="Operation Status Setting"></togglable>
+
+                <div class="form-elements" ng-form="modelForm">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Data Name</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="DataName" maxlength="50" ng-model="operationStatusSetting.DataName" class="form-control" tabindex="1">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Column Name</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="ColumnName" maxlength="50" ng-model="operationStatusSetting.ColumnName" class="form-control" tabindex="2">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Filter</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input tabindex="3" type="checkbox" ng-model="operationStatusSetting.Filter">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Include / Exclude</label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="operationStatusSetting.Type" name="Include Exclude" tabindex="4">
+                                            <option value="">-- Select --</option>
+                                            <option value="Included">Included</option>
+                                            <option value="Excluded">Excluded</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Operator</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Operator" maxlength="50" ng-model="operationStatusSetting.Operator" class="form-control" tabindex="5">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Operator Value</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="OperatorValue" maxlength="50" ng-model="operationStatusSetting.OperatorValue" class="form-control" tabindex="6">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Start Date</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="StartDate" ng-model="operationStatusSetting.StartDate" datepicker class="form-control" tabindex="7">
+                                </div>
+                            </div>
+                            @*<div class="form-group">
+            <label class="col-sm-4 control-label">Start Time</label>
+            <div class="col-sm-8">
+                <input type="text" name="StartTime" maxlength="5" placeholder="HH:mm" ng-model="operationStatusSetting.StartTime" ng-pattern="/^([01][0-9]|2[0-3]):[0-5][0-9]$/" class="form-control" tabindex="8">
+            </div>
+        </div>*@
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Start Time</label>
+                                <div class="col-sm-8">
+                                    <div class="row">
+                                        <div class="col-xs-6">
+                                            <div class="select-style">
+                                                <select class="form-control" name="StartHour" ng-model="startTimePart.Hour"
+                                                        ng-options="h for h in hourList" ng-change="setStartTime()" tabindex="8">
+                                                    <option value="">HH</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-6">
+                                            <div class="select-style">
+                                                <select class="form-control" name="StartMinute" ng-model="startTimePart.Minute"
+                                                        ng-options="m for m in minuteList" ng-change="setStartTime()"
+                                                        ng-disabled="!startTimePart.Hour" tabindex="9">
+                                                    <option value="">MM</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Repeat Value</label>
+                                <div class="col-sm-8">
+                                    <input type="number" name="RepeatValue" step="any" ng-model="operationStatusSetting.RepeatValue" class="form-control" tabindex="9">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li><button ng-click="Save();" class="btn" tabindex="10"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                @*<li><button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+                                <li><button ng-click="Delete();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Delete</button></li>
+                                <li><button ng-click="Clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row text-right aplos-grid-toggle">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="$root.parameters.searchBy">
+                                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table aplos-grid-toggle">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Data Name</th>
+                                <th>Column Name</th>
+                                <th>Filter</th>
+                                <th>Type Text</th>
+                                <th>Operator</th>
+                                <th>Operator Value</th>
+                                <th>Start Date</th>
+                                <th>Start Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in operationStatusSettings" ng-dblclick="Get(x.Id, $index);">
+                                <td>{{x.DataName}}</td>
+                                <td>{{x.ColumnName}}</td>
+                                <td>{{x.Filter?'Yes':'No'}}</td>
+                                <td>{{x.Type}}</td>
+                                <td>{{x.Operator}}</td>
+                                <td>{{x.OperatorValue}}</td>
+                                <td>{{x.StartDate | dateFilter}}</td>
+                                <td>{{x.StartTime}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+

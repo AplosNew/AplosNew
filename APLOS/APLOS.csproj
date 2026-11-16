@@ -1999,6 +1999,7 @@
     <Content Include="Areas\Employees\Scripts\CasteController.js" />
     <Content Include="Areas\Employees\Scripts\employeeAttdnTrendReportController.js" />
     <Content Include="Areas\Employees\Scripts\AttendanceVerificationStatusController.js" />
+    <Content Include="Areas\Employees\Scripts\operationStatusController.js" />
     <Content Include="Areas\Employees\Scripts\userfavouriteReportController.js" />
     <Content Include="Areas\Employees\Scripts\favouriteReportController.js" />
     <Content Include="Areas\Employees\Scripts\userDefineReportController.js" />
@@ -5165,6 +5166,7 @@
     <Content Include="Areas\OrderManagements\Views\MasterOrder\ReasonMaster.cshtml" />
     <Content Include="Areas\Productions\Views\Packing\LotDef.cshtml" />
     <Content Include="Areas\Employees\Views\EmployeeInformation\DailyIssue.cshtml" />
+    <Content Include="Areas\Employees\Views\EmployeeInFoReport\OperationStatus.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

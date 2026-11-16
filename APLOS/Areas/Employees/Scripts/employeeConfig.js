@@ -569,5 +569,9 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             templateUrl: 'Employees/EmployeeInformation/DailyIssue',
             controller: 'EmployeeDailyIssueController'
         })
+        .when('/operation-status', {
+            templateUrl: 'Employees/EmployeeInFoReport/OperationStatus',
+            controller: 'operationStatusController'
+        })
         ;
 } 
