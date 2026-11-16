@@ -3913,7 +3913,128 @@ OPTION (MAXRECURSION 0);";
 
         }
 
-       
+        #region OperationStatus
+
+        public ActionResult OperationStatus()
+        {
+            return View();
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetCbo()
+        {
+            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,DataName AS Text FROM [dbo].[operationstatusSetting]"), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetDataList(string column, string value, string entryType)
+        {
+            string strkey = "1=1";
+            // column comes from the browser, so only known column names are allowed into the SQL text
+            string[] allowedColumns = new string[] { "Id", "DataName", "ColumnName", "Operator", "OperatorValue", "RepeatValue", "TypeText" };
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false && Array.IndexOf(allowedColumns, column) >= 0)
+                strkey = column + " like '%" + SqlEsc(value) + "%'";
+
+            string sql = @"select top 100 * from (SELECT TT.*,CAST(NULL AS varchar(1)) TypeText /* TODO: join lookup table */,CONVERT(varchar(8),TT.StartTime,108) StartTimeText FROM [dbo].[operationstatusSetting] TT) AS TEMP WHERE " + strkey + " order by Id";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateOperationStatusSetting(Dictionary<string, object> data)
+        {
+            try
+            {
+                string smg = "";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from [dbo].[operationstatusSetting] where Id='" + SqlEsc(data["Id"]) + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                ConvertTimeFields(data);
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    // Id is an IDENTITY column: SQL Server generates it, so it is not sent with the new row
+                    data.Remove("Id");
+                    AddNewRow(dsMaster.Tables[0], data);
+                    smg = AplosMessage.Insert;
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                    smg = AplosMessage.Updated;
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Message = smg });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult DeleteOperationStatusSetting(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from [dbo].[operationstatusSetting] where Id='" + SqlEsc(id) + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        // Time columns arrive from the browser as "HH:mm" text; the DataTable needs a TimeSpan (DBNull when empty)
+        private static readonly string[] TimeColumns = new string[] { "StartTime" };
+
+        private static void ConvertTimeFields(Dictionary<string, object> data)
+        {
+            foreach (string col in TimeColumns)
+            {
+                object raw;
+                if (!data.TryGetValue(col, out raw))
+                    continue;
+
+                string txt = Convert.ToString(raw);
+                if (string.IsNullOrWhiteSpace(txt))
+                {
+                    data[col] = DBNull.Value;
+                    continue;
+                }
+
+                TimeSpan ts;
+                if (!TimeSpan.TryParse(txt, out ts))
+                    throw new Exception(col + " must be a valid time (HH:mm)");
+                data[col] = ts;
+            }
+        }
+
+        private static string SqlEsc(object value)
+        {
+            return Convert.ToString(value).Replace("'", "''");
+        }
+
+
+        #endregion
 
     }
 }
