@@ -2551,7 +2551,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
     $scope.CheckMaxWCValue = function (obj) {
         try {
             if (obj.data.AllocatedLines > obj.data.MaximumAllowedWorkCenter) {
-                 throw "Alloted Work Center can't greater than Maximum Allowed Work Center.";
+                throw "Alloted Work Center can't greater than Maximum Allowed Work Center.";
             }
 
         } catch (e) {
@@ -2590,6 +2590,11 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
                 if (baseService.isUndefinedOrNull($scope.sku1sku2List[i].WorkCenterGroupId)) {
                     throw "Work Center Group is required.";
                 }
+                if (baseService.isUndefinedOrNull($scope.sku1sku2List[i].Efficiency) || $scope.sku1sku2List[i].Efficiency == 0) {
+                    throw "Net Utilization Percentage is required.";
+                }
+
+                
             }
             $http({
                 method: 'POST',
@@ -3059,7 +3064,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
 
     $scope.SimulateAll = function () {
         try {
-            
+
             $http({
                 method: 'GET',
                 url: "OrderManagements/productionOrderSchedulingParametersType1/SubProductionPlanSimulation"
@@ -4027,7 +4032,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
             $scope.openPopup('dialogWorkCenterWisePlanning');
             $http({
                 method: 'POST',
-                url:  "OrderManagements/productionOrderSchedulingParametersType1/GetSingleWorkcenterWisePlanningType2Summary?WorkCenterId=" + data.Id
+                url: "OrderManagements/productionOrderSchedulingParametersType1/GetSingleWorkcenterWisePlanningType2Summary?WorkCenterId=" + data.Id
 
             }).then(function successCallback(response) {
                 $scope.WorkCenterPlanList = response.data;
@@ -4054,7 +4059,7 @@ function productionOrderType2Controller(cboService, commonMessage, $scope, $root
         $scope.GetProductionPlanningParametersData('dialogProductionOrderParameters', 'entrypop');
     }
 
-   
+
     $scope.DeleteSPO = function () {
         $scope.message_confirmation = 'Are you sure want to delete Sub Production Orders.';
         angular.element(document.querySelector('#confirmSPODelPopUp')).modal('show');
