@@ -164,8 +164,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
 												SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR,MIN(s.ProductionDate) AS ProductionStartDateAtPR
 											FROM  trn.ProductionSummary S 
 											--WHERE  CONVERT(DATETIME, format(s.ProductionDate,'dd-MMM-yyyy'))<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'
-											GROUP BY  s.ProductionOrderId,s.ProcessId
-							) AS PRODPR ON  PRODPR.ProductionOrderId=po.id AND PRODPR.ProcessId=(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID=po.Id)
+											where s.ProcessId='"+baseprocessid+ @"'
+GROUP BY  s.ProductionOrderId,s.ProcessId
+							) AS PRODPR ON  PRODPR.ProductionOrderId=po.id AND PRODPR.ProcessId='" + baseprocessid + @"' --(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID=po.Id)
 							 left outer join (SELECT pod.ProductionOrderId,
                                 sum(isnull(so.ProductionBookedQty,0)) ProductionBookedQty
                                  FROM trn.SalesOrder AS so
@@ -291,8 +292,9 @@ SELECT  PO.Id,PO.EntityId, PO.Remarks,s.UserName AS ProductionStatus, EN.UserNam
 												SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR,MIN(s.ProductionDate) AS ProductionStartDateAtPR
 											FROM  trn.ProductionSummary S 
 											--WHERE  CONVERT(DATETIME, format(s.ProductionDate,'dd-MMM-yyyy'))<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'
-											GROUP BY  s.ProductionOrderId,s.ProcessId
-							) AS PRODPR ON  PRODPR.ProductionOrderId=po.id AND PRODPR.ProcessId=(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID=po.Id)
+where s.ProcessId='" + baseprocessid + @"'											
+GROUP BY  s.ProductionOrderId,s.ProcessId
+							) AS PRODPR ON  PRODPR.ProductionOrderId=po.id AND PRODPR.ProcessId='" + baseprocessid + @"' --(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID=po.Id)
 							 left outer join (SELECT pod.ProductionOrderId,
                                 sum(isnull(so.ProductionBookedQty,0)) ProductionBookedQty
                                  FROM trn.SalesOrder AS so
