@@ -544,11 +544,11 @@ from trn.ProductionOrderDetail AS pod JOIN  trn.SalesOrder SO ON pod.SalesOrderI
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetProductionReference(string productionOrderId)
+        public ActionResult GetProductionReference(string productionOrderId, string processid)
         {
             Library.Planning.PlanningType1.PlanningType1Scheduler sch = new Library.Planning.PlanningType1.PlanningType1Scheduler();
 
-            return Json(_sqlRepository.GetDataCollection(sch.GetProductionReference(productionOrderId), null), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection(sch.GetProductionReference(productionOrderId, processid), null), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]

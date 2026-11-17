@@ -1023,7 +1023,7 @@ function ProductionOrderSchedulingParametersType1Controller(cboService, commonMe
 
             $http({
                 method: 'GET',
-                url: $scope.path + 'GetProductionReference?productionOrderId=' + Id
+                url: $scope.path + 'GetProductionReference?productionOrderId=' + Id + '&processid='+ $scope.PlanningTypeProcessId
             }).then(function successCallback(response) {
                 $scope.Clear();
                 $scope.productionOrderModel = Object.assign({}, response.data[0]);
