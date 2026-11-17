@@ -3773,7 +3773,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet, Authorize]
+        [HttpGet]
         public ActionResult GetSKUSampleFile(ReportFormat reportFormat, string salesOrderId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -3898,7 +3898,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                 ru.SetList(ref sheet1, xlsRow, maxRow, xlsCol, sheetSource, SKU1Col, dsSKU1.Tables[0].Rows.Count); xlsCol += 1;
 
                 //ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SKU1ValueId", ExcelKnownColors.Red); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10; int colSKU1ValueId = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FirstCharacteristicsId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colFirstCharacteristicsId = xlsCol; xlsCol += 1;
+                //ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FirstCharacteristicsId"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20; int colFirstCharacteristicsId = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SKU2", ExcelKnownColors.Red); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15; int colSKU2Id = xlsCol; //xlsCol += 1;
                 ru.SetList(ref sheet1, xlsRow, maxRow, xlsCol, sheetSource, SKU2Col, dsSKU2.Tables[0].Rows.Count); xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Qty"); sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12; int colQty = xlsCol; xlsCol += 1;
@@ -3921,7 +3921,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                 {
                     sheet1[xlsRow, colSalesOrderId].Text = dtData.Rows[i]["SalesOrderId"].ToString();
                     sheet1[xlsRow, colSKU1Id].Text = dtData.Rows[i]["SKU1"].ToString();             // was SKU1Col
-                    sheet1[xlsRow, colFirstCharacteristicsId].Text = dtData.Rows[i]["FirstCharacteristicsId"].ToString();
+                    //sheet1[xlsRow, colFirstCharacteristicsId].Text = dtData.Rows[i]["FirstCharacteristicsId"].ToString();
                     sheet1[xlsRow, colSKU2Id].Text = dtData.Rows[i]["SKU2"].ToString();             // was SKU2Col
                     sheet1[xlsRow, colQty].Text = dtData.Rows[i]["Qty"].ToString();
                     xlsRow++;
@@ -4009,7 +4009,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
             public string FirstCharacteristicsId { get; set; }
             public decimal Qty { get; set; }
         }
-        [HttpPost, Authorize]
+        [HttpPost]
         public JsonResult ImportSKUData(FormCollection form)
         {
             try
@@ -4057,7 +4057,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                         throw new Exception("Please Select File");
 
                     // fail early when the uploaded file is not based on the sample file
-                    foreach (var h in new string[] { "SalesOrderId", "SKU1", "FirstCharacteristicsId", "SKU2", "Qty" })
+                    foreach (var h in new string[] { "SalesOrderId", "SKU1", "SKU2", "Qty" })
                     {
                         if (!dt.Columns.Contains(h))
                             throw new Exception("Column '" + h + "' not found in the uploaded file. Please download the sample file again.");
@@ -4077,7 +4077,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                         string cSKU2Id = row["SKU2"].ToString().Trim();
 
                         vm.SalesOrderId = row["SalesOrderId"].ToString();
-                        vm.FirstCharacteristicsId = row["FirstCharacteristicsId"].ToString();
+                       // vm.FirstCharacteristicsId = row["FirstCharacteristicsId"].ToString();
                         if (cSKU1Id == "") throw new Exception("Row " + (i + 2) + ": SKU1Id is required. Please check !!");
                         vm.SKU1Id = row["SKU1"].ToString();
 
@@ -4121,7 +4121,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
             // Pad only the numeric part with leading zeros, then append it to the master ID
             return masterId.Trim() + currentId.ToString().PadLeft(padLeft, '0');
         }
-        [HttpPost, Authorize]
+        [HttpPost]
         public JsonResult SaveUploadedData(List<Dictionary<string, object>> sku1List, List<Dictionary<string, object>> dataList, string salesOrderId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -4152,6 +4152,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                             sku1["Id"] = MakePK(sku1["SalesOrderId"].ToString(), maxnumbersku1, 2);
                             sku1["CharacteristicsId"] = 1;
                             sku1["CharacteristicsValueId"] = characteristisValId;
+                            sku1["Sequence"] = maxnumbersku1;
                             AddNewRow(dsSKU1.Tables[0], sku1);
                         }
                         else
@@ -4188,7 +4189,7 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
                                 item["CharacteristicsValueId"] = characteristisValId2;              // main fix
                                 item["FirstCharacteristicsId"] = sku1["Id"].ToString();
                                 item["ValueFreeText"] = UploadVal(item["Qty"]);
-                                item["Sequence"] = 1;
+                                item["Sequence"] = maxnumbersku2;
                                 AddNewRow(dsSKU2.Tables[0], item);
                             }
                             else

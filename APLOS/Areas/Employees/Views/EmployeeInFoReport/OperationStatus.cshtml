@@ -1,35 +1,219 @@
-﻿
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+﻿<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 @*<togglable name="Operation Status"></togglable>*@
 <h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Operation Status</h3>
 
 <div class="form-horizontal">
-    <div class="tab-design">
+    <div class="tab-design" id="tab_show">
         <div class="site-tab">
+
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">OS2.1</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">OS2.2</a></li>
-                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="general" role="tab" data-toggle="tab">OMS</a></li>
-                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="general" role="tab" data-toggle="tab">WS</a></li>
-                <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="general" role="tab" data-toggle="tab">Production</a></li>
-                <li role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6)" href="" aria-controls="general" role="tab" data-toggle="tab">Setting</a></li>
+
+                <li role="presentation" ng-class="{ active: isSet(1) }">
+                    <a href="#" ng-click="$event.preventDefault(); setTab(1);">Master</a>
+                </li>
+
+                <li role="presentation" ng-class="{ active: isSet(2) }">
+                    <a href="#" ng-click="$event.preventDefault(); setTab(2);">OS2.1</a>
+                </li>
+
+                <li role="presentation" ng-class="{ active: isSet(3) }">
+                    <a href="#" ng-click="$event.preventDefault(); setTab(3); ">OS2.2</a>
+                </li>
+
+                <li role="presentation" ng-class="{ active: isSet(4) }">
+                    <a href="#" ng-click="$event.preventDefault(); setTab(4); ">Production</a>
+                </li>
+
+                <li role="presentation" ng-class="{ active: isSet(5) }">
+                    <a href="#" ng-click="$event.preventDefault(); getWorkCenterData(); setTab(5); ">WC</a>
+                </li>
+
+                <li role="presentation" ng-class="{ active: isSet(6) }">
+                    <a href="#" ng-click="$event.preventDefault(); setTab(6)">Setting</a>
+                </li>
+
             </ul>
+
         </div>
         <div class="tab-content">
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+            <div role="tabpanel" class="tab-pane fade in active" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <togglable name="Master"></togglable>
+                <div class="form-elements" ng-form="modelForm1">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div id="div_Date1" class="form-group">
+                                <label class="col-sm-4 control-label">Date<sup>*</sup></label>
+                                <div class="col-sm-6 show-message">
+                                    <input type="text" name="From Date" ng-model="master.Date" datepicker class="form-control" tabindex="4">
+                                </div>
+                                <div class="col-sm-2">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-right">
+                                            <li> <button ng-click="getMasterData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-search"></i> Go </button></li>
+                                        </ul>
+                                    </div>
+                                </div>
 
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div id="masterGrid" ej-grid e-datasource="masterDataList" e-queryCellInfo="PeriodValidation" e-actionComplete="refreshPage"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-field="Customer" e-headertext="Customer" e-width="20" e-isprimarykey="true"></div>
+                                <div e-column e-field="Material" e-headertext="Material" e-width="50" e-isprimarykey="true"></div>
+                                <div e-column e-field="Article" e-headertext="Article" e-width="80"></div>
+                                <div e-column e-field="ProductCategory" e-headertext="ProductCategory" e-width="80"></div>
+                                <div e-column e-field="Product" e-headertext="Product" e-width="30"></div>
+                                <div e-column e-headertext="ItemQty" e-field="ItemQty" e-textalign="center" e-width="100"></div>
+                                <div e-column e-headertext="UOM" e-field="UOM" e-textalign="center" e-width="80"></div>
+                                <div e-column e-headertext="SO" e-field="SalesOrderId" e-textalign="center" e-width="80"></div>
+                                @*<div e-column e-template="#btnAction" e-headertext="Actions" e-width="80"></div>*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <togglable name="OS2.1"></togglable>
 
+                <div class="form-elements" ng-form="modelForm2">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div id="div_Date2" class="form-group">
+                                <label class="col-sm-4 control-label">Date<sup>*</sup></label>
+                                <div class="col-sm-6 show-message">
+                                    <input type="text" name="From Date" ng-model="OS2OneDate" datepicker class="form-control" tabindex="4">
+                                </div>
+                                <div class="col-sm-2">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-right">
+                                            <li> <button ng-click="getOS2OneData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-search"></i> Go </button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div id="oS2OneGrid" ej-grid e-datasource="OS2OneDataList" e-queryCellInfo="PeriodValidation" e-actionComplete="refreshPage"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-field="Customer" e-headertext="Customer" e-width="20" e-isprimarykey="true"></div>
+                                <div e-column e-field="Material" e-headertext="Material" e-width="50" e-isprimarykey="true"></div>
+                                <div e-column e-field="Article" e-headertext="Article" e-width="80"></div>
+                                <div e-column e-field="ProductCategory" e-headertext="ProductCategory" e-width="80"></div>
+                                <div e-column e-field="Product" e-headertext="Product" e-width="30"></div>
+                                @*<div e-column e-headertext="ItemQty" e-field="ItemQty" e-textalign="center" e-width="100"></div>
+                        <div e-column e-headertext="UOM" e-field="UOM" e-textalign="center" e-width="80"></div>
+                        <div e-column e-headertext="SO" e-field="SalesOrderId" e-textalign="center" e-width="80"></div>*@
+                                @*<div e-column e-template="#btnAction" e-headertext="Actions" e-width="80"></div>*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                <togglable name="OS2.2"></togglable>
 
+                <div class="form-elements" ng-form="modelForm3">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div id="div_Date3" class="form-group">
+                                <label class="col-sm-4 control-label">Date<sup>*</sup></label>
+                                <div class="col-sm-6 show-message">
+                                    <input type="text" name="From Date" ng-model="OS2SecondDate" datepicker class="form-control" tabindex="4">
+                                </div>
+                                <div class="col-sm-2">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-right">
+                                            <li> <button ng-click="getOS2SecondData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-search"></i> Go </button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div id="OS2SecondGrid" ej-grid e-datasource="OS2SecondDataList" e-queryCellInfo="PeriodValidation" e-actionComplete="refreshPage"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-field="Customer" e-headertext="Customer" e-width="20" e-isprimarykey="true"></div>
+                                <div e-column e-field="Material" e-headertext="Material" e-width="50" e-isprimarykey="true"></div>
+                                <div e-column e-field="Article" e-headertext="Article" e-width="80"></div>
+                                <div e-column e-field="ProductCategory" e-headertext="ProductCategory" e-width="80"></div>
+                                <div e-column e-field="Product" e-headertext="Product" e-width="30"></div>
+                                <div e-column e-headertext="ItemQty" e-field="ItemQty" e-textalign="center" e-width="100"></div>
+                                <div e-column e-headertext="UOM" e-field="UOM" e-textalign="center" e-width="80"></div>
+                                <div e-column e-headertext="SO" e-field="SalesOrderId" e-textalign="center" e-width="80"></div>
+                                @*<div e-column e-template="#btnAction" e-headertext="Actions" e-width="80"></div>*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                <div class="form-elements" ng-form="modelForm4">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div id="div_Date4" class="form-group">
+                                <label class="col-sm-4 control-label">Date<sup>*</sup></label>
+                                <div class="col-sm-6 show-message">
+                                    <input type="text" name="From Date" ng-model="productionDate" datepicker class="form-control" tabindex="4">
+                                </div>
+                                <div class="col-sm-2">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-right">
+                                            <li> <button ng-click="getProductionData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-search"></i> Go </button></li>
+                                        </ul>
+                                    </div>
+                                </div>
 
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div id="productionGrid" ej-grid e-datasource="ProductionDataList" e-queryCellInfo="PeriodValidation" e-actionComplete="refreshPage"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-field="Customer" e-headertext="Customer" e-width="20" e-isprimarykey="true"></div>
+                                <div e-column e-field="Material" e-headertext="Material" e-width="50" e-isprimarykey="true"></div>
+                                <div e-column e-field="Article" e-headertext="Article" e-width="80"></div>
+                                <div e-column e-field="ProductCategory" e-headertext="ProductCategory" e-width="80"></div>
+                                <div e-column e-field="Product" e-headertext="Product" e-width="30"></div>
+                                <div e-column e-headertext="ItemQty" e-field="ItemQty" e-textalign="center" e-width="100"></div>
+                                <div e-column e-headertext="UOM" e-field="UOM" e-textalign="center" e-width="80"></div>
+                                <div e-column e-headertext="SO" e-field="SalesOrderId" e-textalign="center" e-width="80"></div>
+                                @*<div e-column e-template="#btnAction" e-headertext="Actions" e-width="80"></div>*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+                <div class="form-elements" ng-form="modelForm5">
+                    <div class="row">
 
+                        <div id="workCenterGrid" ej-grid e-datasource="WorkCenterDataList" e-queryCellInfo="PeriodValidation" e-actionComplete="refreshPage"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-field="WorkCenterSubcategoryId" e-headertext="WorkCenterSubcategoryId" e-width="80"></div>
+                                <div e-column e-field="WCMCode" e-headertext="WCMCode" e-width="20" e-isprimarykey="true"></div>
+                                <div e-column e-field="LineName" e-headertext="LineName" e-width="50" e-isprimarykey="true"></div>
+                                <div e-column e-field="WCMDescription" e-headertext="WCMDescription" e-width="80"></div>
+                                @*<div e-column e-field="Product" e-headertext="Product" e-width="30"></div>
+                                    <div e-column e-headertext="ItemQty" e-field="ItemQty" e-textalign="center" e-width="100"></div>
+                                    <div e-column e-headertext="UOM" e-field="UOM" e-textalign="center" e-width="80"></div>
+                                    <div e-column e-headertext="SO" e-field="SalesOrderId" e-textalign="center" e-width="80"></div>*@
+                                @*<div e-column e-template="#btnAction" e-headertext="Actions" e-width="80"></div>*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(6), active: isSet(6) }">
                 <togglable name="Operation Status Setting"></togglable>
@@ -93,11 +277,11 @@
                                 </div>
                             </div>
                             @*<div class="form-group">
-            <label class="col-sm-4 control-label">Start Time</label>
-            <div class="col-sm-8">
-                <input type="text" name="StartTime" maxlength="5" placeholder="HH:mm" ng-model="operationStatusSetting.StartTime" ng-pattern="/^([01][0-9]|2[0-3]):[0-5][0-9]$/" class="form-control" tabindex="8">
-            </div>
-        </div>*@
+                                    <label class="col-sm-4 control-label">Start Time</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="StartTime" maxlength="5" placeholder="HH:mm" ng-model="operationStatusSetting.StartTime" ng-pattern="/^([01][0-9]|2[0-3]):[0-5][0-9]$/" class="form-control" tabindex="8">
+                                    </div>
+                                </div>*@
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Start Time</label>
                                 <div class="col-sm-8">
@@ -195,10 +379,31 @@
     </div>
 </div>
 
+<script>
+    // Syncfusion grid যখন hidden tab-এ render হয় তখন layout ভেঙে যায়।
+    // ট্যাব দৃশ্যমান হওয়ার পর grid refresh করে layout ঠিক করা হয়।
+    (function () {
+        var gridIds = ["#masterGrid", "#oS2OneGrid", "#OS2SecondGrid", "#productionGrid", "#workCenterGrid"];
 
+        function doRefresh() {
+            for (var i = 0; i < gridIds.length; i++) {
+                var el = $(gridIds[i]);
+                if (el.length && el.is(":visible") && el.data("ejGrid")) {
+                    try { el.ejGrid("refreshContent"); } catch (e) { }
+                }
+            }
+            $(window).trigger("resize");
+        }
 
+        window.refreshGrids = function () {
+            setTimeout(doRefresh, 50);
+            setTimeout(doRefresh, 400); // fade transition শেষ হওয়ার পর
+        };
 
-
-
-
-
+        // পেজ লোডের পর Master ট্যাবের grid একবার refresh
+        $(function () {
+            setTimeout(doRefresh, 300);
+            setTimeout(doRefresh, 800);
+        });
+    })();
+</script>

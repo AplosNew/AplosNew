@@ -1,4 +1,5 @@
 ﻿using Aplos.Controllers;
+using Aplos.HumanResource;
 using Aplos.Properties;
 using ConnectionManager;
 using Library.Crosscutting.Security;
@@ -7,6 +8,7 @@ using Library.Model.Enums;
 using Library.Service.Employees;
 using Library.Service.Helpers;
 using Library.Service.HumanResources;
+using Newtonsoft.Json;
 using OTSBD;
 using Syncfusion.XlsIO;
 using System;
@@ -3927,6 +3929,52 @@ OPTION (MAXRECURSION 0);";
         }
 
         [HttpPost, Authorize]
+        public ActionResult GetOS1MasterDataList(string column, string value, string fromDate)
+        {
+            EmployeeProfile employeeProfile = new EmployeeProfile();
+
+            var data = employeeProfile.GetOS1MasterData(column, value, fromDate);
+            string jsonData = JsonConvert.SerializeObject(data);
+            return Content(jsonData, "application/json");
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetOS2DataList(string column, string value, string fromDate)
+        {
+            EmployeeProfile employeeProfile = new EmployeeProfile();
+            var data = employeeProfile.GetOS2Data(column, value, fromDate);
+            string jsonData = JsonConvert.SerializeObject(data);
+            return Content(jsonData, "application/json");
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetOS2SecondDataList(string column, string value, string fromDate)
+        {
+            EmployeeProfile employeeProfile = new EmployeeProfile();
+            var data = employeeProfile.GetOS2SecondData(column, value, fromDate);
+            string jsonData = JsonConvert.SerializeObject(data);
+            return Content(jsonData, "application/json");
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetProductionDataList(string column, string value, string fromDate)
+        {
+            EmployeeProfile employeeProfile = new EmployeeProfile();
+            var data = employeeProfile.GetProductionData(column, value, fromDate);
+            string jsonData = JsonConvert.SerializeObject(data);
+            return Content(jsonData, "application/json");
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetWorkCenterDataList(string column, string value)
+        {
+            EmployeeProfile employeeProfile = new EmployeeProfile();
+            var data = employeeProfile.GetWorkCenterData(column, value);
+            string jsonData = JsonConvert.SerializeObject(data);
+            return Content(jsonData, "application/json");
+        }
+
+        [HttpPost, Authorize]
         public ActionResult GetDataList(string column, string value, string entryType)
         {
             string strkey = "1=1";
@@ -3939,6 +3987,7 @@ OPTION (MAXRECURSION 0);";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
+
 
         [HttpPost, Authorize]
         public JsonResult CreateOperationStatusSetting(Dictionary<string, object> data)

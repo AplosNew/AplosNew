@@ -4,13 +4,17 @@ function operationStatusController(commonMessage, $scope, $rootScope, baseServic
     $rootScope.title = "Operation Status ";
     $scope.Action = "Save";
 
-    $scope.tab = 1;
-    $scope.setTab = function (newTab) {
-        $scope.tab = newTab;
+
+    $scope.activeTab = 1;
+
+    $scope.setTab = function (tab) {
+        $scope.activeTab = tab;
     };
-    $scope.isSet = function (tabNum) {
-        return $scope.tab === tabNum;
+
+    $scope.isSet = function (tab) {
+        return $scope.activeTab === tab;
     };
+
 
     $scope.index = -1;
     $scope.operationStatusSettings = [];
@@ -18,33 +22,98 @@ function operationStatusController(commonMessage, $scope, $rootScope, baseServic
     $scope.saveUrl = $scope.path + "CreateOperationStatusSetting";
     $scope.deleteUrl = $scope.path + "DeleteOperationStatusSetting/";
     $scope.getListUrl = $scope.path + "getdatalist";
+    $scope.getMasterListUrl = $scope.path + "GetOS1MasterDataList";
+    $scope.getOS2ListUrl = $scope.path + "GetOS2DataList";
+    $scope.getOS2SecondListUrl = $scope.path + "GetOS2SecondDataList";
+    $scope.getProductionListUrl = $scope.path + "GetProductionDataList";
+    $scope.getWorkCenterListUrl = $scope.path + "GetWorkCenterDataList";
 
 
-
-    $scope.searchOS1ByList = [
-        { value: "DataName", name: "Data Name" },
-        { value: "ColumnName", name: "Column Name" },
-        { value: "Operator", name: "Operator" },
-        { value: "OperatorValue", name: "Operator Value" },
-        { value: "RepeatValue", name: "Repeat Value" },
-        { value: "TypeText", name: "Type Text" }
+    $scope.searchMasterByList = [
+        { value: "SalesOrderId", name: "SO" },
+        { value: "Material", name: "Material" },
+        { value: "Article", name: "Article" },
+        { value: "ProductCategory", name: "ProductCategory" },
+        { value: "Product", name: "Product" },
     ];
-    $rootScope.parameters = { searchBy: "DataName", search: "" };
+    $rootScope.parameters = { searchMasterBy: "SalesOrderId", searchMaster: "" };
 
-    $scope.getData = function () {
+    $scope.masterDataList = [];
+    $scope.master = {};
+    $scope.getMasterData = function () {
         $http({
             method: "POST",
-            url: $scope.getListUrl,
-            data: { column: $rootScope.parameters.searchBy, value: $rootScope.parameters.search },
+            url: $scope.getMasterListUrl,
+            data: { column: $rootScope.parameters.searchMasterBy, value: $rootScope.parameters.searchMaster, fromDate: $scope.master.Date },
             dataType: "JSON"
         }).then(function (response) {
-            $scope.operationStatusSettings = response.data;
+            $scope.masterDataList = response.data;
         }, function () {
             ShowResult(commonMessage.NetworkError, "failure");
         });
     };
-    $scope.getData();
+   // $scope.getMasterData();
 
+
+    $scope.OS2OneDataList = [];
+    $scope.OS2OneDate = null;
+    $scope.getOS2OneData = function () {
+        $http({
+            method: "POST",
+            url: $scope.getOS2ListUrl,
+            data: { column: $rootScope.parameters.searchMasterBy, value: $rootScope.parameters.searchMaster, fromDate: $scope.OS2OneDate },
+            dataType: "JSON"
+        }).then(function (response) {
+            $scope.OS2OneDataList = response.data;
+        }, function () {
+            ShowResult(commonMessage.NetworkError, "failure");
+        });
+    };
+
+
+    $scope.OS2SecondDataList = [];
+    $scope.OS2SecondDate = null;
+    $scope.getOS2SecondData = function () {
+        $http({
+            method: "POST",
+            url: $scope.getOS2SecondListUrl,
+            data: { column: $rootScope.parameters.searchMasterBy, value: $rootScope.parameters.searchMaster, fromDate: $scope.OS2SecondDate },
+            dataType: "JSON"
+        }).then(function (response) {
+            $scope.OS2SecondDataList = response.data;
+        }, function () {
+            ShowResult(commonMessage.NetworkError, "failure");
+        });
+    };
+
+    $scope.ProductionDataList = [];
+    $scope.ProductionDate = null;
+    $scope.getProductionData = function () {
+        $http({
+            method: "POST",
+            url: $scope.getOS2SecondListUrl,
+            data: { column: $rootScope.parameters.searchMasterBy, value: $rootScope.parameters.searchMaster, fromDate: $scope.ProductionDate },
+            dataType: "JSON"
+        }).then(function (response) {
+            $scope.ProductionDataList = response.data;
+        }, function () {
+            ShowResult(commonMessage.NetworkError, "failure");
+        });
+    };
+
+    $scope.WorkCenterDataList = [];
+    $scope.getWorkCenterData = function () {
+        $http({
+            method: "POST",
+            url: $scope.getWorkCenterListUrl,
+            data: { column: $rootScope.parameters.searchMasterBy, value: $rootScope.parameters.searchMaster },
+            dataType: "JSON"
+        }).then(function (response) {
+            $scope.WorkCenterDataList = response.data;
+        }, function () {
+            ShowResult(commonMessage.NetworkError, "failure");
+        });
+    };
 
     $scope.searchByList = [
         { value: "DataName", name: "Data Name" },
