@@ -2082,7 +2082,7 @@ function ProductionOrderSchedulingParametersType1Controller(cboService, commonMe
             $scope.graphmaxwidth = '200px';
             $http({
                 method: 'GET',
-                url: $scope.path + "GetProductionGraphPRWise?orderid=" + $scope.VPRDATA.ProductionOrderID
+                url: $scope.path + "GetProductionGraphPRWise?orderid=" + $scope.VPRDATA.ProductionOrderID + "&processid=" + $scope.PlanningTypeProcessId
             }).then(function successCallback(res) {
                 $scope.graphmaxheight = 10;
                 for (var i = 0; i < res.data.length; i++) {

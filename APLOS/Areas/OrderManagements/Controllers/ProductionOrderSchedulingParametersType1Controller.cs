@@ -4605,7 +4605,7 @@ isnull(po.ProductionStatusId,'') IN (" + parameters["ProductionStatusId"] + @")
 							LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS po ON po.ProductionOrderID = t1.ProductionOrderID
                             LEFT OUTER JOIN  [SCS].[WorkCenterMaster] WC ON t1.WorkCenterMasterId=wc.Id
                             left join org.entity e on e.id=wc.entityid
-                            WHERE t1.ProductionOrderID='" + ProductionOrderId + @"' --AND ProductionDate>=GETDATE()
+                            WHERE t1.ProductionOrderID='" + ProductionOrderId + @"' AND t1.ProcessId='"+ processid + @"' --AND ProductionDate>=GETDATE()
                             GROUP BY  WC.Sequence,e.username,t1.ProductionOrderID, po.Lsd,po.CommitmentDate, t1.WorkCenterMasterId, wc.UserName
                             order by WC.Sequence
                             ";
@@ -4638,7 +4638,7 @@ isnull(po.ProductionStatusId,'') IN (" + parameters["ProductionStatusId"] + @")
                                                 FROM trn.SalesOrder AS so
                             INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id GROUP BY pod.ProductionOrderId) 
                             AS SO ON so.ProductionOrderId=T1.ProductionOrderId
-                            WHERE t1.ID='" + planrowid + @"' 
+                            WHERE t1.ID='" + planrowid + @"'  AND t1.ProcessId='" + processid + @"' 
                             order by WC.Sequence";
 
 
@@ -4833,7 +4833,7 @@ LEFT OUTER JOIN (SELECT p.ProductionOrderID,FORMAT(MIN(p.ProductionDate),'dd-MMM
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
-        public JsonResult GetProductionGraphPRWise(string orderid)
+        public JsonResult GetProductionGraphPRWise(string orderid,string processid)
         {
             string sql = @"SELECT FORMAT(t1.ProductionDate,'dd/MMM') AS ProductionDate,sum(T1.Quantity) AS Quantity,isnull(trg.Quantity,0) AS TargetQty
 				    FROM trn.ProductionSummary T1 
@@ -4843,7 +4843,7 @@ LEFT OUTER JOIN (SELECT p.ProductionOrderID,FORMAT(MIN(p.ProductionDate),'dd-MMM
                     	GROUP BY ProductionOrderID,TargetDate
                     )  AS TRG ON trg.ProductionOrderID=t1.ProductionOrderId AND t1.ProductionDate=trg.ProductionDate
 
-                    WHERE T1.ProductionOrderID='" + orderid + @"' AND t1.ProcessId=(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID='" + orderid + @"')
+                    WHERE T1.ProductionOrderID='" + orderid + @"' AND t1.ProcessId='"+ processid + @"'--(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID='" + orderid + @"')
                     GROUP BY t1.ProductionDate,trg.Quantity  ORDER BY T1.ProductionDate ASC";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
