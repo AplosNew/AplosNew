@@ -246,7 +246,8 @@
                              e-appointmentsettings-allday="true" e-allowdraganddrop="false"
                              e-appointmentsettings-resourcefields="WorkCenterMasterId" e-navigation="navigation"
                              e-querycellinfo="plancolorchange" e-appointmentclick="OpenSchedule" e-appointmentwindowopen="clickonschedule"
-                             e-cellclick="clickonschedule" e-celldoubleclick="clickonschedule" e-appointmenthover="clickonschedule"
+                             @*e-cellclick="clickonschedule" e-celldoubleclick="clickonschedule" e-appointmenthover="clickonschedule"*@
+                             e-cellclick="clickonschedule" e-celldoubleclick="clickonschedule" e-appointmenthover="onAppointmentHover"
                              @*e-beforeContextMenuOpen="actionBegin" *@
                              e-firstdayofweek="Saturday"
                              @*e-dateformat="dd-MMM-yyyy"*@ @*e-create="scOnCreate" e-appointmenthover="scappmouseover"*@
@@ -504,6 +505,90 @@
     }
 </style>
 
+
+<style type="text/css">
+    .appt-hover-tip {
+        position: fixed;
+        z-index: 100000;
+        display: none;
+        width: 330px;
+        padding: 8px 10px;
+        background: #fff;
+        color: #263238;
+        border: 1px solid #90a4ae;
+        border-radius: 6px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, .25);
+        font-size: 12px;
+        line-height: 1.4;
+        pointer-events: none; /* never blocks the mouse, so no flicker */
+    }
+
+        .appt-hover-tip .tip-head {
+            font-size: 13px;
+            margin-bottom: 4px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #eceff1;
+        }
+
+        .appt-hover-tip .tip-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+            border: 1px solid #607d8b;
+        }
+
+        .appt-hover-tip .tip-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 1px 0;
+        }
+
+            .appt-hover-tip .tip-row span {
+                color: #607d8b;
+            }
+
+        .appt-hover-tip .tip-badges {
+            margin-top: 4px;
+        }
+
+        .appt-hover-tip .tip-badge {
+            display: inline-block;
+            margin: 0 4px 2px 0;
+            padding: 1px 6px;
+            border-radius: 9px;
+            font-size: 10px;
+            color: #fff;
+        }
+
+        .appt-hover-tip .tip-b-build {
+            background: #1976d2;
+        }
+
+        .appt-hover-tip .tip-b-style {
+            background: #f9a825;
+            color: #000;
+        }
+
+        .appt-hover-tip .tip-b-freeze {
+            background: #3949ab;
+        }
+
+        .appt-hover-tip .tip-b-run {
+            background: #2e7d32;
+        }
+
+        .appt-hover-tip .tip-b-fail {
+            background: #c62828;
+        }
+
+        .appt-hover-tip .tip-chart {
+            margin-top: 6px;
+            border-top: 1px solid #eceff1;
+            padding-top: 4px;
+        }
+</style>
 <ej-dialog id="dialogProductionPlanView" title=" Production Planning Information" e-enablemodal="true" e-position-y="0" e-target="#tarekcontainer" e-showoninit="false" e-close="onDialogClose" e-minwidth="900px" e-open="enableBtn">
 
 

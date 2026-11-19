@@ -1708,6 +1708,200 @@ function ProductionOrderSchedulingParametersType1Controller(cboService, commonMe
         //args.cancel = true;
 
     }
+
+    // =====================================================================
+    // JS CHANGE (1 of 1) - ADD ONLY. Nothing existing is removed.
+    //
+    // WHERE: inside ProductionOrderSchedulingParametersType1Controller,
+    //        paste this whole block right AFTER the existing
+    //        $scope.OpenSchedule = function (args) { ... }   (around line 1710)
+    //
+    // WHAT IT DOES: when the mouse is over a coloured bar (appointment) in the
+    // "Production Plan Simulation" schedule, a small floating box shows the
+    // details + a bar chart of Quantity per day for that Production Order on
+    // that Work Center. It uses ONLY data already loaded in $scope.appointments
+    // (from GetScheduleData). No new server call, so hover is instant.
+    // =====================================================================
+
+    // ---------- Appointment hover tooltip (Quantity chart) ----------
+    var apptTipCache = { src: null, len: -1, index: {} };
+    var apptTipMouse = { x: 0, y: 0 };
+    var apptTipVisible = false;
+    var TIP_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    function tipEscape(v) {
+        return String(v === null || v === undefined ? '' : v)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+    function tipToDate(v) {
+        if (!v) return null;
+        var d = (v instanceof Date) ? v : new Date(v);
+        return isNaN(d.getTime()) ? null : d;
+    }
+    function tipPad(n) { return (n < 10 ? '0' : '') + n; }
+    function tipDateKey(d) { return d.getFullYear() + '-' + tipPad(d.getMonth() + 1) + '-' + tipPad(d.getDate()); }
+    function tipDateShort(d) { return tipPad(d.getDate()) + '-' + TIP_MONTHS[d.getMonth()]; }
+    function tipDateFull(d) { return tipDateShort(d) + '-' + d.getFullYear(); }
+    function tipNum(v) {
+        var n = Math.round((Number(v) || 0) * 100) / 100;
+        return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    // Group appointments by "ProductionOrderID|WorkCenterMasterId" -> sorted [{key,date,qty}]
+    // Rebuilt only when $scope.appointments changes (new simulate / filter / navigation).
+    function getApptTipIndex() {
+        var src = $scope.appointments;
+        if (!angular.isArray(src)) return {};
+        if (apptTipCache.src === src && apptTipCache.len === src.length) return apptTipCache.index;
+
+        var tmp = {};
+        for (var i = 0; i < src.length; i++) {
+            var a = src[i];
+            var d = tipToDate(a.StartTime) || tipToDate(a.ProductionDate);
+            if (!d) continue;
+            var qty = Number(a.Quantity);
+            if (isNaN(qty)) qty = 0;
+            var key = a.ProductionOrderID + '|' + a.WorkCenterMasterId;
+            var dk = tipDateKey(d);
+            var group = tmp[key] || (tmp[key] = {});
+            if (!group[dk]) group[dk] = { key: dk, date: new Date(d.getFullYear(), d.getMonth(), d.getDate()), qty: 0 };
+            group[dk].qty += qty;
+        }
+        var index = {};
+        for (var k in tmp) {
+            var arr = [];
+            for (var d2 in tmp[k]) arr.push(tmp[k][d2]);
+            arr.sort(function (x, y) { return x.date - y.date; });
+            index[k] = arr;
+        }
+        apptTipCache = { src: src, len: src.length, index: index };
+        return index;
+    }
+
+    // Builds the tooltip HTML (pure function, easy to test). Returns '' if nothing to show.
+    $scope.buildAppointmentTipHtml = function (appt) {
+        if (!appt || appt.ProductionOrderID === undefined || appt.ProductionOrderID === null) return '';
+        if (appt.FilterData === 0) return ''; // dimmed (filtered-out) bars: no tooltip
+
+        var days = getApptTipIndex()[appt.ProductionOrderID + '|' + appt.WorkCenterMasterId] || [];
+        var hd = tipToDate(appt.StartTime) || tipToDate(appt.ProductionDate);
+        var hKey = hd ? tipDateKey(hd) : '';
+        var color = /^#[0-9a-fA-F]{3,8}$/.test(appt.Color || '') ? appt.Color : '#1976D2';
+        var dayQty = Number(appt.Quantity) || 0;
+
+        var total = 0, cum = 0, max = 0;
+        for (var i = 0; i < days.length; i++) {
+            total += days[i].qty;
+            if (days[i].qty > max) max = days[i].qty;
+            if (days[i].key <= hKey) cum += days[i].qty; // yyyy-mm-dd compares correctly as text
+        }
+        var pct = total > 0 ? Math.round(cum * 100 / total) : 0;
+
+        // status badges
+        var badges = [];
+        if (appt.isBuildUp === true) badges.push('<span class="tip-badge tip-b-build">Build-up</span>');
+        if (appt.isStyleChange === true) badges.push('<span class="tip-badge tip-b-style">Style change</span>');
+        if (appt.planningStatus === 'FREEZE') badges.push('<span class="tip-badge tip-b-freeze">Freeze</span>');
+        else if (appt.planningStatus === 'RUNNING') badges.push('<span class="tip-badge tip-b-run">Running</span>');
+        if (appt.FailedToCommitmentDate === true) badges.push('<span class="tip-badge tip-b-fail">Exceeds commitment date</span>');
+
+        var h = '';
+        h += '<div class="tip-head"><span class="tip-dot" style="background:' + color + '"></span>' +
+            'Prod. Order <b>' + tipEscape(appt.ProductionOrderID) + '</b> &middot; WC <b>' + tipEscape(appt.WorkCenter) + '</b></div>';
+        h += '<div class="tip-row"><span>Date</span><b>' + (hd ? tipDateFull(hd) : tipEscape(appt.ProductionDate)) + '</b></div>';
+        h += '<div class="tip-row"><span>Plan qty (this day)</span><b>' + tipNum(dayQty) + '</b></div>';
+        if (days.length > 0) {
+            h += '<div class="tip-row"><span>Total on this WC</span><b>' + tipNum(total) + ' (' + days.length + ' day' + (days.length > 1 ? 's' : '') + ')</b></div>';
+            h += '<div class="tip-row"><span>Cumulative till this day</span><b>' + tipNum(cum) + ' (' + pct + '%)</b></div>';
+        }
+        if (badges.length) h += '<div class="tip-badges">' + badges.join('') + '</div>';
+
+        // ---- mini bar chart (inline SVG, no library needed) ----
+        if (days.length > 0) {
+            var W = 300, H = 110, pl = 38, pr = 6, pt = 12, pb = 18;
+            var pw = W - pl - pr, ph = H - pt - pb;
+            var slot = pw / days.length;
+            var bw = Math.max(2, Math.min(22, slot * 0.7));
+            var yMax = max > 0 ? max : 1;
+            var svg = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg">';
+            svg += '<line x1="' + pl + '" y1="' + (pt + ph) + '" x2="' + (W - pr) + '" y2="' + (pt + ph) + '" stroke="#999" stroke-width="1"/>';
+            svg += '<text x="' + (pl - 4) + '" y="' + (pt + 4) + '" text-anchor="end" font-size="9" fill="#555">' + tipNum(yMax) + '</text>';
+            svg += '<text x="' + (pl - 4) + '" y="' + (pt + ph) + '" text-anchor="end" font-size="9" fill="#555">0</text>';
+            for (var j = 0; j < days.length; j++) {
+                var bh = days[j].qty / yMax * ph;
+                var bx = pl + j * slot + (slot - bw) / 2;
+                var by = pt + ph - bh;
+                var isHover = days[j].key === hKey;
+                svg += '<rect x="' + bx.toFixed(1) + '" y="' + by.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + Math.max(bh, 0.5).toFixed(1) +
+                    '" fill="' + color + '" fill-opacity="' + (isHover ? '1' : '0.5') + '"' +
+                    (isHover ? ' stroke="#000" stroke-width="1.5"' : '') + '><title>' +
+                    tipDateShort(days[j].date) + ': ' + tipNum(days[j].qty) + '</title></rect>';
+                if (isHover) {
+                    svg += '<text x="' + (bx + bw / 2).toFixed(1) + '" y="' + (by - 2).toFixed(1) + '" text-anchor="middle" font-size="9" font-weight="bold" fill="#000">' + tipNum(days[j].qty) + '</text>';
+                }
+            }
+            svg += '<text x="' + pl + '" y="' + (H - 4) + '" font-size="9" fill="#555">' + tipDateShort(days[0].date) + '</text>';
+            if (days.length > 1) {
+                svg += '<text x="' + (W - pr) + '" y="' + (H - 4) + '" text-anchor="end" font-size="9" fill="#555">' + tipDateShort(days[days.length - 1].date) + '</text>';
+            }
+            svg += '</svg>';
+            h += '<div class="tip-chart">' + svg + '</div>';
+        }
+        return h;
+    };
+
+    function getApptTipEl() {
+        var $t = $('#apptHoverTip');
+        if (!$t.length) $t = $('<div id="apptHoverTip" class="appt-hover-tip"></div>').appendTo('body');
+        return $t;
+    }
+    function positionApptTip() {
+        var $t = $('#apptHoverTip');
+        if (!$t.length) return;
+        var pad = 14, w = $t.outerWidth(), h = $t.outerHeight();
+        var x = apptTipMouse.x + pad, y = apptTipMouse.y + pad;
+        if (x + w > $(window).width() - 8) x = apptTipMouse.x - w - pad;
+        if (y + h > $(window).height() - 8) y = apptTipMouse.y - h - pad;
+        $t.css({ left: Math.max(4, x), top: Math.max(4, y) });
+    }
+    function hideApptTip() {
+        apptTipVisible = false;
+        $('#apptHoverTip').hide();
+    }
+
+    // Hover handler for <ej-schedule e-appointmenthover="onAppointmentHover">
+    $scope.onAppointmentHover = function (args) {
+        args.cancel = true; // same as before: keep the default Syncfusion tooltip suppressed
+        try {
+            // console.log(args); // <- uncomment once if the tooltip does not appear, to inspect the event args
+            var html = $scope.buildAppointmentTipHtml(args.appointment);
+            if (!html) { hideApptTip(); return; }
+            var $t = getApptTipEl();
+            $t.html(html).show();
+            apptTipVisible = true;
+            positionApptTip();
+        } catch (e) {
+            hideApptTip();
+        }
+    };
+
+    // Follow the mouse, and hide when the mouse leaves a schedule bar.
+    $(document).off('.apptTip')
+        .on('mousemove.apptTip', function (e) {
+            apptTipMouse.x = e.clientX; apptTipMouse.y = e.clientY;
+            if (apptTipVisible) positionApptTip();
+        })
+        .on('mouseover.apptTip', function (e) {
+            if (apptTipVisible && !$(e.target).closest('#ResourceGroupSchedule [class*="e-appoint"]').length) hideApptTip();
+        })
+        .on('mousedown.apptTip scroll.apptTip', function () { if (apptTipVisible) hideApptTip(); });
+    $scope.$on('$destroy', function () {
+        $(document).off('.apptTip');
+        $('#apptHoverTip').remove();
+    });
+// ---------- end: Appointment hover tooltip ----------
+
     //$scope.viewtype = ["Month", "Agenda"];
     $scope.renderDates = {
         start: new Date(),
