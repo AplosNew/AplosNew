@@ -3929,11 +3929,11 @@ OPTION (MAXRECURSION 0);";
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetOSMasterDataList(string column, string value, string fromDate)
+        public ActionResult GetOSMasterDataList(string column, string value)
         {
             EmployeeProfile employeeProfile = new EmployeeProfile();
 
-            var data = employeeProfile.GetOS1MasterData(column, value, fromDate);
+            var data = employeeProfile.GetOS1MasterData(column, value);
             string jsonData = JsonConvert.SerializeObject(data);
             return Content(jsonData, "application/json");
         }
@@ -3947,10 +3947,10 @@ OPTION (MAXRECURSION 0);";
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetOS2DataList(string column, string value, string fromDate)
+        public ActionResult GetOS2DataList(string column, string value)
         {
             EmployeeProfile employeeProfile = new EmployeeProfile();
-            var data = employeeProfile.GetOS2Data(column, value, fromDate);
+            var data = employeeProfile.GetOS2Data(column, value);
             string jsonData = JsonConvert.SerializeObject(data);
             return Content(jsonData, "application/json");
         }
@@ -3964,10 +3964,10 @@ OPTION (MAXRECURSION 0);";
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetOS2SecondDataList(string column, string value, string fromDate)
+        public ActionResult GetOS2SecondDataList(string column, string value)
         {
             EmployeeProfile employeeProfile = new EmployeeProfile();
-            var data = employeeProfile.GetOS2SecondData(column, value, fromDate);
+            var data = employeeProfile.GetOS2SecondData(column, value);
             string jsonData = JsonConvert.SerializeObject(data);
             return Content(jsonData, "application/json");
         }
@@ -3981,10 +3981,10 @@ OPTION (MAXRECURSION 0);";
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetProductionDataList(string column, string value, string fromDate)
+        public ActionResult GetProductionDataList(string column, string value)
         {
             EmployeeProfile employeeProfile = new EmployeeProfile();
-            var data = employeeProfile.GetProductionData(column, value, fromDate);
+            var data = employeeProfile.GetProductionData(column, value);
             string jsonData = JsonConvert.SerializeObject(data);
             return Content(jsonData, "application/json");
         }

@@ -22,7 +22,7 @@ function operationStatusController(commonMessage, $scope, $rootScope, baseServic
     $scope.saveUrl = $scope.path + "CreateOperationStatusSetting";
     $scope.deleteUrl = $scope.path + "DeleteOperationStatusSetting/";
     $scope.getListUrl = $scope.path + "getdatalist";
-    $scope.getMasterListUrl = $scope.path + "GetOS1MasterDataList";
+    $scope.getMasterListUrl = $scope.path + "GetOSMasterDataList";
     $scope.getOS2ListUrl = $scope.path + "GetOS2DataList";
     $scope.getOS2SecondListUrl = $scope.path + "GetOS2SecondDataList";
     $scope.getProductionListUrl = $scope.path + "GetProductionDataList";
@@ -44,7 +44,7 @@ function operationStatusController(commonMessage, $scope, $rootScope, baseServic
         $http({
             method: "POST",
             url: $scope.getMasterListUrl,
-            data: { column: $rootScope.parameters.searchMasterBy, value: $rootScope.parameters.searchMaster, fromDate: $scope.master.Date },
+            data: { column: $rootScope.parameters.searchMasterBy, value: $rootScope.parameters.searchMaster },
             dataType: "JSON"
         }).then(function (response) {
             $scope.masterDataList = response.data;
@@ -61,7 +61,7 @@ function operationStatusController(commonMessage, $scope, $rootScope, baseServic
         $http({
             method: "POST",
             url: $scope.getOS2ListUrl,
-            data: { column: $rootScope.parameters.searchMasterBy, value: $rootScope.parameters.searchMaster, fromDate: $scope.OS2OneDate },
+            data: { column: $rootScope.parameters.searchMasterBy, value: $rootScope.parameters.searchMaster },
             dataType: "JSON"
         }).then(function (response) {
             $scope.OS2OneDataList = response.data;
@@ -77,7 +77,7 @@ function operationStatusController(commonMessage, $scope, $rootScope, baseServic
         $http({
             method: "POST",
             url: $scope.getOS2SecondListUrl,
-            data: { column: $rootScope.parameters.searchMasterBy, value: $rootScope.parameters.searchMaster, fromDate: $scope.OS2SecondDate },
+            data: { column: $rootScope.parameters.searchMasterBy, value: $rootScope.parameters.searchMaster},
             dataType: "JSON"
         }).then(function (response) {
             $scope.OS2SecondDataList = response.data;
@@ -92,7 +92,7 @@ function operationStatusController(commonMessage, $scope, $rootScope, baseServic
         $http({
             method: "POST",
             url: $scope.getOS2SecondListUrl,
-            data: { column: $rootScope.parameters.searchMasterBy, value: $rootScope.parameters.searchMaster, fromDate: $scope.ProductionDate },
+            data: { column: $rootScope.parameters.searchMasterBy, value: $rootScope.parameters.searchMaster},
             dataType: "JSON"
         }).then(function (response) {
             $scope.ProductionDataList = response.data;

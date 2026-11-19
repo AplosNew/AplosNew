@@ -3460,7 +3460,7 @@ Where SA.LineItemId<>''
             }
             return columns;
         }
-        public DataTable GetOS1MasterData(string column, string value, string fromDate)
+        public DataTable GetOS1MasterData(string column, string value)
         {
             DataSet dsMaster;
             ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -3476,8 +3476,7 @@ Where SA.LineItemId<>''
 
             string masterFilter = BuildMasterFilter(dsMaster);
 
-            string strSql = @"declare @fromdate varchar(20) = '" + fromDate + @"'
-select B.ScheduleId,B.ProductionOrderID,B.MasterOrderNo,B.ExpectedCompletionDate,B.SODistributedQty,B.PlantId,B.Plant,B.MasterOrderEntityId,B.MasterOrderEntity,
+            string strSql = @"SELECT B.ScheduleId,B.ProductionOrderID,B.MasterOrderNo,B.ExpectedCompletionDate,B.SODistributedQty,B.PlantId,B.Plant,B.MasterOrderEntityId,B.MasterOrderEntity,
 B.ProductionOrderEntityId,B.ProductionOrderEntity,B.Customer,B.PartyType,B.PaymentTerm,B.PaymentTermDays,B.BaseOnDueDate,B.MatureDate,B.Buyer,B.Season,
 B.TotalPlanQty,B.ProducedQty,B.RemainingPlanQuantity,B.BuyerDepartment,B.BuyerDivision,B.ResponsiblePerson,B.MasterOrderQty,
 B.MOCreationDate,B.MOOrderCategory,B.MOOrderStatus,B.Type,B.BuyerOrderNo,B.OwnOrderNo,
@@ -4130,7 +4129,7 @@ WHERE 1=2";
             }
             return columns;
         }
-        public DataTable GetOS2Data(string column, string value, string fromDate)
+        public DataTable GetOS2Data(string column, string value)
         {
             string strkey = "1=1";
             // column comes from the browser, so only known column names are allowed into the SQL text
@@ -4600,7 +4599,7 @@ WHERE 1=2";
             }
             return columns;
         }
-        public DataTable GetOS2SecondData(string column, string value, string fromDate)
+        public DataTable GetOS2SecondData(string column, string value)
         {
             string strkey = "1=1";
             // column comes from the browser, so only known column names are allowed into the SQL text
@@ -5113,7 +5112,7 @@ WHERE 1=2";
             return columns;
         }
 
-        public DataTable GetProductionData(string column, string value, string fromDate)
+        public DataTable GetProductionData(string column, string value)
         {
             string strkey = "1=1";
             // column comes from the browser, so only known column names are allowed into the SQL text
@@ -5124,7 +5123,6 @@ WHERE 1=2";
             string strSql = @"select top 500 * from (
 
             declare @FromDate varchar(100) = '01-Jan-2026';
-            declare @ToDate varchar(100) = '" + fromDate + @"'
             SELECT A.*from(SELECT distinct PP.Id, trkp.UserName AS Plant, trke.UserName AS Entity, pp.EntityID, pp.WorkCenterMasterId, PP.ProductionOrderID, wcm.UserName AS WorkCenter, FORMAT(PP.ProductionDate, 'dd-MMM-yyyy') AS ActualDate, pp.Quantity AS ActualQty
                                         , RP.EmployeeName ResponsiblePerson, MN.EmployeeName Mentor, AH.EmployeeName AccountHolder, AC.EmployeeName AccountInCharge
                                         , (select SUM(xp.Qty * xp.CM) / sum(xp.Qty)
