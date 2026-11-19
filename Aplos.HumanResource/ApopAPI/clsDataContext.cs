@@ -15087,7 +15087,7 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
                         dr["EmployeeId"] = item.EmployeeId;
                         dr["IssueId"] = item.IssueId;
                         dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
-                        dr["Addedby"] = item.Addedby;
+                        dr["Addedby"] = item.AddedBy;
                         dr["Remarks"] = item.Remarks;
                         dr["AddedDate"] = item.AddedDate;
 
