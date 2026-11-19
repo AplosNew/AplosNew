@@ -1359,6 +1359,7 @@ upanelApp.controller("DefineLotController", DefineLotController)
 upanelApp.controller("MovementMaterialMasterController", MovementMaterialMasterController)
 upanelApp.controller("EmployeeDailyIssueController", EmployeeDailyIssueController)
 upanelApp.controller("operationStatusController", operationStatusController)
+upanelApp.controller("productionOrderType3Controller", productionOrderType3Controller)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);
