@@ -3929,13 +3929,21 @@ OPTION (MAXRECURSION 0);";
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetOS1MasterDataList(string column, string value, string fromDate)
+        public ActionResult GetOSMasterDataList(string column, string value, string fromDate)
         {
             EmployeeProfile employeeProfile = new EmployeeProfile();
 
             var data = employeeProfile.GetOS1MasterData(column, value, fromDate);
             string jsonData = JsonConvert.SerializeObject(data);
             return Content(jsonData, "application/json");
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetOSMasterCboList()
+        {
+            EmployeeProfile employeeProfile = new EmployeeProfile();
+            var data = employeeProfile.GetOSMasterColumnList();
+            return Json(data, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
@@ -3947,6 +3955,14 @@ OPTION (MAXRECURSION 0);";
             return Content(jsonData, "application/json");
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetOS2CboList()
+        {
+            EmployeeProfile employeeProfile = new EmployeeProfile();
+            var data = employeeProfile.GetOS2ColumnList();
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost, Authorize]
         public ActionResult GetOS2SecondDataList(string column, string value, string fromDate)
         {
@@ -3954,6 +3970,14 @@ OPTION (MAXRECURSION 0);";
             var data = employeeProfile.GetOS2SecondData(column, value, fromDate);
             string jsonData = JsonConvert.SerializeObject(data);
             return Content(jsonData, "application/json");
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetOS2SecondCboList()
+        {
+            EmployeeProfile employeeProfile = new EmployeeProfile();
+            var data = employeeProfile.GetOS2SecondColumnList();
+            return Json(data, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
@@ -3965,6 +3989,15 @@ OPTION (MAXRECURSION 0);";
             return Content(jsonData, "application/json");
         }
 
+
+        [HttpGet, Authorize]
+        public ActionResult GetProductionCboList()
+        {
+            EmployeeProfile employeeProfile = new EmployeeProfile();
+            var data = employeeProfile.GetProductionColumnList();
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost, Authorize]
         public ActionResult GetWorkCenterDataList(string column, string value)
         {
@@ -3972,6 +4005,14 @@ OPTION (MAXRECURSION 0);";
             var data = employeeProfile.GetWorkCenterData(column, value);
             string jsonData = JsonConvert.SerializeObject(data);
             return Content(jsonData, "application/json");
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetWorkCenterCboList()
+        {
+            EmployeeProfile employeeProfile = new EmployeeProfile();
+            var data = employeeProfile.GetWorkCenterColumnList();
+            return Json(data, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]

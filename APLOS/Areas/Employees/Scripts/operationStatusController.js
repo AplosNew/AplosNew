@@ -114,6 +114,30 @@ function operationStatusController(commonMessage, $scope, $rootScope, baseServic
             ShowResult(commonMessage.NetworkError, "failure");
         });
     };
+    $scope.columnList = [];
+    $scope.getMasterCbo = function (data) {
+        $scope.cboUrl = null;
+        if (data == 'Master') {
+            $scope.cboUrl = $scope.path + "GetOSMasterCboList";
+        }
+        else if (data =='OS2.1') {
+            $scope.cboUrl = $scope.path + "GetOS2CboList";
+        }
+        else if (data == 'OS2.2') {
+            $scope.cboUrl = $scope.path + "GetOS2SecondCboList";
+        }
+        else if (data == 'Production') {
+            $scope.cboUrl = $scope.path + "GetProductionCboList";
+        }
+        else {
+            $scope.cboUrl = $scope.path + "GetWorkCenterCboList";
+        }
+        $http.get($scope.cboUrl ).then(function (res) {
+            $scope.columnList = res.data;
+        });
+    }
+    
+
 
     $scope.searchByList = [
         { value: "DataName", name: "Data Name" },
