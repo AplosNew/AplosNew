@@ -1023,7 +1023,7 @@ function ProductionOrderSchedulingParametersType1Controller(cboService, commonMe
 
             $http({
                 method: 'GET',
-                url: $scope.path + 'GetProductionReference?productionOrderId=' + Id
+                url: $scope.path + 'GetProductionReference?productionOrderId=' + Id + '&processid='+ $scope.PlanningTypeProcessId
             }).then(function successCallback(response) {
                 $scope.Clear();
                 $scope.productionOrderModel = Object.assign({}, response.data[0]);
@@ -2276,7 +2276,7 @@ function ProductionOrderSchedulingParametersType1Controller(cboService, commonMe
             $scope.graphmaxwidth = '200px';
             $http({
                 method: 'GET',
-                url: $scope.path + "GetProductionGraphPRWise?orderid=" + $scope.VPRDATA.ProductionOrderID
+                url: $scope.path + "GetProductionGraphPRWise?orderid=" + $scope.VPRDATA.ProductionOrderID + "&processid=" + $scope.PlanningTypeProcessId
             }).then(function successCallback(res) {
                 $scope.graphmaxheight = 10;
                 for (var i = 0; i < res.data.length; i++) {

@@ -515,7 +515,7 @@ ORDER BY min(ppt.ProductionDate) ASC";
 			return sql;
 		}
 
-		public string GetProductionReference(string productionOrderId)
+		public string GetProductionReference(string productionOrderId, string processid)
         {
 
             string sql = @"   SELECT  PO.Id,PO.EntityId, PO.Remarks,s.UserName AS ProductionStatus, EN.UserName AS EntityName, PS.UserName AS ProductionStatusName,
@@ -549,9 +549,10 @@ ORDER BY min(ppt.ProductionDate) ASC";
                             LEFT OUTER JOIN (
 												SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR,MIN(s.ProductionDate) AS ProductionStartDateAtPR
 											FROM  trn.ProductionSummary S 
+											Where s.processid='"+processid+@"'
 											--WHERE  CONVERT(DATETIME, format(s.ProductionDate,'dd-MMM-yyyy'))<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'
 											GROUP BY  s.ProductionOrderId,s.ProcessId
-							) AS PRODPR ON  PRODPR.ProductionOrderId=po.id AND PRODPR.ProcessId=(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID=po.Id)
+							) AS PRODPR ON  PRODPR.ProductionOrderId=po.id AND PRODPR.processid='" + processid + @"'
 							 left outer join (SELECT pod.ProductionOrderId,
                                 sum(isnull(so.ProductionBookedQty,0)) ProductionBookedQty
                                  FROM trn.SalesOrder AS so
