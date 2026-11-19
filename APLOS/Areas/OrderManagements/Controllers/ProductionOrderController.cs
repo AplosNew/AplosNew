@@ -5622,6 +5622,656 @@ ORDER BY P.SortOrder";
 
         #endregion
 
+        #region ProductionOrderType3
+        [HttpPost]
+        public JsonResult CreateProductionOrderType3(Dictionary<string, object> data, List<Dictionary<string, object>> detaillist, List<Dictionary<string, object>> processSetlist, List<Dictionary<string, object>> workcenterlist, List<Dictionary<string, object>> fpworkcenterlist)
+        {
+            try
+            {
+
+                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+                DataSet dsMaster;
+                DataSet dsDetail;
+                DataSet dsProcDetail;
+                DataSet dsWCDetail;
+                DataSet dsFPWCDetail;
+                DataSet dsDD = null;
+                DataSet dsPDD = null;
+                DataSet dsWCDD = null;
+                DataSet dsFPWCDD = null;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                string s = "''";
+
+                foreach (var item in detaillist)
+                {
+                    s += ",'" + item["SalesOrderId"] + "'";
+                }
+
+                if (s == "''")
+                    throw new Exception("No sales order data found, cannot save");
+
+                con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionOrder] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                string _Id = "";
+                string _EntityId = "";
+                #region data update
+                if (dsMaster.Tables[0].DefaultView.Count == 0)
+                {
+
+                    bplib.clsGenID objID = new bplib.clsGenID();
+                    objID.GenHRID(System.DateTime.Now.ToShortDateString(), "PRODUCTION ORDER", out _Id);
+                    data["Id"] = _Id;
+                    _EntityId = data["EntityId"].ToString();
+                    data["OrderType"] = "PlanningType3";
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                    data["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                    _EntityId = dsMaster.Tables[0].Rows[0]["EntityId"].ToString();
+                    EditRow(dsMaster.Tables[0].DefaultView[0].Row, data);
+                }
+
+                #endregion data update
+
+                #region ProductionOrderDetail
+
+                string _MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionOrderDetail] where ProductionOrderId='" + data["Id"] + "'", out dsDetail, false, "1");
+                con.OpenDataSetThroughAdapter("select count(Id) countId from [TRN].[ProductionOrderDetail] where ProductionOrderId='" + data["Id"] + "'", out dsDD, false, "1");
+                int ccount = Convert.ToInt32(dsDD.Tables[0].Rows[0]["countId"].ToString());
+                if (detaillist != null)
+                {
+                    foreach (var item in detaillist)
+                    {
+                        DataView dv = new DataView(dsDetail.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        if (dv.Count == 0)
+                        {
+                            ccount++;
+                            string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
+                            item["Id"] = detailid;
+                            item["ProductionOrderId"] = _MasterId;
+
+
+
+                            materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
+                        }
+                        if (dv.Count > 0)
+                        {
+                            DataRow drmo = dv[0].Row;
+                            drmo.BeginEdit();
+                            drmo["SalesOrderId"] = item["SalesOrderId"];
+                            drmo.EndEdit();
+                        }
+                    }
+                }
+                #endregion ProductionOrderDetail
+
+                #region ProductionOrderProcessSet
+
+
+                con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionOrderProcessSet] where ProductionOrderId='" + data["Id"] + "'", out dsProcDetail, false, "1");
+                con.OpenDataSetThroughAdapter("select CAST((RIGHT(ISNULL(MAX(CAST(Id AS INT)), 0),2)) AS INT) countId from [TRN].[ProductionOrderProcessSet] where ProductionOrderId='" + data["Id"] + "'", out dsPDD, false, "1");
+                int pcount = Convert.ToInt32(dsPDD.Tables[0].Rows[0]["countId"].ToString());
+                int sq = 0;
+                if (processSetlist != null)
+                {
+                    foreach (var item in processSetlist)
+                    {
+                        sq++;
+                        DataView dv = new DataView(dsProcDetail.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        if (dv.Count == 0)
+                        {
+                            pcount++;
+                            string detailid = materialCommonService.MakePK(_MasterId, pcount, 2);
+                            item["Id"] = detailid;
+                            item["ProductionOrderId"] = _MasterId;
+                            item["Sequence"] = sq;
+                            item["IsCompleted"] = 0;
+                            item["RelaySequence"] = 0;
+
+                            materialCommonService.AddNewRowD(dsProcDetail.Tables[0], item);
+                        }
+                        if (dv.Count > 0)
+                        {
+                            DataRow drmo = dv[0].Row;
+                            drmo.BeginEdit();
+                            drmo["ProcessId"] = item["ProcessId"];
+                            drmo["IsBaseProcess"] = item["IsBaseProcess"];
+                            drmo["ProductionBookingLevel"] = item["ProductionBookingLevel"];
+                            drmo["IsInventory"] = item["IsInventory"];
+                            drmo["Days"] = item["Days"];
+                            drmo["ProductionCycleTime"] = item["ProductionCycleTime"];
+                            drmo["Qty"] = item["Qty"];
+                            drmo["UOMId"] = item["UOMId"];
+                            drmo["IsProductionVerification"] = item["IsProductionVerification"];
+                            drmo["Sequence"] = sq;
+                            drmo.EndEdit();
+                        }
+                    }
+                }
+                #endregion ProductionOrderProcessSet
+
+                #region ProductionOrderType2WorkCenter
+
+
+                con.OpenDataSetThroughAdapter("select * from [TRN].[ProductionOrderWorkCenter] where ProductionOrderId='" + data["Id"] + "'", out dsWCDetail, false, "1");
+                con.OpenDataSetThroughAdapter("select count(Id) countId from [TRN].[ProductionOrderWorkCenter] where ProductionOrderId='" + data["Id"] + "'", out dsWCDD, false, "1");
+                int wccount = Convert.ToInt32(dsWCDD.Tables[0].Rows[0]["countId"].ToString());
+                if (workcenterlist != null)
+                {
+                    foreach (var item in workcenterlist)
+                    {
+                        DataView dv = new DataView(dsWCDetail.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        if (dv.Count == 0)
+                        {
+                            wccount++;
+                            string detailid = materialCommonService.MakePK(_MasterId, wccount, 2);
+                            item["Id"] = detailid;
+                            item["ProductionOrderId"] = _MasterId;
+
+
+                            materialCommonService.AddNewRowD(dsWCDetail.Tables[0], item);
+                        }
+                        if (dv.Count > 0)
+                        {
+                            DataRow drmo = dv[0].Row;
+                            drmo.BeginEdit();
+                            drmo["WorkCenterMasterId"] = item["WorkCenterMasterId"];
+                            drmo.EndEdit();
+                        }
+                    }
+                }
+                #endregion ProductionOrderType2WorkCenter
+
+                #region ProductionOrderType3FirstProcessWorkCenter
+
+
+                con.OpenDataSetThroughAdapter("select * from [dbo].[ProductionOrderFirstProcessWorkCenter] where ProductionOrderId='" + data["Id"] + "'", out dsFPWCDetail, false, "1");
+                con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[ProductionOrderFirstProcessWorkCenter] where ProductionOrderId='" + data["Id"] + "'", out dsFPWCDD, false, "1");
+                int fpwccount = Convert.ToInt32(dsFPWCDD.Tables[0].Rows[0]["countId"].ToString());
+                if (fpworkcenterlist != null)
+                {
+                    foreach (var item in fpworkcenterlist)
+                    {
+                        DataView dv = new DataView(dsWCDetail.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        if (dv.Count == 0)
+                        {
+                            fpwccount++;
+                            string detailid = materialCommonService.MakePK(_MasterId, fpwccount, 2);
+                            item["Id"] = detailid;
+                            item["ProductionOrderId"] = _MasterId;
+
+
+                            materialCommonService.AddNewRowD(dsWCDetail.Tables[0], item);
+                        }
+                        if (dv.Count > 0)
+                        {
+                            DataRow drmo = dv[0].Row;
+                            drmo.BeginEdit();
+                            drmo["WorkCenterMasterId"] = item["WorkCenterMasterId"];
+                            drmo["ProcessId"] = item["ProcessId"];
+                            drmo.EndEdit();
+                        }
+                    }
+                }
+                #endregion ProductionOrderType2FirstProcessWorkCenter
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, dsDetail, dsProcDetail, dsWCDetail, dsFPWCDetail);
+
+                Library.Service.TaskScheduler.TaskScheduler schedule = new Library.Service.TaskScheduler.TaskScheduler(_sqlRepository);
+                schedule.UpdateTaskStatus();
+                //Production Order Related Tasks
+
+                string sql = @"SELECT distinct TaskTemplateMasterId FROM trn.MasterOrder AS mo 
+                                INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
+                                INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=moi.Id
+                           WHERE so.id IN(" + s + ")";
+                DataTable dtSO = _sqlRepository.GetDataTable(sql);
+                string TaskTemplateMasterId = dtSO.Rows[0]["TaskTemplateMasterId"].ToString();
+
+                DataTable dt = schedule.GetDataSourceProdOrderNew(_Id, _EntityId, TaskAppliedOnEnum.ProductionOrder);
+                if (dt.Rows.Count > 0)
+                    schedule.MakeTNAMaster(dt, _Id, TaskAppliedOnEnum.ProductionOrder);
+
+
+                return Json(new { Error = false, DATA = _Id, Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetType3List(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @"select top 100 * from ( " + new Library.OrderManagement.Production.ProductionOrder().ProductionOrderList() + @"
+                            WHERE PO.PlantId='" + identity.PlantId + "' OR EN.PlantId='" + identity.PlantId + "') AS TEMP WHERE OrderType = 'PlanningType3' AND " + strkey + " ORDER BY AddedDate DESC";
+
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult DeleteType3(string masterid)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+
+                //objCon.ExecuteNonQueryWrapper(@"delete from ExpectedSOWiseProductionCompletion where ProductionOrderId='" + masterid + "'", true, "1");
+                //objCon.ExecuteNonQueryWrapper(@"delete from ProductionPlanningType1 where ProductionOrderId='" + masterid + "'", true, "1");
+                //objCon.ExecuteNonQueryWrapper(@"delete from ProductionPlanningType1 where ProductionOrderId='" + masterid + "'", true, "1");
+                //objCon.ExecuteNonQueryWrapper(@"delete from ProductionPlanningSnapshotType1 where ProductionOrderId='" + masterid + "'", true, "1");
+                //objCon.ExecuteNonQueryWrapper(@"delete from ProductionPlanningSnapshot2Type1 where ProductionOrderId='" + masterid + "'", true, "1");
+                //objCon.ExecuteNonQueryWrapper(@"delete from ProductionOrderSchedulingParametersType1 where ProductionOrderId='" + masterid + "'", true, "1");
+
+
+                //objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrderType2SubprocessSet where ProductionOrderId='" + masterid + "'", true, "1");
+                objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrderProcessSet where ProductionOrderId='" + masterid + "'", true, "1");
+                //objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrderType2ProcessCriteria where ProductionOrderId='" + masterid + "'", true, "1");
+                objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrderWorkCenter where ProductionOrderId='" + masterid + "'", true, "1");
+                objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrderDetail where ProductionOrderId='" + masterid + "'", true, "1");
+
+                //objCon.ExecuteNonQueryWrapper(@"delete from [TRN].[ProductionBulletinTemplateDetail] 
+                //                                Where ProductionBulletinTemplateMasterId in (Select Id from [TRN].[ProductionBulletinTemplateMaster] 
+                //                                Where ProductionBulletinTemplateId=(Select Id from [TRN].[ProductionBulletinTemplate] where ProductionOrderId='" + masterid + "'))", true, "1");
+
+                //objCon.ExecuteNonQueryWrapper(@"delete from [TRN].[ProductionBulletinTemplateMaster] 
+                //                               Where ProductionBulletinTemplateId=(Select Id from [TRN].[ProductionBulletinTemplate] where ProductionOrderId='" + masterid + "')", true, "1");
+
+                //objCon.ExecuteNonQueryWrapper(@"delete from [TRN].[ProductionBulletinTemplate] where ProductionOrderId='" + masterid + "'", true, "1");
+
+                objCon.ExecuteNonQueryWrapper(@"delete from trn.ProductionOrder where Id='" + masterid + "'", true, "1");
+
+
+
+
+                objCon.CommitTransaction();
+                return Json(new { Message = AplosMessage.Deleted });
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Message = "Production Order might have Planning, TNA or Production Data, therefore can not delete!", Error = true });
+            }
+
+        }
+
+        [HttpPost]
+        public JsonResult DeletePlanType3(string masterid)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+
+                objCon.ExecuteNonQueryWrapper(@"delete from dbo.ProductionPlanningType3 Where ProductionOrderID IN( Select Id FROM dbo.ProductionOrderSchedulingParametersType3 Where ProductionOrderID in('" + masterid + "'))", true, "1");
+
+                objCon.ExecuteNonQueryWrapper(@"delete from TRN.ProductionOrderType3WorkCenter Where ProductionOrderID IN( Select Id FROM dbo.ProductionOrderSchedulingParametersType3 Where ProductionOrderID in('" + masterid + "'))", true, "1");
+
+                objCon.ExecuteNonQueryWrapper(@"delete from TRN.RunningOrderType3WorkCenter Where ProductionOrderID IN( Select Id FROM dbo.ProductionOrderSchedulingParametersType3 Where ProductionOrderID in('" + masterid + "'))", true, "1");
+
+                objCon.ExecuteNonQueryWrapper(@"delete from dbo.ProductionOrderSchedulingParametersType3 where ProductionOrderID='" + masterid + "'", true, "1");
+
+                objCon.CommitTransaction();
+                return Json(new { Message = AplosMessage.Deleted });
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Message = "Production Order might have Planning, TNA or Production Data, therefore can not delete!", Error = true });
+            }
+
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetType3SavedSKUData(string poId)
+        {
+            Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+            var jsondata = Json(order.GetType3SavedSKUData(poId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+       
+        [HttpPost, Authorize]
+        public JsonResult SaveType3SPO(List<Dictionary<string, object>> data, string POId)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsBC;
+            string _Id = string.Empty;
+            try
+            {
+                #region Entity 
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ProductionOrderSchedulingParametersType2 Where ProductionOrderID='" + POId + "'", out dsBC, false, "1");
+
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsBC.Tables[0]);
+                        dv.RowFilter = "ID='" + Convert.ToInt64(item["ID"]) + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["ProductionOrderID"] = POId;
+                            item["Qty"] = item["PlanQty"];
+                            item["Color"] = DBNull.Value;
+                            AddNewRow(dsBC.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            item["Qty"] = item["PlanQty"];
+                            EditRow(drmo, item);
+                        }
+                    }
+
+
+                }
+
+                #endregion
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsBC);
+                return Json(new { Error = false, Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+
+
+        [HttpPost, Authorize]
+        public JsonResult SaveType3PreferenceWorkCenter(List<Dictionary<string, object>> workcenterlist, int spoId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsWorkcenter = null;
+                string sql = "SELECT * FROM [TRN].[ProductionOrderType2WorkCenter] where ProductionOrderID=" + spoId + "";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsWorkcenter, false, "1");
+
+                string SystemID = "";
+                for (int i = 0; i < workcenterlist.Count; i++)
+                {
+                    dsWorkcenter.Tables[0].DefaultView.RowFilter = "WorkcenterMasterID='" + workcenterlist[i]["WorkCenterMasterId"] + "'";
+                    if (dsWorkcenter.Tables[0].DefaultView.Count == 0)
+                    {
+                        if (SystemID == "")
+                        {
+                            bplib.clsGenID id = new bplib.clsGenID();
+                            id.GenID(System.DateTime.Now.ToShortDateString(), "PRTWC", out SystemID);
+                        }
+                        DataRow dr = dsWorkcenter.Tables[0].NewRow();
+
+                        dr["id"] = SystemID + "-" + (i + 1).ToString();
+                        dr["ProductionOrderID"] = spoId;
+                        dr["WorkcenterMasterID"] = workcenterlist[i]["WorkCenterMasterId"];
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dsWorkcenter.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsWorkcenter);
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SaveType3RunningWorkCenter(List<Dictionary<string, object>> workcenterlist, int spoId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsWorkcenter = null;
+                string sql = "SELECT * FROM [TRN].[RunningOrderType2WorkCenter] where ProductionOrderID=" + spoId + "";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsWorkcenter, false, "1");
+
+                string SystemID = "";
+                for (int i = 0; i < workcenterlist.Count; i++)
+                {
+                    dsWorkcenter.Tables[0].DefaultView.RowFilter = "WorkcenterMasterID='" + workcenterlist[i]["WorkCenterMasterId"] + "'";
+                    if (dsWorkcenter.Tables[0].DefaultView.Count == 0)
+                    {
+                        if (SystemID == "")
+                        {
+                            bplib.clsGenID id = new bplib.clsGenID();
+                            id.GenID(System.DateTime.Now.ToShortDateString(), "PRTWC", out SystemID);
+                        }
+                        DataRow dr = dsWorkcenter.Tables[0].NewRow();
+
+                        dr["id"] = SystemID + "-" + (i + 1).ToString();
+                        dr["ProductionOrderID"] = spoId;
+                        dr["WorkcenterMasterID"] = workcenterlist[i]["WorkCenterMasterId"];
+                        dr["isResidualApplicable"] = bplib.clsWebLib.GetBoolData(workcenterlist[i]["isResidualApplicable"]);
+                        dr["Qty"] = Convert.IsDBNull(workcenterlist[i]["Qty"]) ? DBNull.Value : workcenterlist[i]["Qty"];
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dsWorkcenter.Tables[0].Rows.Add(dr);
+                    }
+                    else
+                    {
+                        DataRow dr = dsWorkcenter.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["Qty"] = Convert.IsDBNull(workcenterlist[i]["Qty"]) ? DBNull.Value : workcenterlist[i]["Qty"];
+                        dr["isResidualApplicable"] = bplib.clsWebLib.GetBoolData(workcenterlist[i]["isResidualApplicable"]);
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dr.EndEdit();
+                    }
+                }
+
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsWorkcenter);
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+
+      
+        [HttpPost, Authorize]
+        public ActionResult DeleteType3RunningWC(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from [TRN].[RunningOrderType2WorkCenter] where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult Deleteype3PreferenceWC(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from [TRN].[ProductionOrderType2WorkCenter] where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+
+
+        [HttpPost, Authorize]
+        public JsonResult Getype3ProductionPlanningData(string planrowid, string ProductionOrderId, string processid)
+        {
+            string SelectedProductionOrder = ProductionOrderId;
+            //CONVERT(INT, pt.WorkCenterMasterId)
+            if (string.IsNullOrEmpty(planrowid) == false)
+            {
+                DataTable dt = _sqlRepository.GetDataTable("select top 1 ProductionOrderID from ProductionPlanningType2  where id = '" + planrowid + @"'");
+                if (dt.Rows.Count > 0)
+                    ProductionOrderId = dt.Rows[0]["ProductionOrderID"].ToString();
+            }
+
+            string sqlWCDATA = @"SELECT WC.Sequence, t1.ProductionOrderID, t1.WorkCenterMasterId, wc.UserName AS WorkCenter,e.username as Entity,
+							FORMAT(po.Lsd,'dd-MMM-yyyy') AS LSD,
+                            FORMAT(po.CommitmentDate,'dd-MMM-yyyy') AS CommitmentDate,
+							DATEDIFF(DAY,po.LSD,MIN(t1.ProductionDate)) AS DIFF,
+							case when DATEDIFF(DAY,po.CommitmentDate,MAX(t1.ProductionDate))>0 THEN  DATEDIFF(DAY,po.CommitmentDate,MAX(t1.ProductionDate)) ELSE NULL END AS DelayedProductionDaysOnCommitmentDate,
+                            FORMAT(MIN(t1.ProductionDate),'dd-MMM-yyyy') AS FromDate,
+                            FORMAT(MAX(t1.ProductionDate),'dd-MMM-yyyy') AS ToDate,
+                            SUM(t1.Quantity) AS PlannedQuantity
+
+                            FROM ProductionPlanningType2 T1
+							LEFT OUTER JOIN ProductionOrderSchedulingParametersType2 AS po ON po.ID = t1.ProductionOrderID
+                            LEFT OUTER JOIN  [SCS].[WorkCenterMaster] WC ON t1.WorkCenterMasterId=wc.Id
+                            left join org.entity e on e.id=wc.entityid
+                            WHERE t1.ProductionOrderID='" + ProductionOrderId + @"' --AND ProductionDate>=GETDATE()
+                            GROUP BY  WC.Sequence,e.username,t1.ProductionOrderID, po.Lsd,po.CommitmentDate, t1.WorkCenterMasterId, wc.UserName
+                            order by WC.Sequence
+                            ";
+
+
+            string sqlPRODDATA = @"SELECT  WC.Sequence,t1.SubProductionOrderId,t1.WorkCenterMasterId, wc.UserName AS WorkCenter,e.username as Entity,
+                            FORMAT(MIN(t1.ProductionDate),'dd-MMM-yyyy') AS FromDate,
+                            FORMAT(MAX(t1.ProductionDate),'dd-MMM-yyyy') AS ToDate,
+                            SUM(t1.Quantity) AS ProductionQuantity
+
+                            FROM 
+                            trn.ProductionSummary T1
+                            LEFT OUTER JOIN  [SCS].[WorkCenterMaster] WC ON t1.WorkCenterMasterId=wc.Id
+                            left join org.entity e on e.id=wc.entityid
+                            WHERE t1.SubProductionOrderId='" + ProductionOrderId + @"' AND WC.ProcessId='" + processid + @"' 
+                            GROUP BY e.username, WC.Sequence,t1.SubProductionOrderId,t1.WorkCenterMasterId, wc.UserName
+                            order by WC.Sequence
+                            ";
+
+            string sqlRowData = @"select WC.Sequence,T1.Id, mm.UserName AS Material,t1.WorkCenterMasterId,T1.ProductionOrderId,WC.entityid,wc.UserName AS WorkCenter,
+    PM.UserName AS ProductName,PD.ProductMasterId,T1.Quantity,T1.ProductionHours,e.username as Entity,
+    FORMAT(t1.ProductionDate,'dd-MMM-yyyy') AS ProductionDate,SO.Qty AS TotalQuantity,mm.[Image] AS MaterialImage
+FROM ProductionPlanningType2 T1
+LEFT OUTER JOIN  [SCS].[WorkCenterMaster] WC ON t1.WorkCenterMasterId=wc.Id
+left join org.entity e on e.id=wc.entityid
+LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=t1.MaterialMasterId
+LEFT OUTER JOIN [TRN].[ProductDefinition] PD ON mm.Id=pd.MaterialMasterId
+LEFT OUTER JOIN [MST].[ProductMaster] PM on pm.ID=PD.ProductMasterId
+LEFT OUTER  JOIN (SELECT T2.ID SubProductionOrderId,SUM(so.Qty) AS Qty
+                    FROM trn.SalesOrder AS so
+INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
+INNER JOIN ProductionOrderSchedulingParametersType2 T2 ON T2.ProductionOrderId=pod.ProductionOrderId
+GROUP BY T2.ID) 
+AS SO ON so.SubProductionOrderId=T1.ProductionOrderId
+                            WHERE t1.ID='" + planrowid + @"' 
+                            order by WC.Sequence";
+
+
+
+            string sqlPRDATA = @"select T1.*,upper(ps.username) AS PlanningStatus,PO.PicFileName from ProductionOrderSchedulingParametersType2 T1
+                                inner join trn.productionorder po on po.id=t1.productionorderID
+                                 LEFT OUTER JOIN hkp.ProductionStatus AS ps ON ps.Id=po.ProductionStatusId
+                            where T1.ID = '" + ProductionOrderId + @"'";
+
+            string sqlSTYLEDATA = @"  SELECT distinct moi.BuyerReferenceNo
+            FROM trn.ProductionOrderDetail AS pod
+            INNER JOIN ProductionOrderSchedulingParametersType2 T2 ON T2.ProductionOrderId=pod.ProductionOrderId
+          LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=pod.SalesOrderId
+          LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
+          WHERE isnull(moi.BuyerReferenceNo,'')<>''
+          AND T2.Id='" + ProductionOrderId + @"'";
+
+            Library.Planning.PlanningType1.PlanningType1Scheduler scheduler = new Library.Planning.PlanningType1.PlanningType1Scheduler();
+            string SameDayPlanningData = scheduler.GetSameDayPlanningType2Summary(planrowid, SelectedProductionOrder);
+
+            return Json(new
+            {
+                WCDATA = _sqlRepository.GetDataCollection(sqlWCDATA),
+                WPRODDATA = _sqlRepository.GetDataCollection(sqlPRODDATA),
+                WSTYLEDATA = _sqlRepository.GetDataCollection(sqlSTYLEDATA),
+                SAMEDAYDATA = _sqlRepository.GetDataCollection(SameDayPlanningData),
+
+                ROWDATA = _sqlRepository.GetDataCollection(sqlRowData),
+                PRDATA = _sqlRepository.GetDataCollection(sqlPRDATA)
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion
+
     }
 
 
