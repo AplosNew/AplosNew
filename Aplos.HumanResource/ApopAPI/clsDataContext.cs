@@ -15053,58 +15053,64 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
 
 
 
-
-
         public string SaveEmployeeIssueData(IEnumerable<EmployeeIssue> DataToSave)
         {
-
             try
             {
-                DataSet dsMaster;
-                string TableName = "dbo.EmployeeIssues";
-
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                if (DataToSave.Count() == 0)
-                    return "";
+                if (DataToSave == null)
+                    throw new ArgumentNullException(
+                        nameof(DataToSave), "Employee issue data is null.");
 
                 List<EmployeeIssue> items = DataToSave.ToList();
 
+                if (items.Count == 0)
+                    return "";
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1=2", out dsMaster, false, "1");
+                DataSet dsMaster;
+                string TableName = "dbo.EmployeeIssues";
+
+                ConnectionManager.DAL.ConManager con =
+                    new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter(
+                    "select * from " + TableName + " where 1=2",
+                    out dsMaster,
+                    false,
+                    "1");
 
                 string _Id = "";
 
-                foreach (EmployeeIssue item in DataToSave)
+                foreach (EmployeeIssue item in items)
                 {
-                    if (dsMaster.Tables[0].Rows.Count == 0)
-                    {
-                        DataRow dr = dsMaster.Tables[0].NewRow();
+                    DataRow dr = dsMaster.Tables[0].NewRow();
 
-                        clsGenID genid = new clsGenID();
-                        genid.GenID(TableName, out _Id);
+                    clsGenID genid = new clsGenID();
+                    genid.GenID(TableName, out _Id);
 
-                        dr["Id"] = _Id;
-                        dr["EmployeeId"] = item.EmployeeId;
-                        dr["IssueId"] = item.IssueId;
-                        dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
-                        dr["Addedby"] = item.AddedBy;
-                        dr["Remarks"] = item.Remarks;
-                        dr["AddedDate"] = item.AddedDate;
+                    dr["Id"] = _Id;
+                    dr["EmployeeId"] = item.EmployeeId ?? "";
+                    dr["IssueId"] = item.IssueId ?? "";
+                    dr["ResponsiblePersonId"] = item.ResponsiblePersonId ?? "";
+                    dr["Addedby"] = item.AddedBy ?? "";
+                    dr["Remarks"] = item.Remarks ?? "";
+                    dr["AddedDate"] = DateTime.Now;
 
-                        dsMaster.Tables[0].Rows.Add(dr);
-                    }
+                    dr["Status"] = "Active";
+
+                    dsMaster.Tables[0].Rows.Add(dr);
                 }
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
-                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
                 return _Id;
             }
             catch (Exception ex)
             {
-                throw (ex);
+                throw;
             }
         }
+
 
         #endregion
 
