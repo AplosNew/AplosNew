@@ -3794,6 +3794,40 @@ select 'InvoiceRemarks' , Count(Id) Value from TRN.InvoiceRemarks where CloseSta
             }
         }
 
+        public void GetEmployeeByPlant(out List<Default2> DataList, string plantid)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select CONCAT(EmployeeCode, '       ' , EmployeeName) as Name  , SystemId as Value from EmployeeInformation Where EmployeeStatus = 'Active' and PlantId = '" + plantid + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public void GetEmployeeSystem(out List<Default3> DataList)
         {
             clsConnectionManager objCon = null;
@@ -14425,7 +14459,7 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
         #endregion Pratibha
 
 
-       
+
         public string CreateFeedback(IEnumerable<EmployeeFeedBackModel> DataToSave)
         {
 
@@ -14687,7 +14721,7 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
                         clsGenID genid = new clsGenID();
                         genid.GenID(TableName, out _Id);
 
-                        dr["Id"] =  _Id;
+                        dr["Id"] = _Id;
                         dr["InspectionTypeEnteryLevelId"] = item.InspectionTypeEnteryLevelId;
                         dr["InspectionId"] = item.InspectionId;
                         dr["MasterOrderItemId"] = item.MasterOrderItemId;
@@ -15017,9 +15051,68 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
             }
         }
 
-       
 
-        #endregion 
+
+        public string SaveEmployeeIssueData(IEnumerable<EmployeeIssue> DataToSave)
+        {
+            try
+            {
+                if (DataToSave == null)
+                    throw new ArgumentNullException(
+                        nameof(DataToSave), "Employee issue data is null.");
+
+                List<EmployeeIssue> items = DataToSave.ToList();
+
+                if (items.Count == 0)
+                    return "";
+
+                DataSet dsMaster;
+                string TableName = "dbo.EmployeeIssues";
+
+                ConnectionManager.DAL.ConManager con =
+                    new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter(
+                    "select * from " + TableName + " where 1=2",
+                    out dsMaster,
+                    false,
+                    "1");
+
+                string _Id = "";
+
+                foreach (EmployeeIssue item in items)
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+
+                    clsGenID genid = new clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    dr["Id"] = _Id;
+                    dr["EmployeeId"] = item.EmployeeId ?? "";
+                    dr["IssueId"] = item.IssueId ?? "";
+                    dr["ResponsiblePersonId"] = item.ResponsiblePersonId ?? "";
+                    dr["Addedby"] = item.AddedBy ?? "";
+                    dr["Remarks"] = item.Remarks ?? "";
+                    dr["AddedDate"] = DateTime.Now;
+
+                    dr["Status"] = "Active";
+
+                    dsMaster.Tables[0].Rows.Add(dr);
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return _Id;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+
+        #endregion
 
     }
 
@@ -17186,6 +17279,22 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
         public string UpdatedBy { get; set; }
         public string UpdatedDate { get; set; }
         public string UpdatedFromIP { get; set; }
+
+    }
+
+
+    public class EmployeeIssue
+    {
+        public string Id { get; set; }
+        public string EmployeeId { get; set; }
+        public string IssueId { get; set; }
+        public string ResponsiblePersonId { get; set; }
+        public string Status { get; set; }
+        public string Remarks { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
 
     }
 

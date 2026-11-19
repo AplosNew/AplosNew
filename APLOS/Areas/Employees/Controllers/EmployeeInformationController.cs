@@ -3795,6 +3795,30 @@ LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=TT.ShiftId) AS TEMP WHERE " + st
         }
 
         [HttpPost]
+        public ActionResult DeleteResPerson(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from dbo.DailyIssueResponsiblePerson where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+
+        [HttpPost]
         public JsonResult CreateResPerson(List<Dictionary<string, object>> data)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

@@ -158,8 +158,20 @@ function EmployeeDailyIssueController(cboService, commonMessage, $scope, $rootSc
 
     function ClearFields() {
         $scope.Action = 'Save';
-        $scope.DailyIssue = {};
-        $scope.DailyIssueNew = {};
+        $scope.DailyIssue = {
+            Id: null,
+            Category: null,
+            ResolveTime: null,
+            CriticalityLevel: null,
+            ResponsiblePerson: null,
+            ResponsiblePersonId: null,
+            IssueType: null,
+            HandleTime: null,
+            Remarks: null,
+            ShiftId: null
+        };
+
+        $scope.DailyIssueNew = Object.assign({}, $scope.DailyIssue);
     }
 
     // #region checkbox all
@@ -212,7 +224,7 @@ function EmployeeDailyIssueController(cboService, commonMessage, $scope, $rootSc
     function MakeData() {
         for (var i = 0; i < $scope.popUpDataList.length; i++) {
             if ($scope.popUpDataList[i].Flag == true) {
-                if (checkExists($scope.ResponsiblePersonList, $scope.popUpDataList[i].SystemID) === false) {
+                if (checkExists($scope.ResponsiblePersonList, $scope.popUpDataList[i].SystemId) === false) {
                     var ob = {};
                     ob.Id = -(Math.floor(Math.random() * 1000000) + 1);
                     ob.EmpSystemId = $scope.popUpDataList[i].SystemId;
@@ -227,6 +239,9 @@ function EmployeeDailyIssueController(cboService, commonMessage, $scope, $rootSc
                     ob.Line = $scope.popUpDataList[i].Line;
 
                     $scope.ResponsiblePersonList.push(ob);
+                }
+                else {
+                    ShowResult('Employee Code " ' + $scope.popUpDataList[i].EmployeeCode + '" already exists.');
                 }
             }
         }
