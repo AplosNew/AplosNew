@@ -1748,6 +1748,14 @@ function ProductionOrderSchedulingParametersType1Controller(cboService, commonMe
         return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     }
 
+    // Extra info row: skips the row when value is null / empty / only spaces
+    function tipInfoRow(label, value) {
+        if (value === null || value === undefined) return '';
+        var s = String(value).trim();
+        if (s === '' || s.toLowerCase() === 'null') return '';
+        return '<div class="tip-row tip-info"><span>' + label + '</span><b>' + tipEscape(s) + '</b></div>';
+    }
+
     // Group appointments by "ProductionOrderID|WorkCenterMasterId" -> sorted [{key,date,qty}]
     // Rebuilt only when $scope.appointments changes (new simulate / filter / navigation).
     function getApptTipIndex() {
@@ -1815,6 +1823,13 @@ function ProductionOrderSchedulingParametersType1Controller(cboService, commonMe
             h += '<div class="tip-row"><span>Total on this WC</span><b>' + tipNum(total) + ' (' + days.length + ' day' + (days.length > 1 ? 's' : '') + ')</b></div>';
             h += '<div class="tip-row"><span>Cumulative till this day</span><b>' + tipNum(cum) + ' (' + pct + '%)</b></div>';
         }
+        var extra = '';
+        extra += tipInfoRow('Customer', appt.Customer);
+        extra += tipInfoRow('SO', appt.SO);
+        extra += tipInfoRow('SO Description', appt.SODescription);
+        extra += tipInfoRow('Line Item Ref', appt.LineItemReference);
+        extra += tipInfoRow('Other WC', appt.OtherWorkCenter);
+        if (extra) h += '<div class="tip-extra">' + extra + '</div>';
         if (badges.length) h += '<div class="tip-badges">' + badges.join('') + '</div>';
 
         // ---- mini bar chart (inline SVG, no library needed) ----

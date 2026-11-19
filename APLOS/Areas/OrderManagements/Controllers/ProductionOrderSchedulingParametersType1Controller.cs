@@ -3966,23 +3966,57 @@ AS rnk,ppc.*
        K.isStyleChange, K.planningStatus, K.[Description], K.[Subject],
        K.StartTime,CASE WHEN K.seq>1 THEN FORMAT( CONVERT(DATE,K.ProductionDate),'MMM dd yyyy hh:mm:ss tt') ELSE  K.EndTime END AS EndTime,
         CASE WHEN K.seq>1 THEN CONVERT(BIT,0) ELSE CONVERT(BIT,1) END AS AllDay, K.Recurrence, K.AppTaskId, K.ParentId,
-       K.FailedToCommitmentDate FROM (SELECT 1 AS FilterData,  DENSE_RANK() OVER (PARTITION BY 
+       K.FailedToCommitmentDate,K.StyleNo,k.Customer,k.SO,k.LineItemReference,k.SODescription,k.OtherWorkCenter
+	   FROM (
+	   SELECT 1 AS FilterData,  DENSE_RANK() OVER (PARTITION BY 
                                                          PT.WorkCenterMasterId,
-                                                         PT.ProductionDate ORDER BY PT.ID) AS seq, pt.Id,e.UserName AS Entity,pt.WorkCenterMasterId,wc.UserName AS WorkCenter,pt.ProductionOrderID,pt.Quantity,t1.Color,
+                                                         PT.ProductionDate ORDER BY PT.ID) AS seq, pt.Id,e.UserName AS Entity
+														 ,pt.WorkCenterMasterId,wc.UserName AS WorkCenter,pt.ProductionOrderID,pt.Quantity,t1.Color,
                             FORMAT(pt.ProductionDate,'dd-MMM-yyyy') AS ProductionDate,PT.isBuildUp,PT.isStyleChange,
                       CASE WHEN ISNULL(FC.Id,'')='' THEN upper(ps.UserName) ELSE 'FREEZE' END AS planningStatus,
-                            --CONCAT('Pord. Ord#',pt.ProductionOrderID,' Quantity:',CONVERT(INT,pt.Quantity),' Material:',mm.UserName) AS [Description],
-                            --CONCAT('Pord. Ord#',pt.ProductionOrderID,' Quantity:',CONVERT(INT,pt.Quantity),' Material:',mm.UserName) AS [Subject],
-                            --pt.ProductionOrderID AS [Description],
-                            --pt.ProductionOrderID AS [Subject],
+                           
                             ' ' AS [Description],
                             ' ' AS [Subject],
                             FORMAT(pt.ProductionDate,'MMM dd yyyy hh:mm:ss tt') AS StartTime,
                             FORMAT(pt.ProductionDate,'MMM dd yyyy')+' 11:59:59 PM' AS EndTime,
                              CONVERT(BIT,0) AS AllDay,CONVERT(BIT,0) AS Recurrence, pt.Id AS AppTaskId,pt.ID AS ParentId, 
                             convert(bit,case when fail.LastPlanDate> t1.CommitmentDate then 1 else 0 end) as FailedToCommitmentDate
---'UTC +06:00' AS [EndTimeZone],'UTC +06:00' AS [StartTimeZone]
-                            --Mon Jun 22 2019 23:59:00
+							,
+	   StyleNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from
+trn.MasterOrderItem XMOI
+INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id
+INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id
+where podx.ProductionOrderId=pt.ProductionOrderId for xml path('') ), 1, 1, ''),
+
+Customer=STUFF((select distinct ','+P.UserName from
+trn.MasterOrder XMO
+LEFT JOIN trn.MasterOrderItem XMOI ON XMOI.MasterOrderId=XMO.Id
+LEFT JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id
+LEFT JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id
+LEFT JOIN HKP.Party P ON P.Id=XMO.PartyId
+where podx.ProductionOrderId=pt.ProductionOrderId for xml path('') ), 1, 1, ''),
+
+SO=STUFF((select distinct ','+sox.Id from
+ trn.SalesOrder AS sox 
+LEFT JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id
+where podx.ProductionOrderId=pt.ProductionOrderId for xml path('') ), 1, 1, ''),
+
+LineItemReference=STUFF((select distinct ','+sox.LineItemReference from
+ trn.SalesOrder AS sox 
+LEFT JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id
+where podx.ProductionOrderId=pt.ProductionOrderId for xml path('') ), 1, 1, ''),
+
+SODescription=STUFF((select distinct ','+sox.[Description] from
+ trn.SalesOrder AS sox 
+LEFT JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id
+where podx.ProductionOrderId=pt.ProductionOrderId for xml path('') ), 1, 1, ''),
+
+OtherWorkCenter=STUFF((select distinct ','+wcx.UserName from
+ [SCS].[WorkCenterMaster] AS wcx 
+LEFT JOIN ProductionPlanningType1 AS ptx ON ptx.WorkCenterMasterId=wcx.Id
+where ptx.ProductionOrderId=pt.ProductionOrderId and pt.WorkCenterMasterId<>ptx.WorkCenterMasterId for xml path('') ), 1, 1, '')
+
+
                               FROM ProductionPlanningType1 AS PT
                             LEFT OUTER JOIN [TRN].[ProductionOrder] P ON p.Id=pt.ProductionOrderID
                             LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS T1 ON t1.ProductionOrderID=pt.ProductionOrderID
