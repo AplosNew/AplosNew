@@ -29,7 +29,7 @@ namespace Aplos.Controllers.ApopAPIHR
 {
     public class DetentionAPIController : ApiController
     {
-        
+
         clsDataContext clsData = new clsDataContext();
 
 
@@ -122,7 +122,7 @@ namespace Aplos.Controllers.ApopAPIHR
             return DepartmentList;
         }
         // myappdefault
-        public List<MyAppDefaultlist> GetMyAppDefault(string IconName  )
+        public List<MyAppDefaultlist> GetMyAppDefault(string IconName)
         {
             clsDataContext clsData = new clsDataContext();
             clsData.GetMyAppDefault(out List<MyAppDefaultlist> myappdefaultlist, IconName);
@@ -166,7 +166,7 @@ namespace Aplos.Controllers.ApopAPIHR
         }
 
         #region MyAppDefault
-        public List<DefaultMyAppIconList> getmyappicon(string userid ,string Iconid )
+        public List<DefaultMyAppIconList> getmyappicon(string userid, string Iconid)
         {
             clsDataContext clsData = new clsDataContext();
             clsData.getmyappicon(out List<DefaultMyAppIconList> myappiconlis, userid, Iconid);
@@ -501,6 +501,13 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
+        public List<Default2> GetEmployeeByPlant(string plantid)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetEmployeeByPlant(out List<Default2> activelists, plantid);
+            return activelists;
+        }
+
         public List<Default3> GetEmployeeSystem()
         {
             clsDataContext clsData = new clsDataContext();
@@ -610,16 +617,16 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
-        public List<ProductionEntryDetail> GetProductionOrderDetail(string ProcessId, string entityId, string productionDate, string shiftId , string Workcenter )
+        public List<ProductionEntryDetail> GetProductionOrderDetail(string ProcessId, string entityId, string productionDate, string shiftId, string Workcenter)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetProductionOrderDetail(out List<ProductionEntryDetail> activelists, ProcessId, entityId, productionDate, shiftId, Workcenter );
+            clsData.GetProductionOrderDetail(out List<ProductionEntryDetail> activelists, ProcessId, entityId, productionDate, shiftId, Workcenter);
             return activelists;
         }
-        public List<PODetailsArtilce> GetPOBaseArticle(string ProcessId, string entityId, string POId, string Workcenter , string BookingLevel)
+        public List<PODetailsArtilce> GetPOBaseArticle(string ProcessId, string entityId, string POId, string Workcenter, string BookingLevel)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetPOBaseArticle(out List<PODetailsArtilce> activelists, ProcessId, entityId, POId, Workcenter , BookingLevel);
+            clsData.GetPOBaseArticle(out List<PODetailsArtilce> activelists, ProcessId, entityId, POId, Workcenter, BookingLevel);
             return activelists;
         }
 
@@ -667,7 +674,7 @@ namespace Aplos.Controllers.ApopAPIHR
         public List<Default2> GetUserGroup(string EmpsysId)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetUserGroup(out List<Default2> activelists , EmpsysId);
+            clsData.GetUserGroup(out List<Default2> activelists, EmpsysId);
             return activelists;
         }
 
@@ -708,13 +715,13 @@ namespace Aplos.Controllers.ApopAPIHR
         public List<AttendanceReport> GetAttdnreport(string date, string shiftid, string groupid, string inmis, string locations, string entityid, string tbs, string longabsent, string Budgetcodeid)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetAttdnreport(out List<AttendanceReport> activelists, date, shiftid, groupid, inmis, locations, entityid , tbs, longabsent, Budgetcodeid);
+            clsData.GetAttdnreport(out List<AttendanceReport> activelists, date, shiftid, groupid, inmis, locations, entityid, tbs, longabsent, Budgetcodeid);
             return activelists;
         }
         #endregion Attedance
 
 
-      
+
 
 
         #region Seven Days Attendance 
@@ -764,7 +771,7 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
-     
+
 
         public string PostUpdateBudgetCodeChange([FromBody] IEnumerable<TempBudgetCode> DataToSave, string EmpsysId, string WorkDate)
         {
@@ -835,7 +842,7 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
 
-        public string PostDailyAccountClosing([FromBody] IEnumerable<AccountBalence> DataToSave )
+        public string PostDailyAccountClosing([FromBody] IEnumerable<AccountBalence> DataToSave)
         {
             try
             {
@@ -879,7 +886,7 @@ namespace Aplos.Controllers.ApopAPIHR
         public List<Default2> GetVehicleLocation(string ID)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetVehicleLocation(out List<Default2> activelists , ID);
+            clsData.GetVehicleLocation(out List<Default2> activelists, ID);
             return activelists;
         }
 
@@ -923,7 +930,7 @@ namespace Aplos.Controllers.ApopAPIHR
         public List<Vehiclecreationdetails> GetVehicleCreationDetail(string MasterId)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetVehicleCreationDetail(out List<Vehiclecreationdetails> activelists , MasterId);
+            clsData.GetVehicleCreationDetail(out List<Vehiclecreationdetails> activelists, MasterId);
             return activelists;
         }
 
@@ -1190,7 +1197,7 @@ namespace Aplos.Controllers.ApopAPIHR
         public List<Default2> GetProductionBookingLevel(string ProcessId, string EntityId)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetProductionBookingLevel(out List<Default2> activelists, ProcessId , EntityId);
+            clsData.GetProductionBookingLevel(out List<Default2> activelists, ProcessId, EntityId);
             return activelists;
         }
         public List<ArticleItem> GetArticleItems(string ProductionOrderId)
@@ -1274,10 +1281,10 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
-        public List<Default2> GetBankAccount(string bankId , string categoryId, string subcategoryId)
+        public List<Default2> GetBankAccount(string bankId, string categoryId, string subcategoryId)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetBankAccount(out List<Default2> activelists, bankId, categoryId , subcategoryId);
+            clsData.GetBankAccount(out List<Default2> activelists, bankId, categoryId, subcategoryId);
             return activelists;
         }
 
@@ -1346,10 +1353,10 @@ namespace Aplos.Controllers.ApopAPIHR
         }
         #endregion Gate pass 
         #region Leave Approve
-        public List<Default2> GetLeaveApprovestatus(string Fmdate , string Todate)
+        public List<Default2> GetLeaveApprovestatus(string Fmdate, string Todate)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetLeaveApprovestatus(out List<Default2> activelists , Fmdate , Todate);
+            clsData.GetLeaveApprovestatus(out List<Default2> activelists, Fmdate, Todate);
             return activelists;
         }
         #endregion Leave Approve
@@ -1361,7 +1368,7 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetInvoiceResponsibleperson(out List<Default2> activelists);
             return activelists;
         }
-        public List<Default2> GetInvoiceCustomen( string Respr, string Type)
+        public List<Default2> GetInvoiceCustomen(string Respr, string Type)
         {
             clsDataContext clsData = new clsDataContext();
             clsData.GetInvoiceCustomen(out List<Default2> activelists, Respr, Type);
@@ -1374,10 +1381,10 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetInvoiceNumber(out List<Default2> activelists, Respr, Type, Customer);
             return activelists;
         }
-        public List<InvoiceDataGetset> GetInvoiceData(string ResPer, string Type , string Customer, string InvoiceNo)
+        public List<InvoiceDataGetset> GetInvoiceData(string ResPer, string Type, string Customer, string InvoiceNo)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetInvoiceData(out List<InvoiceDataGetset> activelists , ResPer, Type, Customer, InvoiceNo);
+            clsData.GetInvoiceData(out List<InvoiceDataGetset> activelists, ResPer, Type, Customer, InvoiceNo);
             return activelists;
         }
 
@@ -1438,7 +1445,7 @@ namespace Aplos.Controllers.ApopAPIHR
         public List<INvoiceWiseAccount> GetPaymentstatusInvoiceWise(string PartyId, string RespId, string CustomerType)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetPaymentstatusInvoiceWise(out List<INvoiceWiseAccount> activelists, PartyId , RespId , CustomerType);
+            clsData.GetPaymentstatusInvoiceWise(out List<INvoiceWiseAccount> activelists, PartyId, RespId, CustomerType);
             return activelists;
         }
         #endregion PaymentStatus
@@ -1466,7 +1473,7 @@ namespace Aplos.Controllers.ApopAPIHR
         {
             try
             {
-                string Id = clsData.PostQualityActionUpdate(DataToSave , PId , Status);
+                string Id = clsData.PostQualityActionUpdate(DataToSave, PId, Status);
                 return Id;
             }
             catch (Exception ex)
@@ -1475,7 +1482,7 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
 
-        public List<QualityActionUpdate> GetQualityActionUpdate(string ParameterId , string SNO)
+        public List<QualityActionUpdate> GetQualityActionUpdate(string ParameterId, string SNO)
         {
             clsDataContext clsData = new clsDataContext();
             clsData.GetQualityActionUpdate(out List<QualityActionUpdate> activelists, ParameterId, SNO);
@@ -1500,11 +1507,11 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetQualityConfirmActionUpdate(out List<QualityActionUpdate> activelists, ParameterId);
             return activelists;
         }
-        public string PostQualityConfirmationUpdate([FromBody] IEnumerable<QualityActionUpdate> DataToSave, string PId, string Status , string ConfirmationRemarks , string ConfirmBy)
+        public string PostQualityConfirmationUpdate([FromBody] IEnumerable<QualityActionUpdate> DataToSave, string PId, string Status, string ConfirmationRemarks, string ConfirmBy)
         {
             try
             {
-                string Id = clsData.PostQualityConfirmationUpdate(DataToSave, PId, Status , ConfirmationRemarks , ConfirmBy);
+                string Id = clsData.PostQualityConfirmationUpdate(DataToSave, PId, Status, ConfirmationRemarks, ConfirmBy);
                 return Id;
             }
             catch (Exception ex)
@@ -1556,7 +1563,7 @@ namespace Aplos.Controllers.ApopAPIHR
         public List<Default2> GetDateFilter(string Time)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetDateFilter(out List<Default2> activelists , Time);
+            clsData.GetDateFilter(out List<Default2> activelists, Time);
             return activelists;
         }
 
@@ -1684,7 +1691,7 @@ namespace Aplos.Controllers.ApopAPIHR
         public List<Default2> GetActiveEmployee(string EmpSysId)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetActiveEmployee(out List<Default2> activelists , EmpSysId);
+            clsData.GetActiveEmployee(out List<Default2> activelists, EmpSysId);
             return activelists;
         }
         public List<Default2> GetTransportEmployee(string EmpSysId)
@@ -1768,7 +1775,7 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
-        public List<NewBudgetCodeChange> GetNewBudget(string SystemId, string ShiftId , string LineId)
+        public List<NewBudgetCodeChange> GetNewBudget(string SystemId, string ShiftId, string LineId)
         {
             clsDataContext clsData = new clsDataContext();
             clsData.GetNewBudget(out List<NewBudgetCodeChange> activelists, SystemId, ShiftId, LineId);
@@ -2078,7 +2085,7 @@ where SU.UserId = '" + Userid + "'"));
 
         }
 
-        public IHttpActionResult GetWorkcenter(string EntityId , string ProcessId)
+        public IHttpActionResult GetWorkcenter(string EntityId, string ProcessId)
         {
             /* clsDataContext clsData = new clsDataContext();
              clsData.GetTNAReport(out List<TNAGetSet> activelists);
@@ -2281,7 +2288,7 @@ where US.UserId = '" + Userid + "'"));
 
         }
 
-        public IHttpActionResult GetInspectionTypeDetail(string InspectionTypeId , string EntityId)
+        public IHttpActionResult GetInspectionTypeDetail(string InspectionTypeId, string EntityId)
         {
             /* clsDataContext clsData = new clsDataContext();
              clsData.GetTNAReport(out List<TNAGetSet> activelists);
@@ -2314,7 +2321,7 @@ where IE.Entityid = '" + EntityId + "'"));
 
         }
 
-        public IHttpActionResult GetALLQTYBYSO(string SO , string SKU1 ,string SKU2 , string InspectionTypeId)
+        public IHttpActionResult GetALLQTYBYSO(string SO, string SKU1, string SKU2, string InspectionTypeId)
         {
             /* clsDataContext clsData = new clsDataContext();
              clsData.GetTNAReport(out List<TNAGetSet> activelists);
@@ -2322,7 +2329,7 @@ where IE.Entityid = '" + EntityId + "'"));
 
             try
             {
-                return Json(_sqlRepository.GetDataTable(@"Declare  @SO varchar(100) = '" + SO + "' , @SKU1 varchar(100) = '" + SKU1 + "',@SKU2  varchar(100) = '" + SKU2 +"' , @InspectionTypeId varchar(100) = '" + InspectionTypeId + @"';
+                return Json(_sqlRepository.GetDataTable(@"Declare  @SO varchar(100) = '" + SO + "' , @SKU1 varchar(100) = '" + SKU1 + "',@SKU2  varchar(100) = '" + SKU2 + "' , @InspectionTypeId varchar(100) = '" + InspectionTypeId + @"';
 
 SELECT
     TRN.SalesOrderId,
@@ -2425,7 +2432,7 @@ GROUP BY
 
         }
 
-        public IHttpActionResult GetALLQTYBYSOUSER(string SO, string SKU1, string SKU2, string InspectionTypeId , string userid)
+        public IHttpActionResult GetALLQTYBYSOUSER(string SO, string SKU1, string SKU2, string InspectionTypeId, string userid)
         {
             /* clsDataContext clsData = new clsDataContext();
              clsData.GetTNAReport(out List<TNAGetSet> activelists);
@@ -2433,7 +2440,7 @@ GROUP BY
 
             try
             {
-                return Json(_sqlRepository.GetDataTable(@"Declare  @SO varchar(100) = '" + SO + "', @SKU1 varchar(100) = '" + SKU1 + "', @SKU2  varchar(100) = '" + SKU2 +"', @InspectionTypeId varchar(100) = '" + InspectionTypeId + @"';
+                return Json(_sqlRepository.GetDataTable(@"Declare  @SO varchar(100) = '" + SO + "', @SKU1 varchar(100) = '" + SKU1 + "', @SKU2  varchar(100) = '" + SKU2 + "', @InspectionTypeId varchar(100) = '" + InspectionTypeId + @"';
                 SELECT TRN.SalesOrderId, TRN.SKU1Id, TRN.SKU2Id,ITY.Id InspectionTypeId,
        Convert(numeric(18),SUM(ISNULL(ITG.Qty,0))) AS TotalQty,
    Convert(Numeric(18),SUM(CASE WHEN ITEL.UserName='PASS' THEN ISNULL(ITG.Qty,0)  when ITEL.UserName='ALTER' THEN ISNULL(ITG.PassQty,0) else 0 END )) AS PassedQty,
@@ -2695,7 +2702,7 @@ OUTER APPLY
         }
 
 
-        public IHttpActionResult GetValidateData(string SO, string SKU1, string SKU2 ,string  WorkCenterMasterId , string InspectionType)
+        public IHttpActionResult GetValidateData(string SO, string SKU1, string SKU2, string WorkCenterMasterId, string InspectionType)
         {
             /* clsDataContext clsData = new clsDataContext();
              clsData.GetTNAReport(out List<TNAGetSet> activelists);
@@ -2706,7 +2713,7 @@ OUTER APPLY
                 return Json(_sqlRepository.GetDataTable(@"DECLARE @SalesOrderId VARCHAR(50)='" + SO + @"';
 DECLARE @SKU1Id VARCHAR(50)='" + SKU1 + @"';
 DECLARE @SKU2Id VARCHAR(50)='" + SKU2 + @"';
-DECLARE @WorkCenterMasterId VARCHAR(50)='" + WorkCenterMasterId  + @"';
+DECLARE @WorkCenterMasterId VARCHAR(50)='" + WorkCenterMasterId + @"';
 DECLARE @InspectionType VARCHAR(50)='" + InspectionType + @"';   -- EOL / Finished / Final Output
 
 DECLARE @Today DATE = CAST(GETDATE() AS DATE);
@@ -2906,7 +2913,7 @@ FROM Summary;"));
 
         [HttpPost]
 
-        public async  Task<IHttpActionResult> PostUploadPhoto()
+        public async Task<IHttpActionResult> PostUploadPhoto()
         {
             try
             {
@@ -2982,7 +2989,7 @@ Select 'AQL-LotAudit' Value , 'AQL-LotAudit' Name"));
 
         }
 
-       
+
 
         public IHttpActionResult GetAQLMaster()
         {
@@ -3444,7 +3451,7 @@ where   emp.Employeecode = '" + Empcode + "' and PT.Id = '" + PlantId + "'"));
 
         }
 
-     
+
 
         [HttpPost]
         public string SaveEmployeeFeedback([FromBody] IEnumerable<EmployeeFeedBackModel> DataToSave)
@@ -3623,6 +3630,47 @@ where  EI.EmployeeCode='" + Empcode + "' and format(APd.WorkDate,'MMMM') = '" + 
 
 
 
+
+
+
+
         #endregion Attendance tracker
+
+        #region 
+
+        public IHttpActionResult GetEmployeeIssue()
+        {
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select Id Value  , IssueType Name, ResponsiblePersonId Responsiblepersonid  from EmployeeDailyIssue  "));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+        [HttpPost]
+        public string SaveEmployeeIssueData([FromBody] IEnumerable<EmployeeIssue> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.SaveEmployeeIssueData(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+        #endregion
     }
 }
