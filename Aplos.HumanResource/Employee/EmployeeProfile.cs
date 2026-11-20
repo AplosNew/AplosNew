@@ -3874,6 +3874,42 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
             return conditions.Count == 0 ? "" : " WHERE " + string.Join(" AND ", conditions) + " ";
         }
 
+        private string BuildMasterFilterBlank(DataSet ds)
+        {
+            if (ds == null || ds.Tables.Count == 0 || ds.Tables[0].Rows.Count == 0)
+                return "";
+
+            var conditions = new List<string>();
+
+            foreach (DataRow r in ds.Tables[0].Rows)
+            {
+                string col = Convert.ToString(r["ColumnName"]).Trim();
+                string op = Convert.ToString(r["Operator"]).Trim();
+                string val = Convert.ToString(r["OperatorValue"]).Trim();
+                if (col == "" || op == "" || val == "") continue;
+
+                switch (op)
+                {
+                    case "=>": case ">=": op = ">="; break;
+                    case "=<": case "<=": op = "<="; break;
+                    case ">": case "<": case "=": case "<>": break;
+                    default: throw new Exception("Invalid operator: " + op);
+                }
+
+                string colSql = "[" + col.Replace("]", "]]") + "]";
+                DateTime dt; decimal num;
+
+                if (decimal.TryParse(val, NumberStyles.Any, CultureInfo.InvariantCulture, out num))
+                    conditions.Add("TRY_CONVERT(decimal(38,6), " + colSql + ") " + op + " " + num.ToString(CultureInfo.InvariantCulture));
+                else if (DateTime.TryParse(val, CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
+                    conditions.Add("TRY_CONVERT(date, " + colSql + ") " + op + " '" + dt.ToString("yyyy-MM-dd") + "'");
+                else
+                    conditions.Add(colSql + " " + op + " N'" + val.Replace("'", "''") + "'");
+            }
+
+            return conditions.Count == 0 ? "" : " WHERE " + string.Join(" AND ", conditions) + " ";
+        }
+
         public List<string> GetOS2ColumnList()
         {
             string strSql = @"select
@@ -4131,13 +4167,20 @@ WHERE 1=2";
         }
         public DataTable GetOS2Data(string column, string value)
         {
-            string strkey = "1=1";
-            // column comes from the browser, so only known column names are allowed into the SQL text
-            string[] allowedColumns = new string[] { "Id", "DataName", "ColumnName", "Operator", "OperatorValue", "RepeatValue", "TypeText" };
-            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false && Array.IndexOf(allowedColumns, column) >= 0)
-                strkey = column + " like '%" + SqlEsc(value) + "%'";
+            DataSet dsMaster;
+            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+            string now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-            string strSql = @"select top 500 * from (
+            // প্রতিটা ColumnName এর সর্বশেষ setting
+            con.OpenDataSetThroughAdapter(
+                "select ColumnName,Operator,OperatorValue from (" +
+                "select ColumnName,Operator,OperatorValue, " +
+                "ROW_NUMBER() over(partition by ColumnName order by StartDate desc) rn " +
+                "from operationstatusSetting where DataName='OS2.1' and StartDate <= '" + now + "'" +
+                ") x where rn=1", out dsMaster, false, "1");
+
+            string masterFilter = BuildMasterFilter(dsMaster);
+            string strSql = @" SELECT A.* FROM (
 select
 isnull(WC.GroupingData, 'Internal') AS GroupingData, WC.Id as WC_Id,WC.Code, WC.UserName as WorkCenter,p1.ProductionDate AS TargetDate,pp.UserName PlanningProcess, po.Id AS ProductionOrderID,
 p1.Quantity AS PlannedQtyForTheDay,t1.SPT,t1.ProductionPriority,pm.UserName AS Product,
@@ -4377,8 +4420,8 @@ LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id = MO.TotalQtyUOMId
 LEFT OUTER JOIN scs.Currency AS cur ON cur.Id = mo.CurrencyId
 group by POD.ProductionOrderId, ma.StandardName, cur.Code, uom.UserName--, MO.MasterOrderNo, b.UserName, os.UserName
 ) AS ORD on ord.ProductionOrderID = PO.Id
-
-) AS TEMP WHERE " + strkey + " order by Code,TargetDate";
+) A
+ " + masterFilter + @" ";
             return _sqlRepository.GetDataTable(strSql);
         }
 
@@ -4601,15 +4644,21 @@ WHERE 1=2";
         }
         public DataTable GetOS2SecondData(string column, string value)
         {
-            string strkey = "1=1";
-            // column comes from the browser, so only known column names are allowed into the SQL text
-            string[] allowedColumns = new string[] { "Id", "DataName", "ColumnName", "Operator", "OperatorValue", "RepeatValue", "TypeText" };
-            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false && Array.IndexOf(allowedColumns, column) >= 0)
-                strkey = column + " like '%" + SqlEsc(value) + "%'";
+            DataSet dsMaster;
+            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+            string now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-            string strSql = @"select top 500 * from (
-select
-isnull(WC.GroupingData, 'Internal') AS GroupingData,wc.Code, WC.Id as WC_Id, WC.UserName as WorkCenter,
+            // প্রতিটা ColumnName এর সর্বশেষ setting
+            con.OpenDataSetThroughAdapter(
+                "select ColumnName,Operator,OperatorValue from (" +
+                "select ColumnName,Operator,OperatorValue, " +
+                "ROW_NUMBER() over(partition by ColumnName order by StartDate desc) rn " +
+                "from operationstatusSetting where DataName='OS2.2' and StartDate <= '" + now + "'" +
+                ") x where rn=1", out dsMaster, false, "1");
+
+            string masterFilter = BuildMasterFilterBlank(dsMaster);
+
+            string strSql = @"select isnull(WC.GroupingData, 'Internal') AS GroupingData,wc.Code, WC.Id as WC_Id, WC.UserName as WorkCenter,
 WorkCenterGroup = STUFF((select distinct ',' + WCG.UserName
 from HKP.WorkCenterGroup WCG
 LEFT JOIN HKP.WorkCenterWiseGroup WG ON WG.WorkCenterGroupId = WCG.Id
@@ -4810,8 +4859,7 @@ group by POD.ProductionOrderId, ma.StandardName, cur.Code, uom.UserName--, MO.Ma
 ) AS ORD on ord.ProductionOrderID = PO.Id
 --order by wc.Code,p1.ProductionDate
 
-
-) AS TEMP WHERE " + strkey + " order by Code,TargetDate";
+ " + masterFilter + @" ";
 
             return _sqlRepository.GetDataTable(strSql);
 
@@ -4820,7 +4868,7 @@ group by POD.ProductionOrderId, ma.StandardName, cur.Code, uom.UserName--, MO.Ma
 
         public List<string> GetProductionColumnList()
         {
-            string strSql = @"SELECT A.*from(SELECT distinct PP.Id, trkp.UserName AS Plant, trke.UserName AS Entity, pp.EntityID, pp.WorkCenterMasterId, PP.ProductionOrderID, wcm.UserName AS WorkCenter, FORMAT(PP.ProductionDate, 'dd-MMM-yyyy') AS ActualDate, pp.Quantity AS ActualQty
+            string strSql = @"SELECT distinct PP.Id, trkp.UserName AS Plant, trke.UserName AS Entity, pp.EntityID, pp.WorkCenterMasterId, PP.ProductionOrderID, wcm.UserName AS WorkCenter, FORMAT(PP.ProductionDate, 'dd-MMM-yyyy') AS ActualDate, pp.Quantity AS ActualQty
                                         , RP.EmployeeName ResponsiblePerson, MN.EmployeeName Mentor, AH.EmployeeName AccountHolder, AC.EmployeeName AccountInCharge
                                         , (select SUM(xp.Qty * xp.CM) / sum(xp.Qty)
                                         from TRN.SalesOrder AS xp INNER JOIN TRN.ProductionOrderDetail POD ON pod.SalesOrderId = xp.id
@@ -5036,7 +5084,7 @@ group by POD.ProductionOrderId, ma.StandardName, cur.Code, uom.UserName--, MO.Ma
                                   left outer join mst.MaterialMaster mm on mm.id = ps.MaterialMasterId
                                   LEFT OUTER JOIN[MST].[MaterialMasterArticle] MA ON ma.Id = ps.ArticleId
 
-                                    WHERE ps.ProductionDate BETWEEN @FromDate AND @ToDate
+                                    --WHERE ps.ProductionDate BETWEEN @FromDate AND @ToDate
                                   GROUP BY  ps.Id, ps.ProcessId, mm.UserName, ma.StandardName, ps.FromSFGInventoryId, ps.ToProcessId, ps.ToSFGInventoryId, ps.EntityId, ps.SalesOrderId
                                   , ps.ProductionShiftId, ps.ProductionOrderId, ps.ProductionDate, ps.WorkCenterMasterId, ps.ToWorkCenterMasterId, PS.AddedBy, ps.Remarks, ps.ProductLibraryId
                                   , ps.Quantity, PS.ScanQty, PS.QtyWithoutScan, ps.MasterOrderItemId, PS.SalesOrderId, PS.LotNumber
@@ -5096,7 +5144,7 @@ group by POD.ProductionOrderId, ma.StandardName, cur.Code, uom.UserName--, MO.Ma
                             left join trn.productionorderprocessset pops on pops.ProductionOrderId = po.Id AND P.Id = POPS.ProcessId
                             LEFT OUTER JOIN ORg.Entity AS TRKE ON trke.Id = PP.EntityId
                             LEFT OUTER JOIN org.Plant AS TRKP ON  trkp.Id = TRKE.PlantId
-             )A 
+             
 
 WHERE 1=2";
 
@@ -5114,16 +5162,20 @@ WHERE 1=2";
 
         public DataTable GetProductionData(string column, string value)
         {
-            string strkey = "1=1";
-            // column comes from the browser, so only known column names are allowed into the SQL text
-            string[] allowedColumns = new string[] { "Id", "DataName", "ColumnName", "Operator", "OperatorValue", "RepeatValue", "TypeText" };
-            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false && Array.IndexOf(allowedColumns, column) >= 0)
-                strkey = column + " like '%" + SqlEsc(value) + "%'";
+            DataSet dsMaster;
+            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+            string now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-            string strSql = @"select top 500 * from (
+            // প্রতিটা ColumnName এর সর্বশেষ setting
+            con.OpenDataSetThroughAdapter(
+                "select ColumnName,Operator,OperatorValue from (" +
+                "select ColumnName,Operator,OperatorValue, " +
+                "ROW_NUMBER() over(partition by ColumnName order by StartDate desc) rn " +
+                "from operationstatusSetting where DataName='Production' and StartDate <= '" + now + "'" +
+                ") x where rn=1", out dsMaster, false, "1");
 
-            declare @FromDate varchar(100) = '01-Jan-2026';
-            SELECT A.*from(SELECT distinct PP.Id, trkp.UserName AS Plant, trke.UserName AS Entity, pp.EntityID, pp.WorkCenterMasterId, PP.ProductionOrderID, wcm.UserName AS WorkCenter, FORMAT(PP.ProductionDate, 'dd-MMM-yyyy') AS ActualDate, pp.Quantity AS ActualQty
+            string masterFilter = BuildMasterFilter(dsMaster);
+            string strSql = @"  SELECT A.*from(SELECT distinct PP.Id, trkp.UserName AS Plant, trke.UserName AS Entity, pp.EntityID, pp.WorkCenterMasterId, PP.ProductionOrderID, wcm.UserName AS WorkCenter, FORMAT(PP.ProductionDate, 'dd-MMM-yyyy') AS ActualDate, pp.Quantity AS ActualQty
                                         , RP.EmployeeName ResponsiblePerson, MN.EmployeeName Mentor, AH.EmployeeName AccountHolder, AC.EmployeeName AccountInCharge
                                         , (select SUM(xp.Qty * xp.CM) / sum(xp.Qty)
                                         from TRN.SalesOrder AS xp INNER JOIN TRN.ProductionOrderDetail POD ON pod.SalesOrderId = xp.id
@@ -5347,25 +5399,16 @@ WHERE 1=2";
 
                             left join(Select SUM(isnull([Minute],0))[Minute], ProcessId,ShiftId,WorkCenterId,[Date] from MachineMasterTransaction Group By ProcessId,ShiftId,WorkCenterId,[Date]) MMT on MMT.ProcessId = pp.ProcessId and MMT.ShiftId = pp.ProductionShiftId and MMT.WorkCenterId = pp.WorkCenterMasterId and MMT.[Date]= pp.ProductionDate
                             LEFT JOIN dbo.ShiftDefination CPL ON cpl.SystemId = pp.ProductionShiftId
-
                             LEFT JOIN[dbo].[ProductionPlanningCalendar] PPC ON PPC.EntityId = PP.EntityId AND PPC.ProcessId = PP.ProcessId AND PPC.WorkingDate = pp.ProductionDate
-
                             LEFT JOIN[dbo].[WorkCenterWiseShift] WCS ON WCS.WorkCenterMasterId = pp.WorkCenterMasterId AND WCS.ShiftDefinationID = pp.ProductionShiftId
-
                             LEFT JOIN trn.SalesOrder AS so ON so.Id = pp.ProductionSONo
-
                             left join trn.MasterOrderItem MOI on MOI.Id = so.MasterOrderItemId
-
                             left join SCS.UnitOfMeasurement UOM on UOM.Id = MOI.UOMId
                             LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS PT1 ON pt1.ProductionOrderID = pp.ProductionOrderID
                             LEFT OUTER JOIN ProductionPlanningSnapshot2Type1 AS SN ON sn.ProductionOrderID = pp.ProductionOrderId AND sn.ProductionDate = pp.ProductionDate AND sn.WorkCenterMasterId = pp.WorkCenterMasterId AND sn.EntityID = pp.EntityId
                             LEFT OUTER JOIN scs.WorkCenterMaster AS wcm ON wcm.Id = pp.WorkCenterMasterId
-
-
                             LEFT JOIN dbo.EmployeeInformation RP ON RP.SystemId = wcm.ResponsiblePersonId
-
                             LEFT JOIN dbo.EmployeeInformation MN ON MN.SystemId = wcm.MentorId
-
                             LEFT JOIN dbo.EmployeeInformation AH ON AH.SystemId = wcm.AccountHolder
 
                             LEFT JOIN dbo.EmployeeInformation AC ON AC.SystemId = wcm.AccountInCharge
@@ -5399,8 +5442,7 @@ WHERE 1=2";
                             left join trn.productionorderprocessset pops on pops.ProductionOrderId = po.Id AND P.Id = POPS.ProcessId
                             LEFT OUTER JOIN ORg.Entity AS TRKE ON trke.Id = PP.EntityId
                             LEFT OUTER JOIN org.Plant AS TRKP ON  trkp.Id = TRKE.PlantId
-             )A 
-) AS TEMP WHERE " + strkey + " ORDER BY ActualDate, WorkCenterMasterId, ProductionOrderID";
+             )A  " + masterFilter + @" ";
 
             return _sqlRepository.GetDataTable(strSql);
 
@@ -5454,14 +5496,21 @@ WHERE 1=2";
 
         public DataTable GetWorkCenterData(string column, string value)
         {
-            string strkey = "1=1";
-            // column comes from the browser, so only known column names are allowed into the SQL text
-            string[] allowedColumns = new string[] { "Id", "DataName", "ColumnName", "Operator", "OperatorValue", "RepeatValue", "TypeText" };
-            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false && Array.IndexOf(allowedColumns, column) >= 0)
-                strkey = column + " like '%" + SqlEsc(value) + "%'";
+            DataSet dsMaster;
+            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+            string now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-            string sql = @"select top 200 * from (
-select WCM.Id WCMId, WCM.CompanyId,WCM.PlantId,
+            // প্রতিটা ColumnName এর সর্বশেষ setting
+            con.OpenDataSetThroughAdapter(
+                "select ColumnName,Operator,OperatorValue from (" +
+                "select ColumnName,Operator,OperatorValue, " +
+                "ROW_NUMBER() over(partition by ColumnName order by StartDate desc) rn " +
+                "from operationstatusSetting where DataName='WorkCenter' and StartDate <= '" + now + "'" +
+                ") x where rn=1", out dsMaster, false, "1");
+
+            string masterFilter = BuildMasterFilter(dsMaster);
+
+            string sql = @"select WCM.Id WCMId, WCM.CompanyId,WCM.PlantId,
 WCM.EntityId,WCM.WorkCenterCategoryId,WCM.WorkCenterSubcategoryId,WCM.ProcessId,WCM.Code WCMCode, WCM.UserName LineName,
  WCM.Description WCMDescription, WCM.CapacityProcessUoMId, WCM.UoMId, WCM.LineId,WCM.Capacity,
 WCM.PlanEfficiency, WCM.MaxTimePerDay, WCM.StandardTimePerDay, WCM.PlanBudgetCapacityPerDay,
@@ -5490,8 +5539,7 @@ LEFT JOIN ORG.Entity E ON E.Id = WCM.EntityId
 LEFT JOIN ORG.Line L ON L.Id = wcm.LineId
 LEFT JOIN HKP.WorkCenterWiseGroup WG ON WG.WorkCenterMasterId = WCM.Id
 LEFT JOIN HKP.WorkCenterGroup WCG ON WCG.Id = WG.WorkCenterGroupId
-
-) AS TEMP WHERE " + strkey + " ";
+ " + masterFilter + @" ";
 
             return _sqlRepository.GetDataTable(sql);
 
