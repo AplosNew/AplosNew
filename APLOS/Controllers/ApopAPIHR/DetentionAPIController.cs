@@ -3638,12 +3638,12 @@ where  EI.EmployeeCode='" + Empcode + "' and format(APd.WorkDate,'MMMM') = '" + 
 
         #region 
 
-        public IHttpActionResult GetEmployeeIssue()
+        public IHttpActionResult GetEmployeeIssue(string ShiftId)
         {
 
             try
             {
-                return Json(_sqlRepository.GetDataTable(@"Select Id Value  , IssueType Name, ResponsiblePersonId Responsiblepersonid  from EmployeeDailyIssue  "));
+                return Json(_sqlRepository.GetDataTable(@"Select Id Value  , IssueType Name, ResponsiblePersonId Responsiblepersonid  from EmployeeDailyIssue where ShiftId =  '" + ShiftId + "'"));
 
             }
             catch (Exception ex)
