@@ -1264,7 +1264,7 @@ Order By SCV.UserName";
     CEILING((SUM(SC.Qty) * CM.PlanPercentage / 100.0) + SUM(SC.Qty)) AS NoOfUnit,SUM(SC.Qty) AS Qty,
     UnitPerPack = ISNULL(PR.UnitPerPack,PT.NoOfUnitPerPack),PR.BarCode,PR.QRCode,PR.RFID,PR.Remark,
     NoOfPack =CEILING(ISNULL(PR.NoOfPack,((SUM(SC.Qty) * CM.PlanPercentage / 100.0)+ SUM(SC.Qty))/ ISNULL(PR.UnitPerPack,PT.NoOfUnitPerPack)))
-    ,LineItemReference = COALESCE(PR.LineItemReference,CM.LineItemReference),PR.ProcessId
+    ,LineItemReference = COALESCE(PR.LineItemReference,CM.LineItemReference),PR.ProcessId,PR.IsQRPrinted
 FROM TRN.SecondCharacteristics SC
 LEFT JOIN TRN.FirstCharacteristics FC ON FC.Id = SC.FirstCharacteristicsId
 LEFT JOIN HKP.CharacteristicsValue FCV ON FCV.Id = FC.CharacteristicsValueId
@@ -1274,7 +1274,7 @@ LEFT JOIN dbo.PacketRegistration PR ON PR.SalesOrderId = SC.SalesOrderId AND FC.
 LEFT JOIN dbo.PacketRegistrationType PT ON PT.Id = '" + packetRegistrationTypeId + @"'
 LEFT JOIN dbo.PacketRegistrationMaster CM ON CM.Id = PT.PacketRegistrationMasterId
 WHERE SC.SalesOrderId " + soId + @"
-GROUP BY PR.Id,SC.SalesOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueId,FCV.UserName,SCV.UserName,PR.UnitPerPack,PT.NoOfUnitPerPack,PR.BarCode,PR.QRCode,PR.RFID,PR.Remark,CM.PlanPercentage,PR.NoOfPack,PR.LineItemReference,CM.LineItemReference,PR.ProcessId
+GROUP BY PR.Id,SC.SalesOrderId,FC.CharacteristicsValueId,SC.CharacteristicsValueId,FCV.UserName,SCV.UserName,PR.UnitPerPack,PT.NoOfUnitPerPack,PR.BarCode,PR.QRCode,PR.RFID,PR.Remark,CM.PlanPercentage,PR.NoOfPack,PR.LineItemReference,CM.LineItemReference,PR.ProcessId,PR.IsQRPrinted
 HAVING SUM(SC.Qty) <> 0;";
 
                 return _sqlRepository.GetDataCollection(sql);

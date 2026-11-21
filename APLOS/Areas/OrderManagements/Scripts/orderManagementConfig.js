@@ -325,6 +325,10 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             templateUrl: 'OrderManagements/ProductionCalendar/Type2',
             controller: 'productionCalendarType2Controller'
         })
+        .when('/production-calendar-type3', {
+            templateUrl: 'OrderManagements/ProductionCalendar/Type3',
+            controller: 'productionCalendarType3Controller'
+        })
         .when('/packing-definition', {
             templateUrl: 'OrderManagements/ProductionOrder/SKURegistration',
             controller: 'SKURegistrationController'

@@ -4848,6 +4848,10 @@ ORDER BY P.SortOrder";
         {
             try
             {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                if (!identity.IsSysAdmin && Convert.ToBoolean(data["IsQRPrinted"]))
+                    throw new Exception("QR already printed. Please Contact Admin to reprint.");
+                  
                 string packetRegistrationId = Convert.ToString(data["PacketRegistrationId"]);
 
                 Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
@@ -4886,6 +4890,14 @@ ORDER BY P.SortOrder";
                 //save the file to server temp folder
                 string fullPath = Path.Combine(HostingEnvironment.MapPath("~/") + fileName);
                 System.IO.File.WriteAllBytes(fullPath, pdfBytes);
+
+                if (!Convert.ToBoolean(data["IsQRPrinted"]))
+                {
+                    ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                    con.BeginTransaction();
+                    con.executeQuery("update dbo.PacketRegistration set IsQRPrinted=1 Where Id= '" + packetRegistrationId + "'");
+                    con.CommitTransaction();
+                }
 
                 return Json(new
                 {
@@ -5951,7 +5963,7 @@ ORDER BY P.SortOrder";
             return jsondata;
         }
 
-       
+
         [HttpPost, Authorize]
         public JsonResult SaveType3SPO(List<Dictionary<string, object>> data, string POId)
         {
@@ -6123,7 +6135,7 @@ ORDER BY P.SortOrder";
         }
 
 
-      
+
         [HttpPost, Authorize]
         public ActionResult DeleteType3RunningWC(string id)
         {
