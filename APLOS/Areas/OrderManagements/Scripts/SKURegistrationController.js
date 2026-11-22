@@ -796,6 +796,14 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
             ShowResult(e, 'failure');
         }
     }
+    $scope.getColor = function (item) {
+        var v = item;
+        if (v === 1 || v === '1' || v === true) {
+            return 'filled';
+        } else {
+            return 'empty';
+        }
+    };
 
     $scope.ClosePR = function () {
         angular.element(document.querySelector('#CartonPackPopUp')).modal('hide');
@@ -1102,6 +1110,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
             $scope.QRCodeGenerateModel.SKUSize = obj.data.SKUSize;
             $scope.QRCodeGenerateModel.Qty = obj.data.Qty;
             $scope.QRCodeGenerateModel.PacketRegistrationId = obj.data.Id;
+            $scope.QRCodeGenerateModel.IsQRPrinted = obj.data.IsQRPrinted;
             $scope.fileName = "QRCode_" + $scope.QRCodeGenerateModel.PacketRegistrationId + ".pdf"; // was "QRCode.pptx" — fix extension too
 
             $http({
@@ -1121,6 +1130,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
                     //$rootScope.report($scope.pdfdownloadgriddataUrl + "?FileName=" + response.data.FileName);
                     //ShowResult(response.data.Message, 'success');
                     $window.open($scope.pdfdownloadgriddataUrl + "?FileName=" + $scope.fileName);
+                    $scope.GetPackingResigtationSKUData($scope.PRObj.Id);
                 }
             }, function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -1148,6 +1158,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
                 }
                 else {
                     $window.open($scope.pdfdownloadgriddataUrl + "?FileName=" + $scope.fileName);
+                    $scope.GetComboData();
                 }
             }, function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

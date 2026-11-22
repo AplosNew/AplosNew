@@ -10,7 +10,8 @@ namespace Library.Service.Enums
         //PlanningType2
 
         PlanningType1,
-        PlanningType2
+        PlanningType2,
+        PlanningType3
 
     }
 

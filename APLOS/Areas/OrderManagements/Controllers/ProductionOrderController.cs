@@ -218,6 +218,17 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
         }
 
         [Authorize, HttpGet]
+        public JsonResult GetPlanningType3ProcessCbo()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT distinct P.Id,P.UserName FROM PlanningTypes AS pt 
+INNER JOIN hkp.Process AS p ON p.Id=pt.BaseProcessId
+WHERE PT.PlanningType='PlanningType3' AND pt.CompanyGroupId='" + identity.CompanyGroupId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetPlanningTypeEntityCbo(string processId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -235,6 +246,17 @@ WHERE PT.PlanningType='PlanningType1' AND pt.CompanyGroupId='" + identity.Compan
             string sql = @"SELECT DISTINCT E.Id,E.UserName FROM PlanningTypes AS pt 
 INNER JOIN org.Entity E on e.Id=pt.EntityId
 WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.CompanyGroupId + "' AND PT.BaseProcessId='" + processId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetPlanningType3EntityCbo(string processId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT DISTINCT E.Id,E.UserName FROM PlanningTypes AS pt 
+INNER JOIN org.Entity E on e.Id=pt.EntityId
+WHERE PT.PlanningType='PlanningType3' AND pt.CompanyGroupId='" + identity.CompanyGroupId + "' AND PT.BaseProcessId='" + processId + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -4848,6 +4870,10 @@ ORDER BY P.SortOrder";
         {
             try
             {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                if (!identity.IsSysAdmin && Convert.ToBoolean(data["IsQRPrinted"]))
+                    throw new Exception("QR already printed. Please Contact Admin to reprint.");
+                  
                 string packetRegistrationId = Convert.ToString(data["PacketRegistrationId"]);
 
                 Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
@@ -4887,6 +4913,14 @@ ORDER BY P.SortOrder";
                 string fullPath = Path.Combine(HostingEnvironment.MapPath("~/") + fileName);
                 System.IO.File.WriteAllBytes(fullPath, pdfBytes);
 
+                if (!Convert.ToBoolean(data["IsQRPrinted"]))
+                {
+                    ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                    con.BeginTransaction();
+                    con.executeQuery("update dbo.PacketRegistration set IsQRPrinted=1 Where Id= '" + packetRegistrationId + "'");
+                    con.CommitTransaction();
+                }
+
                 return Json(new
                 {
                     Error = false,
@@ -4905,6 +4939,10 @@ ORDER BY P.SortOrder";
         {
             try
             {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                if (!identity.IsSysAdmin && Convert.ToBoolean(data["IsQRPrinted"]))
+                    throw new Exception("QR already printed. Please Contact Admin to reprint.");
+
                 string Id = Convert.ToString(data["Id"]);
 
                 Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
@@ -4936,6 +4974,14 @@ ORDER BY P.SortOrder";
                 //save the file to server temp folder
                 string fullPath = Path.Combine(HostingEnvironment.MapPath("~/") + fileName);
                 System.IO.File.WriteAllBytes(fullPath, pdfBytes);
+
+                if (!Convert.ToBoolean(data["IsQRPrinted"]))
+                {
+                    ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                    con.BeginTransaction();
+                    con.executeQuery("update dbo.PackingComboReference set IsQRPrinted=1 Where Id= '" + Id + "'");
+                    con.CommitTransaction();
+                }
 
                 return Json(new
                 {
@@ -5951,7 +5997,7 @@ ORDER BY P.SortOrder";
             return jsondata;
         }
 
-       
+
         [HttpPost, Authorize]
         public JsonResult SaveType3SPO(List<Dictionary<string, object>> data, string POId)
         {
@@ -6123,7 +6169,7 @@ ORDER BY P.SortOrder";
         }
 
 
-      
+
         [HttpPost, Authorize]
         public ActionResult DeleteType3RunningWC(string id)
         {

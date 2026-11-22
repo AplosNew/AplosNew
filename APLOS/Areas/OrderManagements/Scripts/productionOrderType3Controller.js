@@ -16,11 +16,11 @@ function productionOrderType3Controller(cboService, commonMessage, $scope, $root
     $scope.bulletintab = true;
 
     $scope.path = 'OrderManagements/ProductionOrder/';
-    $scope.getListUrl = $scope.path + 'GetType2List';
-    $scope.saveUrl = $scope.path + 'CreateProductionOrderType2';
+    $scope.getListUrl = $scope.path + 'GetType3List';
+    $scope.saveUrl = $scope.path + 'CreateProductionOrderType3';
     //$scope.saveUrl = $scope.path + 'Create';
     $scope.updateUrl = $scope.path + 'edit';
-    $scope.deleteUrl = $scope.path + 'DeleteType2/';
+    $scope.deleteUrl = $scope.path + 'DeleteType3/';
 
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
 
@@ -240,7 +240,7 @@ function productionOrderType3Controller(cboService, commonMessage, $scope, $root
     $scope.GetPlanningTypeEntiy = function () {
         $http({
             method: 'GET',
-            url: 'OrderManagements/ProductionOrder/GetPlanningType2EntityCbo?processId=' + $scope.model.PlanningTypeProcessId
+            url: 'OrderManagements/ProductionOrder/GetPlanningType3EntityCbo?processId=' + $scope.model.PlanningTypeProcessId
         }).then(function successCallback(response) {
             $scope.entityList = response.data;
         });
@@ -250,7 +250,7 @@ function productionOrderType3Controller(cboService, commonMessage, $scope, $root
     $scope.GetPlanningTypeProcess = function () {
         $http({
             method: 'GET',
-            url: 'OrderManagements/ProductionOrder/GetPlanningType2ProcessCbo'
+            url: 'OrderManagements/ProductionOrder/GetPlanningType3ProcessCbo'
         }).then(function successCallback(response) {
             $scope.planningTypeProcessList = response.data;
         });

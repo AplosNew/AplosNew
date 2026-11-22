@@ -3,6 +3,9 @@
     .modellgModify {
         width: 1200px;
     }
+    .filled {
+        background-color: #0dbe67 !important;
+    }
 </style>
 <div class="form-elements form-horizontal">
     <div class="row" ng-form name="ModelNewForm">
@@ -250,7 +253,7 @@
                              e-allowscrolling="true" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                              e-showsummary="true" e-allowselection="true" e-filtersettings-filterType="excel">
                             <div e-columns>
-                                <div e-column e-template="#GenComboCarton" e-headertext="Actions" e-width="90" style="height: 20px;"></div>
+                                <div e-column e-template="#GenComboCarton" e-headertext="Actions" e-width="95" style="height: 20px;"></div>
                                 <div e-column e-field="Id" e-headertext="Id" e-width="30" e-isprimarykey="true"></div>
                                 <div e-column e-field="ComboRefNo" e-headertext="Combo No" e-width="40" e></div>
                                 <div e-column e-field="Process" e-headertext="Process" e-width="40" e></div>
@@ -263,7 +266,7 @@
                             <script type="text/template" id="GenComboCarton">
                                 <div class="col-sm-2 text-left">
                                     <button ng-click="$parent.GenerateComboCarton(this);" title="Generate Carton" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
-                                    <button ng-click="$parent.generateComboQRCode(this);" title="Generate QR" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="fa fa-qrcode"></i></button>
+                                    <button ng-click="$parent.generateComboQRCode(this);" title="Generate QR" ng-disabled="data.Id==null"  ng-class="$parent.getColor(data.IsQRPrinted)"  class="btn single-small-btn" tabindex="6"><i class="fa fa-qrcode"></i></button>
                                     <button ng-click="$parent.GetComboCartonList(this);" title="Carton List" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-eye-open"></i></button>
                                     <button ng-click="$parent.removeCombo(this);" title="Delete Combo" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-trash"></i></button>
                                 </div>
@@ -637,7 +640,7 @@
                         <script type="text/template" id="GenCarton">
                             <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
                                 <button ng-click="$parent.GenerateCarton(this);" title="Generate Carton" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
-                                <button ng-click="$parent.generateQRCode(this);" title="Generate QR" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="fa fa-qrcode"></i></button>
+                                <button ng-click="$parent.generateQRCode(this);" title="Generate QR" ng-disabled="data.Id==null" ng-class="$parent.getColor(data.IsQRPrinted)" class="btn single-small-btn" tabindex="6"><i class="fa fa-qrcode"></i></button>
                                 <button ng-click="$parent.GetCartonList(this);" title="Carton List" ng-disabled="data.Id==null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-eye-open"></i></button>
                             </div>
                         </script>
