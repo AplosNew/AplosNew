@@ -16,9 +16,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web.Mvc;
+using System.Web.Script.Serialization;
 
 namespace Aplos.Areas.Employees.Controllers
 {
@@ -4123,6 +4128,295 @@ OPTION (MAXRECURSION 0);";
             return Convert.ToString(value).Replace("'", "''");
         }
 
+        // =====================================================================
+        //  ExportController: যেকোনো গ্রিডের ডাটা একটাই মেথডে পাঠালে Excel (.xlsx) ডাউনলোড হয়
+        //
+        //  - ৫টা ট্যাবের (Master, OS2.1, OS2.2, Production, WC) সব বাটন এই একই মেথড কল করবে।
+        //  - ক্লায়েন্ট যে রো ও কলাম পাঠাবে, ঠিক সেটাই Excel-এ যাবে (গ্রিডে যা দেখছেন তা-ই)।
+        //  - Syncfusion XlsIO ব্যবহার করা হয়েছে (আপনার আপলোড স্ক্রিনগুলোর মতো)।
+        //
+        //  লাগবে (using):
+        //    System, System.Collections.Generic, System.Data, System.Globalization, System.IO,
+        //    System.Linq, System.Text, System.Text.RegularExpressions, System.Web.Mvc,
+        //    System.Web.Script.Serialization (System.Web.Extensions রেফারেন্স), Syncfusion.XlsIO
+        //
+        //  আপনার অন্য কন্ট্রোলারগুলো কোনো base controller থেকে inherit করলে `: Controller` এর জায়গায় সেটা দিন।
+        //
+        //  বড় ডেটার জন্য web.config-এ সীমা বাড়ান (নিচের মান ২০০ MB):
+        //    <system.web>
+        //      <httpRuntime maxRequestLength="204800" executionTimeout="300" />
+        //    </system.web>
+        //    <system.webServer>
+        //      <security><requestFiltering>
+        //        <requestLimits maxAllowedContentLength="209715200" />
+        //      </requestFiltering></security>
+        //    </system.webServer>
+        // =====================================================================
+
+        public class ExportColumn
+        {
+            public string Field { get; set; }   // ডেটার প্রপার্টির নাম
+            public string Title { get; set; }   // Excel হেডারে যা দেখাবে (খালি থাকলে Field)
+        }
+
+        public class ExportRequest
+        {
+            public string FileName { get; set; }
+            public string SheetName { get; set; }
+            public List<ExportColumn> Columns { get; set; }              // না দিলে প্রথম রো-এর key থেকে হবে
+            public List<Dictionary<string, object>> Rows { get; set; }
+        }
+
+        private const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        private const int MaxRows = 1000000;     // Excel-এর সীমা ১,০৪৮,৫৭৬
+        private const int MaxColumns = 500;
+        private const int MaxCellChars = 32000;  // Excel সেলের সীমা ৩২,৭৬৭
+
+        // ---------------------------------------------------------------
+        //  একটাই মেথড: POST JSON { fileName, sheetName, columns:[{field,title}], rows:[{...}] }
+        // ---------------------------------------------------------------
+        [HttpPost, Authorize]
+        public ActionResult ExportToExcel()
+        {
+            try
+            {
+                string json;
+                using (var sr = new StreamReader(Request.InputStream, Encoding.UTF8))
+                    json = sr.ReadToEnd();
+
+                var ser = new JavaScriptSerializer { MaxJsonLength = int.MaxValue };
+                ExportRequest req = ser.Deserialize<ExportRequest>(json);
+
+                if (req == null || req.Rows == null || req.Rows.Count == 0)
+                    return ExportError(400, "Export করার মতো কোনো ডেটা পাওয়া যায়নি।");
+                if (req.Rows.Count > MaxRows)
+                    return ExportError(400, "রো সংখ্যা অনেক বেশি (সর্বোচ্চ " + MaxRows + ")। ফিল্টার করে আবার চেষ্টা করুন।");
+
+                // কলাম ঠিক করা: না দিলে প্রথম রো-এর key; "$" দিয়ে শুরু হওয়া ফিল্ড (যেমন $$hashKey) বাদ
+                var cols = (req.Columns ?? new List<ExportColumn>())
+                    .Where(c => c != null && !string.IsNullOrWhiteSpace(c.Field) && !c.Field.StartsWith("$"))
+                    .ToList();
+                if (cols.Count == 0)
+                    cols = req.Rows[0].Keys.Where(k => !k.StartsWith("$"))
+                              .Select(k => new ExportColumn { Field = k, Title = k }).ToList();
+                if (cols.Count == 0)
+                    return ExportError(400, "কোনো কলাম পাওয়া যায়নি।");
+                if (cols.Count > MaxColumns)
+                    cols = cols.Take(MaxColumns).ToList();
+
+                byte[] bytes = BuildWorkbook(req, cols);
+                string fileName = SafeFileName(req.FileName);
+                return File(bytes, XlsxContentType, fileName);
+            }
+            catch (Exception ex)
+            {
+                return ExportError(500, "Excel তৈরি করতে সমস্যা: " + ex.Message);
+            }
+        }
+
+        // ---------------------------------------------------------------
+        //  Excel বানানো
+        // ---------------------------------------------------------------
+        private byte[] BuildWorkbook(ExportRequest req, List<ExportColumn> cols)
+        {
+            // ১) প্রতিটা কলামের টাইপ ঠিক করে টাইপড DataTable বানানো (সংখ্যা সংখ্যা, তারিখ তারিখ, বাকি টেক্সট)
+            var dt = new DataTable();
+            var hasTime = new bool[cols.Count];
+            for (int c = 0; c < cols.Count; c++)
+            {
+                bool ht;
+                Type t = DetectType(req.Rows, cols[c].Field, out ht);
+                hasTime[c] = ht;
+                dt.Columns.Add("c" + c, t);   // সাধারণ নাম, যাতে ডুপ্লিকেট/বিশেষ অক্ষরে সমস্যা না হয়
+            }
+
+            dt.BeginLoadData();
+            foreach (var row in req.Rows)
+            {
+                var arr = new object[cols.Count];
+                for (int c = 0; c < cols.Count; c++)
+                {
+                    object v;
+                    row.TryGetValue(cols[c].Field, out v);
+                    arr[c] = ConvertValue(v, dt.Columns[c].DataType);
+                }
+                dt.Rows.Add(arr);
+            }
+            dt.EndLoadData();
+
+            // ২) Syncfusion XlsIO দিয়ে ফাইল
+            using (ExcelEngine excelEngine = new ExcelEngine())
+            {
+                IApplication application = excelEngine.Excel;
+                application.DefaultVersion = ExcelVersion.Excel2013;
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet sheet = workbook.Worksheets[0];
+                sheet.Name = SafeSheetName(req.SheetName);
+
+                int colCount = cols.Count;
+                int lastRow = dt.Rows.Count + 1;
+
+                // হেডার
+                for (int c = 0; c < colCount; c++)
+                {
+                    string title = string.IsNullOrWhiteSpace(cols[c].Title) ? cols[c].Field : cols[c].Title;
+                    sheet[1, c + 1].Text = title;
+                }
+                IRange header = sheet.Range[1, 1, 1, colCount];
+                header.CellStyle.Font.Bold = true;
+                header.CellStyle.Font.Color = ExcelKnownColors.White;
+                header.CellStyle.Color = System.Drawing.Color.FromArgb(27, 32, 56);
+                header.WrapText = true;
+                header.RowHeight = 23;
+
+                // ডেটা (টাইপসহ)
+                sheet.ImportDataTable(dt, false, 2, 1);
+
+                // তারিখের ফরম্যাট
+                for (int c = 0; c < colCount; c++)
+                {
+                    if (dt.Columns[c].DataType == typeof(DateTime))
+                        sheet.Range[2, c + 1, lastRow, c + 1].NumberFormat = hasTime[c] ? "dd-mmm-yyyy hh:mm" : "dd-mmm-yyyy";
+                }
+
+                // প্রথম রো ফ্রিজ + ফিল্টার + কলামের প্রস্থ (প্রথম ২০০ রো দেখে, সর্বোচ্চ ৫০)
+                sheet.Range["A2"].FreezePanes();
+                sheet.AutoFilters.FilterRange = sheet.Range[1, 1, lastRow, colCount];
+                sheet.Range[1, 1, Math.Min(lastRow, 200), colCount].AutofitColumns();
+                for (int c = 1; c <= colCount; c++)
+                {
+                    if (sheet.Range[1, c].ColumnWidth > 50) sheet.Range[1, c].ColumnWidth = 50;
+                    if (sheet.Range[1, c].ColumnWidth < 8) sheet.Range[1, c].ColumnWidth = 8;
+                }
+
+                using (var ms = new MemoryStream())
+                {
+                    workbook.SaveAs(ms);
+                    workbook.Close();
+                    return ms.ToArray();
+                }
+            }
+        }
+
+        // ---------------------------------------------------------------
+        //  টাইপ ও মান
+        // ---------------------------------------------------------------
+        private static readonly Regex IsoDate = new Regex(
+            @"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?$", RegexOptions.Compiled);
+        private static readonly Regex MsDate = new Regex(
+            @"^/Date\((-?\d+)([+-]\d{4})?\)/$", RegexOptions.Compiled);
+
+        private static bool IsNum(object v)
+        {
+            return v is byte || v is sbyte || v is short || v is ushort || v is int || v is uint ||
+                   v is long || v is ulong || v is decimal || v is double || v is float;
+        }
+
+        // "2026-12-14T00:00:00" বা "/Date(1234567890000)/" হলে তারিখ
+        private static bool TryParseDate(object v, out DateTime d)
+        {
+            d = default(DateTime);
+            var s = v as string;
+            if (s == null) return false;
+
+            if (IsoDate.IsMatch(s))
+            {
+                if (!DateTime.TryParse(s, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out d)) return false;
+                if (d.Kind == DateTimeKind.Utc) d = d.ToLocalTime();
+                return true;
+            }
+
+            var m = MsDate.Match(s);
+            if (m.Success)
+            {
+                long ms;
+                if (!long.TryParse(m.Groups[1].Value, out ms)) return false;
+                d = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(ms).ToLocalTime();
+                return true;
+            }
+            return false;
+        }
+
+        private static Type DetectType(List<Dictionary<string, object>> rows, string field, out bool hasTime)
+        {
+            bool allNum = true, allDate = true, allBool = true, any = false;
+            hasTime = false;
+
+            foreach (var r in rows)
+            {
+                object v;
+                if (!r.TryGetValue(field, out v) || v == null) continue;
+                var s = v as string;
+                if (s != null && s.Length == 0) continue;
+
+                any = true;
+                if (!IsNum(v)) allNum = false;
+                if (!(v is bool)) allBool = false;
+
+                DateTime d;
+                if (TryParseDate(v, out d)) { if (d.TimeOfDay != TimeSpan.Zero) hasTime = true; }
+                else allDate = false;
+
+                if (!allNum && !allBool && !allDate) break;
+            }
+
+            if (!any) return typeof(string);
+            if (allNum) return typeof(double);
+            if (allBool) return typeof(bool);
+            if (allDate) return typeof(DateTime);
+            return typeof(string);
+        }
+
+        private static object ConvertValue(object v, Type t)
+        {
+            if (v == null) return DBNull.Value;
+            var s = v as string;
+            if (s != null && s.Length == 0 && t != typeof(string)) return DBNull.Value;
+
+            if (t == typeof(double)) return Convert.ToDouble(v, CultureInfo.InvariantCulture);
+            if (t == typeof(bool)) return (bool)v;
+            if (t == typeof(DateTime))
+            {
+                DateTime d;
+                return TryParseDate(v, out d) ? (object)d : DBNull.Value;
+            }
+
+            // টেক্সট কলাম
+            string text;
+            if (s != null) text = s;
+            else if (v is bool) text = ((bool)v) ? "Yes" : "No";
+            else if (v is IFormattable) text = ((IFormattable)v).ToString(null, CultureInfo.InvariantCulture);
+            else text = Convert.ToString(v, CultureInfo.InvariantCulture);
+
+            if (text != null && text.Length > MaxCellChars) text = text.Substring(0, MaxCellChars);
+            return text;
+        }
+
+        // ---------------------------------------------------------------
+        //  নাম ও এরর
+        // ---------------------------------------------------------------
+        private static string SafeFileName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) name = "Export";
+            name = Regex.Replace(name.Trim(), @"[^\w\.\- ]", "_");
+            if (!name.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase)) name += ".xlsx";
+            return name;
+        }
+
+        private static string SafeSheetName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) name = "Data";
+            name = Regex.Replace(name.Trim(), @"[\\/\?\*\[\]:]", "_");
+            return name.Length > 31 ? name.Substring(0, 31) : name;
+        }
+
+        private ActionResult ExportError(int status, string message)
+        {
+            Response.StatusCode = status;
+            Response.TrySkipIisCustomErrors = true;
+            return Json(new { Error = true, Message = message });
+        }
+      
 
         #endregion
 

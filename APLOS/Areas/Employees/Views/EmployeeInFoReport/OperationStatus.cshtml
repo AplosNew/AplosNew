@@ -42,15 +42,28 @@
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div id="div_Date1" class="form-group">
-                               
+
                                 <div class="col-sm-2">
                                     <div class="common-btn">
-                                        <ul class="list-inline text-right">
+                                        <ul class="list-inline text-left">
                                             <li> <button ng-click="getMasterData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-search"></i> Go </button></li>
                                         </ul>
                                     </div>
                                 </div>
 
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div id="div_Date1" class="form-group">
+                                <div class="col-sm-12">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-right">
+                                            <li>
+                                                <button ng-click="exportMaster()" ng-disabled="!masterDataList.length"><i class="glyphicon glyphicon-export"></i>Export</button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="clearfix"></div>
@@ -78,15 +91,29 @@
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div id="div_Date2" class="form-group">
-                                
+
                                 <div class="col-sm-2">
                                     <div class="common-btn">
-                                        <ul class="list-inline text-right">
+                                        <ul class="list-inline text-left">
                                             <li> <button ng-click="getOS2OneData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-search"></i> Go </button></li>
                                         </ul>
                                     </div>
                                 </div>
 
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div id="div_Date1" class="form-group">
+                                <div class="col-sm-12">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-right">
+                                            <li>
+                                                <button ng-click="exportOS21()" ng-disabled="!OS2OneDataList.length"><i class="glyphicon glyphicon-export"></i>Export</button>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="clearfix"></div>
@@ -99,9 +126,16 @@
                                 <div e-column e-field="Article" e-headertext="Article" e-width="80"></div>
                                 <div e-column e-field="ProductCategory" e-headertext="ProductCategory" e-width="80"></div>
                                 <div e-column e-field="Product" e-headertext="Product" e-width="30"></div>
+                                <div e-column e-field="WorkCenter" e-headertext="WorkCenter" e-width="30"></div>
+                                <div e-column e-field="TargetDate" e-headertext="TargetDate" e-width="30"></div>
+                                <div e-column e-field="ProductionOrderID" e-headertext="PO" e-width="30"></div>
+                                <div e-column e-field="PlannedQtyForTheDay" e-headertext="PlannedQtyForTheDay" e-width="30"></div>
+                                <div e-column e-field="SPT" e-headertext="SPT" e-width="30"></div>
+                                <div e-column e-field="StyleNo" e-headertext="StyleNo" e-width="30"></div>
+                                <div e-column e-field="SONo" e-headertext="SO" e-width="30"></div>
                                 @*<div e-column e-headertext="ItemQty" e-field="ItemQty" e-textalign="center" e-width="100"></div>
-                        <div e-column e-headertext="UOM" e-field="UOM" e-textalign="center" e-width="80"></div>
-                        <div e-column e-headertext="SO" e-field="SalesOrderId" e-textalign="center" e-width="80"></div>*@
+                                    <div e-column e-headertext="UOM" e-field="UOM" e-textalign="center" e-width="80"></div>
+                                    <div e-column e-headertext="SO" e-field="SalesOrderId" e-textalign="center" e-width="80"></div>*@
                                 @*<div e-column e-template="#btnAction" e-headertext="Actions" e-width="80"></div>*@
                             </div>
                         </div>
@@ -115,7 +149,7 @@
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div id="div_Date3" class="form-group">
-                                 
+
                                 <div class="col-sm-2">
                                     <div class="common-btn">
                                         <ul class="list-inline text-right">
@@ -124,6 +158,19 @@
                                     </div>
                                 </div>
 
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div id="div_Date1" class="form-group">
+                                <div class="col-sm-12">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-right">
+                                            <li>
+                                                <button ng-click="exportOS2Second()" ng-disabled="!OS2SecondDataList.length"><i class="glyphicon glyphicon-export"></i>Export</button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="clearfix"></div>
@@ -136,9 +183,13 @@
                                 <div e-column e-field="Article" e-headertext="Article" e-width="80"></div>
                                 <div e-column e-field="ProductCategory" e-headertext="ProductCategory" e-width="80"></div>
                                 <div e-column e-field="Product" e-headertext="Product" e-width="30"></div>
-                                <div e-column e-headertext="ItemQty" e-field="ItemQty" e-textalign="center" e-width="100"></div>
-                                <div e-column e-headertext="UOM" e-field="UOM" e-textalign="center" e-width="80"></div>
-                                <div e-column e-headertext="SO" e-field="SalesOrderId" e-textalign="center" e-width="80"></div>
+                                <div e-column e-field="WorkCenter" e-headertext="WorkCenter" e-width="30"></div>
+                                <div e-column e-field="TargetDate" e-headertext="TargetDate" e-width="30"></div>
+                                <div e-column e-field="ProductionOrderID" e-headertext="PO" e-width="30"></div>
+                                <div e-column e-field="PlannedQtyForTheDay" e-headertext="PlannedQtyForTheDay" e-width="30"></div>
+                                <div e-column e-field="SPT" e-headertext="SPT" e-width="30"></div>
+                                <div e-column e-field="StyleNo" e-headertext="StyleNo" e-width="30"></div>
+                                <div e-column e-field="SONo" e-headertext="SO" e-width="30"></div>
                                 @*<div e-column e-template="#btnAction" e-headertext="Actions" e-width="80"></div>*@
                             </div>
                         </div>
@@ -146,11 +197,13 @@
                 </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                <togglable name="Production"></togglable>
+
                 <div class="form-elements" ng-form="modelForm4">
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div id="div_Date4" class="form-group">
-                                
+
                                 <div class="col-sm-2">
                                     <div class="common-btn">
                                         <ul class="list-inline text-right">
@@ -159,6 +212,19 @@
                                     </div>
                                 </div>
 
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div id="div_Date1" class="form-group">
+                                <div class="col-sm-12">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-right">
+                                            <li>
+                                                <button ng-click="exportProduction()" ng-disabled="!ProductionDataList.length"><i class="glyphicon glyphicon-export"></i>Export</button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="clearfix"></div>
@@ -181,8 +247,26 @@
                 </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+                <togglable name="WorkCenter"></togglable>
                 <div class="form-elements" ng-form="modelForm5">
                     <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div id="div_Date1" class="form-group">
+                                <div class="col-sm-12">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-right">
+                                            <li>
+                                                <button ng-click="exportWorkCenter()" ng-disabled="!WorkCenterDataList.length"><i class="glyphicon glyphicon-export"></i>Export</button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
 
                         <div id="workCenterGrid" ej-grid e-datasource="WorkCenterDataList" e-queryCellInfo="PeriodValidation" e-actionComplete="refreshPage"
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
@@ -234,7 +318,7 @@
                                         @*<input type="text" name="ColumnName" maxlength="50" ng-model="operationStatusSetting.ColumnName" class="form-control" tabindex="2">*@
                                     </div>
                                 </div>
-                                </div>
+                            </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Filter</label>
                                 <div class="col-sm-8">

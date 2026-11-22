@@ -4,7 +4,6 @@ function operationStatusController(commonMessage, $scope, $rootScope, baseServic
     $rootScope.title = "Operation Status ";
     $scope.Action = "Save";
 
-
     $scope.activeTab = 1;
 
     $scope.setTab = function (tab) {
@@ -20,6 +19,7 @@ function operationStatusController(commonMessage, $scope, $rootScope, baseServic
     $scope.operationStatusSettings = [];
     $scope.path = "Employees/EmployeeInFoReport/";
     $scope.saveUrl = $scope.path + "CreateOperationStatusSetting";
+    $scope.updateUrl = $scope.path + "CreateOperationStatusSetting";
     $scope.deleteUrl = $scope.path + "DeleteOperationStatusSetting/";
     $scope.getListUrl = $scope.path + "getdatalist";
     $scope.getMasterListUrl = $scope.path + "GetOSMasterDataList";
@@ -91,7 +91,7 @@ function operationStatusController(commonMessage, $scope, $rootScope, baseServic
     $scope.getProductionData = function () {
         $http({
             method: "POST",
-            url: $scope.getOS2SecondListUrl,
+            url: $scope.getProductionListUrl,
             data: { column: $rootScope.parameters.searchMasterBy, value: $rootScope.parameters.searchMaster},
             dataType: "JSON"
         }).then(function (response) {
@@ -289,4 +289,79 @@ function operationStatusController(commonMessage, $scope, $rootScope, baseServic
             $scope.startTimePart = { Hour: '', Minute: '' };
         }
     };
+
+
+    var EXPORT_URL = 'Employees/EmployeeInFoReport/ExportToExcel';
+    var XLSX_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+    function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+    function stamp() {
+        var d = new Date();
+        return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '_' + pad(d.getHours()) + pad(d.getMinutes());
+    }
+
+    function bufferToText(buf) {
+        try { return new TextDecoder('utf-8').decode(new Uint8Array(buf)); } catch (e) { return ''; }
+    }
+
+    function showError(msg) {
+        if (typeof ShowResult === 'function') ShowResult(msg, 'failure');
+        else alert(msg);
+    }
+
+    function saveBlob(blob, fileName) {
+        if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+            window.navigator.msSaveOrOpenBlob(blob, fileName);
+            return;
+        }
+        var url = window.URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function () { window.URL.revokeObjectURL(url); }, 2000);
+    }
+
+    // name: ফাইলের নাম, rows: গ্রিডের ডেটা, columns: ঐচ্ছিক [{field,title}], sheetName: ঐচ্ছিক
+    function download(name, rows, columns, sheetName) {
+        if (!rows || !rows.length) {
+            showError('Export করার মতো কোনো ডেটা নেই। আগে ডেটা লোড করুন।');
+            return;
+        }
+        var fileName = (name || 'Export') + '_' + stamp() + '.xlsx';
+
+        return $http({
+            method: 'POST',
+            url: EXPORT_URL,
+            data: { fileName: fileName, sheetName: sheetName || name, columns: columns || null, rows: rows },
+            responseType: 'arraybuffer',
+            transformResponse: angular.identity
+        }).then(function (res) {
+            var ct = (res.headers('Content-Type') || '').toLowerCase();
+            // সার্ভার এরর: HTTP 200 + JSON { Error:true, Message }
+            if (ct.indexOf('json') > -1) {
+                var msg = 'Excel ডাউনলোড করা যায়নি।';
+                try {
+                    var j = JSON.parse(bufferToText(res.data));
+                    if (j && j.Message) msg = j.Message;
+                } catch (e) { }
+                showError(msg);
+                return false;
+            }
+            saveBlob(new Blob([res.data], { type: XLSX_TYPE }), fileName);
+            return true;
+        }, function () {
+            showError('Excel ডাউনলোড করা যায়নি।');
+            return false;
+        });
+    }
+
+    $scope.exportMaster = function () { download('Master', $scope.masterDataList); };
+    $scope.exportOS21 = function () { download('OS2.1', $scope.OS2OneDataList); };
+    $scope.exportOS2Second = function () { download('OS2.2', $scope.OS2SecondDataList); };
+    $scope.exportProduction = function () { download('Production', $scope.ProductionDataList); };
+    $scope.exportWorkCenter = function () { download('WorkCenter', $scope.WorkCenterDataList); };
 }
