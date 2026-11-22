@@ -4917,6 +4917,10 @@ ORDER BY P.SortOrder";
         {
             try
             {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                if (!identity.IsSysAdmin && Convert.ToBoolean(data["IsQRPrinted"]))
+                    throw new Exception("QR already printed. Please Contact Admin to reprint.");
+
                 string Id = Convert.ToString(data["Id"]);
 
                 Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
@@ -4948,6 +4952,14 @@ ORDER BY P.SortOrder";
                 //save the file to server temp folder
                 string fullPath = Path.Combine(HostingEnvironment.MapPath("~/") + fileName);
                 System.IO.File.WriteAllBytes(fullPath, pdfBytes);
+
+                if (!Convert.ToBoolean(data["IsQRPrinted"]))
+                {
+                    ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                    con.BeginTransaction();
+                    con.executeQuery("update dbo.PackingComboReference set IsQRPrinted=1 Where Id= '" + Id + "'");
+                    con.CommitTransaction();
+                }
 
                 return Json(new
                 {

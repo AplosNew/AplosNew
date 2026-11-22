@@ -1158,6 +1158,7 @@ function SKURegistrationController(cboService, $window, commonMessage, $scope, $
                 }
                 else {
                     $window.open($scope.pdfdownloadgriddataUrl + "?FileName=" + $scope.fileName);
+                    $scope.GetComboData();
                 }
             }, function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

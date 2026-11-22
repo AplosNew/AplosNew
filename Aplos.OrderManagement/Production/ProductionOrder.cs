@@ -1213,7 +1213,7 @@ Where SO.OrderStatusId NOT IN('Closed,Cancelled')";
                 //GROUP BY ComboRefNo
                 //ORDER BY ComboRefNo;";
 
-                string sql = @"SELECT P.*,S.UserName Process,NoOfSKU=(select Count(Id) from PackingComboSKUDetail Where PackingComboReferenceId=P.Id) 
+                string sql = @"SELECT P.*,S.UserName Process,NoOfSKU=(select Count(Id) from PackingComboSKUDetail Where PackingComboReferenceId=P.Id),P.IsQRPrinted 
 FROM PackingComboReference P 
 LEFT JOIN HKP.Process S ON S.Id=P.ProcessId
 Where PacketRegistrationTypeId= '" + packetRegistrationTypeId + @"'";
