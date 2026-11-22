@@ -218,6 +218,17 @@ WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.Compan
         }
 
         [Authorize, HttpGet]
+        public JsonResult GetPlanningType3ProcessCbo()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT distinct P.Id,P.UserName FROM PlanningTypes AS pt 
+INNER JOIN hkp.Process AS p ON p.Id=pt.BaseProcessId
+WHERE PT.PlanningType='PlanningType3' AND pt.CompanyGroupId='" + identity.CompanyGroupId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetPlanningTypeEntityCbo(string processId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -235,6 +246,17 @@ WHERE PT.PlanningType='PlanningType1' AND pt.CompanyGroupId='" + identity.Compan
             string sql = @"SELECT DISTINCT E.Id,E.UserName FROM PlanningTypes AS pt 
 INNER JOIN org.Entity E on e.Id=pt.EntityId
 WHERE PT.PlanningType='PlanningType2' AND pt.CompanyGroupId='" + identity.CompanyGroupId + "' AND PT.BaseProcessId='" + processId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetPlanningType3EntityCbo(string processId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT DISTINCT E.Id,E.UserName FROM PlanningTypes AS pt 
+INNER JOIN org.Entity E on e.Id=pt.EntityId
+WHERE PT.PlanningType='PlanningType3' AND pt.CompanyGroupId='" + identity.CompanyGroupId + "' AND PT.BaseProcessId='" + processId + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
