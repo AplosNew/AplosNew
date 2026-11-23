@@ -3,6 +3,7 @@ operationStatusController.$inject = ['commonMessage', '$scope', '$rootScope', 'b
 function operationStatusController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, toaster, cboService, $controller, $window) {
     $rootScope.title = "Operation Status ";
     $scope.Action = "Save";
+    $controller('dashboardBaseController', { $scope: $scope, $http: $http });
 
     $scope.activeTab = 1;
 
@@ -364,4 +365,80 @@ function operationStatusController(commonMessage, $scope, $rootScope, baseServic
     $scope.exportOS2Second = function () { download('OS2.2', $scope.OS2SecondDataList); };
     $scope.exportProduction = function () { download('Production', $scope.ProductionDataList); };
     $scope.exportWorkCenter = function () { download('WorkCenter', $scope.WorkCenterDataList); };
+
+
+    // ej-grid ফিল্টার (গ্রিডের id বদলান, যেমন #masterGrid)
+    function filterGrid(gridId) {
+        return function (field, value, type) {
+            var grid = $(gridId).data('ejGrid');
+            if (!grid) return;
+            grid.clearFiltering();
+            grid.filterColumn(field, type === 'date' ? 'equal' : 'equal', value);   // তারিখ কলামে মান ফরম্যাট মেলাতে হতে পারে
+        };
+    }
+
+    $scope.openMasterDashboard = function () { $scope.openDashboard('Master', $scope.masterDataList, filterGrid('#masterGrid')); };
+    $scope.openOS21Dashboard = function () { $scope.openDashboard('OS2.1', $scope.OS2OneDataList, filterGrid('#oS2OneGrid')); };
+    $scope.openOS2SecondDashboard = function () { $scope.openDashboard('OS2.2', $scope.OS2SecondDataList, filterGrid('#OS2SecondGrid')); };
+    $scope.openProductionDashboard = function () { $scope.openDashboard('Production', $scope.ProductionDataList, filterGrid('#productionGrid')); };
+    $scope.openWorkCenterDashboard = function () { $scope.openDashboard('WorkCenter', $scope.WorkCenterDataList, filterGrid('#workCenterGrid')); };
+
+
+
+    // ---- Applied filter chips ----
+    var OP_TEXT = { '=': 'is', '<>': 'is not', '>=': '\u2265', '=>': '\u2265', '<=': '\u2264', '=<': '\u2264', '>': '>', '<': '<', 'LIKE': 'contains', 'IN': 'in' };
+    function normOp(op) {
+        op = (op || '').trim().toUpperCase();
+        return op === '=>' ? '>=' : (op === '=<' ? '<=' : op);
+    }
+    function humanize(name) {
+        return String(name || '').replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2');
+    }
+    function startTime(x) {                       // StartDate + StartTime; পার্স না হলে 0 (মানে সক্রিয়)
+        var d = new Date(x.StartDate);
+        if (isNaN(d)) return 0;
+        var m = /^(\d{1,2}):(\d{2})/.exec(x.StartTime || '');
+        if (m) d.setHours(+m[1], +m[2], 0, 0);
+        return d.getTime();
+    }
+    function buildChips(list, dataName) {
+        var now = Date.now(), latest = {};
+        (list || []).forEach(function (x, i) {
+            if (x.DataName !== dataName || !x.Filter) return;
+            var t = startTime(x);
+            if (t > now) return;                                   // এখনো শুরু হয়নি
+            var k = x.ColumnName + '|' + normOp(x.Operator) + '|' + x.Type;
+            if (!latest[k] || t >= latest[k].t) latest[k] = { t: t, i: i, x: x };
+        });
+        var byCol = {}, order = [];
+        Object.keys(latest).forEach(function (k) {
+            var x = latest[k].x, key = x.ColumnName + '|' + x.Type;
+            if (!byCol[key]) { byCol[key] = []; order.push(key); }
+            byCol[key].push(x);
+        });
+        var chips = [];
+        order.forEach(function (key) {
+            var items = byCol[key], first = items[0], exclude = first.Type === 'Excluded';
+            var lo = items.filter(function (x) { return /^>/.test(normOp(x.Operator)); })[0];
+            var hi = items.filter(function (x) { return /^</.test(normOp(x.Operator)) && normOp(x.Operator) !== '<>'; })[0];
+            var rest = items.filter(function (x) { return x !== lo && x !== hi; });
+            if (lo && hi) {
+                chips.push({ col: humanize(first.ColumnName), raw: first.ColumnName, op: 'between', text: lo.OperatorValue + ' \u2192 ' + hi.OperatorValue, exclude: exclude });
+            } else {
+                rest = items;
+            }
+            rest.forEach(function (x) {
+                var op = normOp(x.Operator);
+                chips.push({ col: humanize(x.ColumnName), raw: x.ColumnName, op: OP_TEXT[op] || op, text: x.OperatorValue, exclude: exclude });
+            });
+        });
+        return chips;
+    }
+    // ng-repeat-এ ফাংশন সরাসরি কল না করে scope-এ জমা রাখা হচ্ছে (না হলে digest লুপ হয়)
+    $scope.activeFilters = {};
+    $scope.$watch('operationStatusSettings', function (list) {
+        var out = {};
+        ['Master', 'OS2.1', 'OS2.2', 'Production', 'WorkCenter'].forEach(function (n) { out[n] = buildChips(list, n); });
+        $scope.activeFilters = out;
+    }, true);
 }

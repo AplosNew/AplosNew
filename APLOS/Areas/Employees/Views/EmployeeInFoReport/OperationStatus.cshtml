@@ -1,4 +1,70 @@
-﻿<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+﻿<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+    .fchips {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px 8px;
+        padding: 4px 0;
+    }
+
+    .fchips-label {
+        font-size: 12px;
+        color: #6b7280;
+        margin-right: 2px;
+        white-space: nowrap;
+    }
+
+    .fchip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 3px 10px;
+        border: 1px solid #c7d2fe;
+        background: #eef2ff;
+        color: #1e1b4b;
+        border-radius: 14px;
+        font-size: 12px;
+        line-height: 18px;
+    }
+
+    .fchip-col {
+        color: #4b5563;
+    }
+
+    .fchip-op {
+        font-style: normal;
+        color: #6366f1;
+        font-weight: 600;
+    }
+
+    .fchip-val {
+        font-weight: 600;
+    }
+
+    .fchip.is-excl {
+        background: #fef2f2;
+        border-color: #fecaca;
+        color: #7f1d1d;
+    }
+
+        .fchip.is-excl .fchip-op {
+            color: #dc2626;
+        }
+
+    .fchip-not {
+        font-size: 10px;
+        background: #dc2626;
+        color: #fff;
+        border-radius: 3px;
+        padding: 0 4px;
+    }
+
+    .fchips-none {
+        font-size: 12px;
+        color: #6b7280;
+    }
+</style>
 @*<togglable name="Operation Status"></togglable>*@
 <h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Operation Status</h3>
 
@@ -50,7 +116,20 @@
                                         </ul>
                                     </div>
                                 </div>
-
+                                <div class="col-sm-10">
+                                    <div class="fchips" ng-if="activeFilters['Master'].length">
+                                        <span class="fchips-label"><i class="fa fa-filter"></i> Applied filters ({{activeFilters['Master'].length}})</span>
+                                        <span class="fchip" ng-repeat="f in activeFilters['Master']" ng-class="{'is-excl': f.exclude}"
+                                              title="{{f.raw}} {{f.exclude ? '(Excluded)' : ''}} {{f.op}} {{f.text}}">
+                                            <b ng-if="f.exclude" class="fchip-not">NOT</b>
+                                            <span class="fchip-col">{{f.col}}</span>
+                                            <em class="fchip-op">{{f.op}}</em>
+                                            <span class="fchip-val">{{f.text}}</span>
+                                        </span>
+                                    </div>
+                                    <span class="fchips-none" ng-if="!activeFilters['Master'].length">কোনো ফিল্টার নেই (সব ডেটা)</span>
+                                </div>
+                                
                             </div>
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
@@ -60,6 +139,9 @@
                                         <ul class="list-inline text-right">
                                             <li>
                                                 <button ng-click="exportMaster()" ng-disabled="!masterDataList.length"><i class="glyphicon glyphicon-export"></i>Export</button>
+                                                <button type="button" class="btn btn-default" ng-click="openMasterDashboard()" ng-disabled="!masterDataList.length">
+                                                    <i class="fa fa-bar-chart"></i> Dashboard
+                                                </button>
                                             </li>
                                         </ul>
                                     </div>
@@ -99,7 +181,19 @@
                                         </ul>
                                     </div>
                                 </div>
-
+                                <div class="col-sm-10">
+                                    <div class="fchips" ng-if="activeFilters['OS2.1'].length">
+                                        <span class="fchips-label"><i class="fa fa-filter"></i> Applied filters ({{activeFilters['OS2.1'].length}})</span>
+                                        <span class="fchip" ng-repeat="f in activeFilters['OS2.1']" ng-class="{'is-excl': f.exclude}"
+                                              title="{{f.raw}} {{f.exclude ? '(Excluded)' : ''}} {{f.op}} {{f.text}}">
+                                            <b ng-if="f.exclude" class="fchip-not">NOT</b>
+                                            <span class="fchip-col">{{f.col}}</span>
+                                            <em class="fchip-op">{{f.op}}</em>
+                                            <span class="fchip-val">{{f.text}}</span>
+                                        </span>
+                                    </div>
+                                    <span class="fchips-none" ng-if="!activeFilters['OS2.1'].length">No filters (all data)</span>
+                                </div>
                             </div>
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
@@ -109,7 +203,9 @@
                                         <ul class="list-inline text-right">
                                             <li>
                                                 <button ng-click="exportOS21()" ng-disabled="!OS2OneDataList.length"><i class="glyphicon glyphicon-export"></i>Export</button>
-
+                                                <button type="button" class="btn btn-default" ng-click="openOS21Dashboard()" ng-disabled="!OS2OneDataList.length">
+                                                    <i class="fa fa-bar-chart"></i> Dashboard
+                                                </button>
                                             </li>
                                         </ul>
                                     </div>
@@ -157,7 +253,19 @@
                                         </ul>
                                     </div>
                                 </div>
-
+                                <div class="col-sm-10">
+                                    <div class="fchips" ng-if="activeFilters['OS2.2'].length">
+                                        <span class="fchips-label"><i class="fa fa-filter"></i> Applied filters ({{activeFilters['OS2.2'].length}})</span>
+                                        <span class="fchip" ng-repeat="f in activeFilters['OS2.2']" ng-class="{'is-excl': f.exclude}"
+                                              title="{{f.raw}} {{f.exclude ? '(Excluded)' : ''}} {{f.op}} {{f.text}}">
+                                            <b ng-if="f.exclude" class="fchip-not">NOT</b>
+                                            <span class="fchip-col">{{f.col}}</span>
+                                            <em class="fchip-op">{{f.op}}</em>
+                                            <span class="fchip-val">{{f.text}}</span>
+                                        </span>
+                                    </div>
+                                    <span class="fchips-none" ng-if="!activeFilters['OS2.2'].length">No filters (all data)</span>
+                                </div>
                             </div>
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
@@ -211,7 +319,19 @@
                                         </ul>
                                     </div>
                                 </div>
-
+                                <div class="col-sm-10">
+                                    <div class="fchips" ng-if="activeFilters['Production'].length">
+                                        <span class="fchips-label"><i class="fa fa-filter"></i> Applied filters ({{activeFilters['Production'].length}})</span>
+                                        <span class="fchip" ng-repeat="f in activeFilters['Production']" ng-class="{'is-excl': f.exclude}"
+                                              title="{{f.raw}} {{f.exclude ? '(Excluded)' : ''}} {{f.op}} {{f.text}}">
+                                            <b ng-if="f.exclude" class="fchip-not">NOT</b>
+                                            <span class="fchip-col">{{f.col}}</span>
+                                            <em class="fchip-op">{{f.op}}</em>
+                                            <span class="fchip-val">{{f.text}}</span>
+                                        </span>
+                                    </div>
+                                    <span class="fchips-none" ng-if="!activeFilters['Production'].length">No filters (all data)</span>
+                                </div>
                             </div>
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
@@ -251,7 +371,19 @@
                 <div class="form-elements" ng-form="modelForm5">
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-6">
-
+                            <div class="col-sm-10">
+                                <div class="fchips" ng-if="activeFilters['WorkCenter'].length">
+                                    <span class="fchips-label"><i class="fa fa-filter"></i> Applied filters ({{activeFilters['WorkCenter'].length}})</span>
+                                    <span class="fchip" ng-repeat="f in activeFilters['WorkCenter']" ng-class="{'is-excl': f.exclude}"
+                                          title="{{f.raw}} {{f.exclude ? '(Excluded)' : ''}} {{f.op}} {{f.text}}">
+                                        <b ng-if="f.exclude" class="fchip-not">NOT</b>
+                                        <span class="fchip-col">{{f.col}}</span>
+                                        <em class="fchip-op">{{f.op}}</em>
+                                        <span class="fchip-val">{{f.text}}</span>
+                                    </span>
+                                </div>
+                                <span class="fchips-none" ng-if="!activeFilters['WorkCenter'].length">No filters (all data)</span>
+                            </div>
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div id="div_Date1" class="form-group">

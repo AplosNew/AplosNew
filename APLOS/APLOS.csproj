@@ -1993,6 +1993,7 @@
     <Content Include="Areas\Commercial\Scripts\LCPendingReportController.js" />
     <Content Include="Areas\Commercial\Scripts\ComplianceController.js" />
     <Content Include="Areas\Costings\Scripts\OrderLineCostingItemServiceMasterMappingController.js" />
+    <Content Include="Areas\Employees\Scripts\dashboardBaseController.js" />
     <Content Include="Areas\Employees\Scripts\EmployeeDailyIssueController.js" />
     <Content Include="Areas\Employees\Scripts\DailyTargetUploadController.js" />
     <Content Include="Areas\Employees\Scripts\EmployeeBulkUploadFNFController.js" />
