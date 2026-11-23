@@ -3803,7 +3803,7 @@ select 'InvoiceRemarks' , Count(Id) Value from TRN.InvoiceRemarks where CloseSta
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select CONCAT(EmployeeCode, '       ' , EmployeeName) as Name  , SystemId as Value from EmployeeInformation Where EmployeeStatus = 'Active' and PlantId = '" + plantid + "'";
+                strSQL = @"select CONCAT(EmployeeCode, '       ' , EmployeeName) as Name  , SystemId as Value from EmployeeInformation Where EmployeeStatus = 'Active' and EmployeeCode not in ('60000064' , '60002194','60002195')  and PlantId = '" + plantid + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
