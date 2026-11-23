@@ -3657,12 +3657,78 @@ where  EI.EmployeeCode='" + Empcode + "' and format(APd.WorkDate,'MMMM') = '" + 
 
         }
 
+
+
+        public IHttpActionResult GetIssueEmployee(string PlantId)
+        {
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select EMP.SystemId [Value] , Emp.EmployeeName [Name] from [dbo].[DailyIssueResponsiblePerson] DIP
+left join EmployeeInformation EMP on EMP.SystemId = DIP.EmpSystemId
+where EMp.EmployeeStatus = 'Active' and EMp.PlantId = '" + PlantId + "'"));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+        public IHttpActionResult GetIssues()
+        {
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select EI.Id , EMP.EmployeeCode Code , EMp.EmployeeName [Name],EDI.IssueType , EI.ResponsiblePersonId , EI.[Status], EI.Remarks 
+from EmployeeIssues EI 
+Left join EmployeeInformation EMP on EMP.Systemid = Ei.EmployeeId
+left join [dbo].[EmployeeDailyIssue] EDI on EDI.Id = EI.IssueId 
+Where EI.[Status] <> 'Closed' "));
+
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+
+
+
+
+
         [HttpPost]
         public string SaveEmployeeIssueData([FromBody] IEnumerable<EmployeeIssue> DataToSave)
         {
             try
             {
                 string Id = clsData.SaveEmployeeIssueData(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+
+        [HttpPost]
+        public string UpdateEmployeeIssueData([FromBody] EmployeeIssue DataToUpdate)
+        {
+            try
+            {
+                string Id = clsData.UpdateEmployeeIssueData(DataToUpdate);
                 return Id;
             }
             catch (Exception ex)

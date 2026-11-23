@@ -15112,6 +15112,87 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
         }
 
 
+        public string UpdateEmployeeIssueData(EmployeeIssue item)
+        {
+            try
+            {
+                if (item == null)
+                    throw new ArgumentNullException(nameof(item));
+
+                if (string.IsNullOrWhiteSpace(item.Id))
+                    throw new ArgumentException("Employee Issue Id is required.");
+
+                string TableName = "dbo.EmployeeIssues";
+
+                ConnectionManager.DAL.ConManager con =
+                    new ConnectionManager.DAL.ConManager("1");
+
+                DataSet dsMaster;
+
+                // Escape the Id before using it in the SQL query
+                string issueId = item.Id.Replace("'", "''");
+
+                string query = @"
+            SELECT *
+            FROM " + TableName + @"
+            WHERE Id = N'" + issueId + @"'";
+
+                con.OpenDataSetThroughAdapter(
+                    query,
+                    out dsMaster,
+                    false,
+                    "1");
+
+                if (dsMaster.Tables.Count == 0 ||
+                    dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    return "";
+                }
+
+                DataRow dr = dsMaster.Tables[0].Rows[0];
+
+                // 1. Update Responsible Person
+                dr["ResponsiblePersonId"] =
+                    item.ResponsiblePersonId ?? "";
+
+                // 2. Update Status only when provided
+                if (!string.IsNullOrWhiteSpace(item.Status))
+                {
+                    string oldStatus =
+                        dr["Status"] == DBNull.Value
+                            ? ""
+                            : dr["Status"].ToString();
+
+                    string newStatus = item.Status.Trim();
+
+                    // Update audit fields only when status actually changes
+                    if (!string.Equals(
+                            oldStatus,
+                            newStatus,
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        dr["Status"] = newStatus;
+
+                        dr["Updateby"] = item.UpdatedBy ?? "";
+
+                        dr["Updatedate"] = DateTime.Now;
+                    }
+                }
+
+                // Save updated data
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return item.Id;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
+
         #endregion
 
     }
