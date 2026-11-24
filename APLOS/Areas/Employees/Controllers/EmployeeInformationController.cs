@@ -147,7 +147,7 @@ namespace Aplos.Areas.Employees.Controllers
             return View();
         }
 
-      
+
         public ActionResult DailyIssue()
         {
             return View();
@@ -2817,7 +2817,7 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                 throw ex;
             }
         }
-         
+
 
         public DataTable GetDailyTargetData(string entityId, string targetDate, string processId, string shiftId)
         {
@@ -2915,7 +2915,7 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                             string productionOrderIds = string.Join(",",
                             dt.AsEnumerable().Where(row => row["ProductionOrderId"] != DBNull.Value)
                             .Select(row => row["ProductionOrderId"].ToString()));
- 
+
                             ///
                             // ফাঁকা/NULL/স্পেস মান বাদ + ডুপ্লিকেট বাদ + একক উদ্ধৃতি escape
                             Func<DataTable, string, string> BuildInList = (table, column) =>
@@ -2959,14 +2959,14 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                                     UploadedDailyTargetViewModel vm = new UploadedDailyTargetViewModel();
                                     DataView dv = new DataView(dsBC.Tables[0]);
                                     dsBC.Tables[0].DefaultView.RowFilter = "Id='" + dsExcel.Tables[0].Rows[i][4].ToString().Trim() + "'";
-                                   // dsWorkCenIncharge.Tables[0].DefaultView.RowFilter = "EmployeeCode='" + dsExcel.Tables[0].Rows[i][11].ToString().Trim() + "'";
+                                    // dsWorkCenIncharge.Tables[0].DefaultView.RowFilter = "EmployeeCode='" + dsExcel.Tables[0].Rows[i][11].ToString().Trim() + "'";
 
                                     if (dsExcel.Tables[0].Rows[i][4].ToString().Trim() != DBNull.Value.ToString() && dsBC.Tables[0].DefaultView.Count == 0)
                                     {
                                         throw new Exception("ProductionOrder no '" + dsExcel.Tables[0].Rows[i][4].ToString().Trim() + "' not valid PO. Please check !!");
 
                                     }
-                                   
+
 
                                     vm.TargetDate = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
                                     vm.ShiftName = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
@@ -2981,7 +2981,7 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                                     vm.Remarks = dsExcel.Tables[0].Rows[i][10].ToString().Trim();
                                     //vm.WorkCenterIncharge = dsWorkCenIncharge.Tables[0].DefaultView[0]["SystemId"].ToString();
                                     vm.TargetQty = vm.QtyPerHour * Convert.ToDecimal(dsExcel.Tables[0].Rows[i][13]);
-                                    vm.WorkingHour =  Convert.ToDecimal(dsExcel.Tables[0].Rows[i][13]);
+                                    vm.WorkingHour = Convert.ToDecimal(dsExcel.Tables[0].Rows[i][13]);
 
                                     Func<DataSet, object, string> SystemIdByCode = (ds, code) =>
                                     {
@@ -3165,7 +3165,7 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                             else
                                 item["QCIncharge"] = qcSystemId;
 
-                           
+
                             if (dsPO.Tables[0].DefaultView.Count > 0)
                             {
                                 item["SPT"] = Convert.ToDecimal(dsPO.Tables[0].DefaultView[0]["TotalSPT"]).ToString();
@@ -3178,7 +3178,7 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                         }
                         else
                         {
-                            
+
 
                             DataRow dr = dsBC.Tables[0].DefaultView[0].Row;
                             dr.BeginEdit();
@@ -3217,7 +3217,7 @@ Where E.EmpType<>'Guest' Order By E.EmployeeCodeNumeric";
                             dr.EndEdit();
                         }
                     }
-                    
+
                 }
 
                 #endregion
@@ -3441,9 +3441,9 @@ left join ORG.Entity EN on EN.Id = dte.EntityId";
             row = 4;
             int col = 1;
 
-            reportUtility.SetHeaderText(ref sheet, row, col, "Buyer", 12); int colBuyer = col; col++;
+            reportUtility.SetHeaderText(ref sheet, row, col, "Buyer", 18); int colBuyer = col; col++;
             reportUtility.SetHeaderText(ref sheet, row, col, "Style", 12); int colStyle = col; col++;
-            reportUtility.SetHeaderText(ref sheet, row, col, "PO", 12); int colPO = col; col++;
+            reportUtility.SetHeaderText(ref sheet, row, col, "PO", 8); int colPO = col; col++;
             reportUtility.SetHeaderText(ref sheet, row, col, "Output", 10); int colOutput = col; col++;
             reportUtility.SetHeaderText(ref sheet, row, col, "SMV", 10); int colSMV = col; col++;
             reportUtility.SetHeaderText(ref sheet, row, col, "TargetQty", 10); int colTargetQty = col; col++;
@@ -3451,6 +3451,11 @@ left join ORG.Entity EN on EN.Id = dte.EntityId";
             reportUtility.SetHeaderText(ref sheet, row, col, "WorkCenterName", 10); int colWorkCenterName = col; col++;
             reportUtility.SetHeaderText(ref sheet, row, col, "MO", 10); int colMO = col; col++;
             reportUtility.SetHeaderText(ref sheet, row, col, "Carder", 10); int colCarder = col; col++;
+
+            reportUtility.SetHeaderText(ref sheet, row, col, "McBreakdown", 10); int colMcBreakdown = col; col++;
+            reportUtility.SetHeaderText(ref sheet, row, col, "LostTime", 10); int colLostTime = col; col++;
+            reportUtility.SetHeaderText(ref sheet, row, col, "LostValue", 10); int colLostValue = col; col++;
+
             reportUtility.SetHeaderText(ref sheet, row, col, "WorkingHour", 10); int colWorkingHour = col; col++;
             reportUtility.SetHeaderText(ref sheet, row, col, "AvailableMinute", 12); int colAvailableMinute = col; col++;
             reportUtility.SetHeaderText(ref sheet, row, col, "OverAllEfficiency", 12); int colOverAllEfficiency = col; col++;
@@ -3459,30 +3464,72 @@ left join ORG.Entity EN on EN.Id = dte.EntityId";
 
 
             row++;
-            for (int i = 0; i < dsLocal.Rows.Count; i++)
+
+            // WorkCenter অনুযায়ী গ্রুপ, গ্রুপের efficiency = মোট ProduceMinute / মোট AvailableMinute
+            var groups = dsLocal.AsEnumerable()
+                .GroupBy(r => r["WorkCenterMasterId"].ToString())
+                .Select(g =>
+                {
+                    var list = g.ToList();
+                    double produce = list.Sum(x => ToD(x["ProduceMinute"]));
+                    double avail = list.Sum(x => ToD(x["AvailableMinute"]));
+                    return new { Rows = list, Eff = avail > 0 ? produce / avail : 0d };
+                })
+                .OrderByDescending(x => x.Eff)                                  // আগের মতো efficiency অনুযায়ী
+                .ThenBy(x => x.Rows[0]["WorkCenterName"].ToString())
+                .ToList();
+
+            foreach (var g in groups)
             {
-                var tempBuyer= string.IsNullOrEmpty(dsLocal.Rows[i]["PartyName"].ToString())? dsLocal.Rows[i]["StylePartyName"].ToString(): dsLocal.Rows[i]["PartyName"].ToString();
-                reportUtility.SetText(ref sheet, row, colBuyer, tempBuyer);
-                reportUtility.SetText(ref sheet, row, colStyle, dsLocal.Rows[i]["Style"].ToString());
-                reportUtility.SetText(ref sheet, row, colPO, dsLocal.Rows[i]["PO"].ToString());
-                reportUtility.SetText(ref sheet, row, colOutput, Convert.ToDouble(dsLocal.Rows[i]["Output"].ToString()));
-                reportUtility.SetText(ref sheet, row, colSMV, Convert.ToDouble(dsLocal.Rows[i]["SMV"].ToString()));
-                reportUtility.SetText(ref sheet, row, colProduceMinute, Convert.ToDouble(dsLocal.Rows[i]["ProduceMinute"].ToString()));
-                reportUtility.SetText(ref sheet, row, colWorkCenterName, dsLocal.Rows[i]["WorkCenterName"].ToString());
-                reportUtility.SetText(ref sheet, row, colMO, Convert.ToDouble(dsLocal.Rows[i]["MO"].ToString()));
-                reportUtility.SetText(ref sheet, row, colCarder, Convert.ToDouble(dsLocal.Rows[i]["Carder"].ToString()));
-                reportUtility.SetText(ref sheet, row, colWorkingHour, Convert.ToDouble(dsLocal.Rows[i]["WorkingHour"].ToString()));
-                reportUtility.SetText(ref sheet, row, colTargetQty, Convert.ToDouble(dsLocal.Rows[i]["TargetQty"].ToString()));
-                reportUtility.SetText(ref sheet, row, colAvailableMinute, Convert.ToDouble(dsLocal.Rows[i]["AvailableMinute"].ToString()));
-                reportUtility.SetText(ref sheet, row, colOverAllEfficiency, Convert.ToDouble(dsLocal.Rows[i]["OverAllEfficiency"].ToString()));//OTSBD.clsStaticInfo.dbl
-                reportUtility.SetText(ref sheet, row, colStandardEfficiency, Convert.ToDouble(dsLocal.Rows[i]["StandardEfficiency"].ToString()));
+                int groupStart = row;
 
-                sheet.Range[row, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
-                sheet.Range[row, 1, row, colLast].BorderAround(ExcelLineStyle.Hair);
-                row++;
+                foreach (var r in g.Rows)
+                {
+                    var tempBuyer = string.IsNullOrEmpty(r["PartyName"].ToString()) ? r["StylePartyName"].ToString() : r["PartyName"].ToString();
+                    reportUtility.SetText(ref sheet, row, colBuyer, tempBuyer);
+                    reportUtility.SetText(ref sheet, row, colStyle, r["Style"].ToString());
+                    reportUtility.SetText(ref sheet, row, colPO, r["PO"].ToString());
+                    reportUtility.SetText(ref sheet, row, colOutput, ToD(r["Output"]));
+                    reportUtility.SetText(ref sheet, row, colSMV, ToD(r["SMV"]));
+                    reportUtility.SetText(ref sheet, row, colProduceMinute, ToD(r["ProduceMinute"]));
+                    reportUtility.SetText(ref sheet, row, colMO, ToD(r["MO"]));
+                    reportUtility.SetText(ref sheet, row, colCarder, ToD(r["Carder"]));
+                    reportUtility.SetText(ref sheet, row, colWorkingHour, ToD(r["WorkingHour"]));
+                    reportUtility.SetText(ref sheet, row, colTargetQty, ToD(r["TargetQty"]));
+                    reportUtility.SetText(ref sheet, row, colAvailableMinute, ToD(r["AvailableMinute"]));
 
+                    WriteLossColumns(sheet, row, colTargetQty, colOutput, colSMV, colMcBreakdown, colLostTime, colLostValue);
+                    sheet.Range[row, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[row, 1, row, colLast].BorderAround(ExcelLineStyle.Hair);
+                    row++;
+                }
+
+                int groupEnd = row - 1;
+
+                // WorkCenter ও Efficiency গ্রুপের প্রথম রো-তে একবারই বসবে
+                reportUtility.SetText(ref sheet, groupStart, colWorkCenterName, g.Rows[0]["WorkCenterName"].ToString());
+                reportUtility.SetText(ref sheet, groupStart, colOverAllEfficiency, g.Eff);
+                // Standard Efficiency = ΣProduceMinute / (ΣAvailableMinute - ΣLostTime), গ্রুপের রো ধরে
+                string produceRng = "R" + groupStart + "C" + colProduceMinute + ":R" + groupEnd + "C" + colProduceMinute;
+                string availRng = "R" + groupStart + "C" + colAvailableMinute + ":R" + groupEnd + "C" + colAvailableMinute;
+                string lostRng = "R" + groupStart + "C" + colLostTime + ":R" + groupEnd + "C" + colLostTime;
+
+                sheet.Range[groupStart, colStandardEfficiency].FormulaR1C1 =
+                    "=IF((SUM(" + availRng + ")-SUM(" + lostRng + "))<=0,0,SUM(" + produceRng + ")/(SUM(" + availRng + ")-SUM(" + lostRng + ")))";
+                sheet.Range[groupStart, colStandardEfficiency].NumberFormat = "0.00";
+
+                // একাধিক রো থাকলে merge
+                if (groupEnd > groupStart)
+                {
+                    foreach (var c in new[] { colWorkCenterName, colOverAllEfficiency, colStandardEfficiency })
+                    {
+                        var rng = sheet.Range[groupStart, c, groupEnd, c];
+                        rng.Merge();
+                        rng.CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        rng.BorderAround(ExcelLineStyle.Hair);
+                    }
+                }
             }
-
             sheet.UsedRange.CellStyle.Font.Size = 8;
             sheet.Range["A1:" + reportUtility.GetColumnNameForXls(colLast) + "1"].Merge();
             sheet.Range["A1:" + reportUtility.GetColumnNameForXls(colLast) + "1"].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -3491,6 +3538,35 @@ left join ORG.Entity EN on EN.Id = dte.EntityId";
             reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
         }
 
+
+
+        private double ToD(object v)
+        {
+            double d;
+            if (v == null || v == DBNull.Value || !double.TryParse(v.ToString(), out d)) return 0;
+            return d;
+        }
+        private void WriteLossColumns(IWorksheet sheet, int row, int colTarget, int colOutput, int colSmv,
+                               int colMc, int colLostTime, int colLostValue)
+        {
+            // R1C1: RC<n> = এই রো-র n নম্বর কলাম
+            string target = "RC" + colTarget;
+            string output = "RC" + colOutput;
+            string smv = "RC" + colSmv;
+            string mc = "RC" + colMc;
+            string lost = "RC" + colLostTime;
+
+            // Lost Time = ((Target - Output) * SMV) / (60 - Mc Breakdown)
+            sheet.Range[row, colLostTime].FormulaR1C1 =
+                "=IF((60-" + mc + ")=0,0,((" + target + "-" + output + ")*" + smv + ")/(60-" + mc + "))";
+
+            // Lost Value = Lost Time * 2.7
+            sheet.Range[row, colLostValue].FormulaR1C1 = "=" + lost + "*2.7";
+
+            sheet.Range[row, colMc].NumberFormat = "#,##0.00";
+            sheet.Range[row, colLostTime].NumberFormat = "#,##0.00";
+            sheet.Range[row, colLostValue].NumberFormat = "#,##0.00";
+        }
         private void BuildDetailSheet(IWorksheet sheet, ReportUtility reportUtility, DataRow[] dataRows, string dateText)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -3499,9 +3575,9 @@ left join ORG.Entity EN on EN.Id = dte.EntityId";
 
             row++;
 
-            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Buyer", 12); int colBuyer = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Buyer", 18); int colBuyer = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Style", 12); int colStyle = xlsCol; xlsCol++;
-            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "PO", 12); int colPO = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "PO", 8); int colPO = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Output"); int colOutput = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "SMV", 8); int colSMV = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "ProduceMinute", 8); int colProduceMinute = xlsCol; xlsCol++;
@@ -3509,6 +3585,9 @@ left join ORG.Entity EN on EN.Id = dte.EntityId";
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "WorkCenterName", 8); int colWorkCenterName = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "MO", 8); int colMO = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Carder", 8); int colCarder = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "McBreakdown", 8); int colMcBreakdown = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "LostTime", 8); int colLostTime = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "LostValue", 8); int colLostValue = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "WorkingHour", 8); int colWorkingHour = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "TargetQty", 8); int colTargetQty = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "AvailableMinute", 8); int colAvailableMinute = xlsCol; xlsCol++;
@@ -3536,8 +3615,11 @@ left join ORG.Entity EN on EN.Id = dte.EntityId";
                     reportUtility.SetText(ref sheet, row, colTargetQty, Convert.ToDouble(r["TargetQty"].ToString()));
                     reportUtility.SetText(ref sheet, row, colAvailableMinute, Convert.ToDouble(r["AvailableMinute"].ToString()));
                     reportUtility.SetText(ref sheet, row, colOverAllEfficiency, Convert.ToDouble(r["OverAllEfficiency"].ToString()));
-                    reportUtility.SetText(ref sheet, row, colStandardEfficiency, Convert.ToDouble(r["StandardEfficiency"].ToString()));
-
+                    //reportUtility.SetText(ref sheet, row, colStandardEfficiency, Convert.ToDouble(r["StandardEfficiency"].ToString()));
+                    WriteLossColumns(sheet, row, colTargetQty, colOutput, colSMV, colMcBreakdown, colLostTime, colLostValue);
+                    sheet.Range[row, colStandardEfficiency].FormulaR1C1 =
+    "=IF((RC" + colAvailableMinute + "-RC" + colLostTime + ")<=0,0,RC" + colProduceMinute + "/(RC" + colAvailableMinute + "-RC" + colLostTime + "))";
+                    sheet.Range[row, colStandardEfficiency].NumberFormat = "0.00";
                     sheet.Range[row, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
                     sheet.Range[row, 1, row, colLast].BorderAround(ExcelLineStyle.Hair);
                     row++;
@@ -3629,10 +3711,10 @@ ORDER BY ISNULL(SUM(PS.Quantity*DT.SPT) / NULLIF(SUM(ISNULL(PBC.TotalManpower*(D
     SELECT  dt.id,DT.StyleNo Style,DT.ProductionOrderId PO
     ,ISNULL(PS.Quantity,0) [Output] ,DT.SPT SMV,ProduceMinute=ISNULL(PS.Quantity*DT.SPT,0)
     ,REPLACE(CONVERT(VARCHAR(11), CAST(DT.TargetDate AS date), 106), ' ', '-') [TargetDate]
-    ,DT.WorkCenterMasterId,wcm.UserName WorkCenterName,ISNULL(PBC.MCtotalMP,0) MO,ISNULL(PBC.NonMCtotalMP,0) Carder
-    ,(DT.WorkingHour*60) WorkingHour,DT.TargetQty,AvailableMinute=ISNULL(PBC.NonMCtotalMP*(DT.WorkingHour*60),0)
-    ,OverAllEfficiency=ISNULL((PS.Quantity*DT.SPT)/(PBC.NonMCtotalMP*(DT.WorkingHour*60)),0)
-    ,StandardEfficiency=ISNULL((PS.Quantity*DT.SPT)/(PBC.NonMCtotalMP*(DT.WorkingHour*60)),0)
+    ,DT.WorkCenterMasterId,wcm.UserName WorkCenterName,ISNULL(PBC.MCtotalMP,0) MO,ISNULL(PBC.TotalManpower,0) Carder
+    ,(DT.WorkingHour*60) WorkingHour,DT.TargetQty,AvailableMinute=ISNULL(PBC.TotalManpower*(DT.WorkingHour*60),0)
+    ,OverAllEfficiency=ISNULL((PS.Quantity*DT.SPT)/(PBC.TotalManpower*(DT.WorkingHour*60)),0)
+    ,StandardEfficiency=ISNULL((PS.Quantity*DT.SPT)/(PBC.TotalManpower*(DT.WorkingHour*60)),0)
 ,PartyName = REPLACE(REPLACE(STUFF((select distinct ','+P.UserName from hkp.Party P
 																LEFT JOIN	trn.MasterOrder XMOI ON P.Id=XMOI.PartyId	 
 								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
@@ -3657,7 +3739,7 @@ ORDER BY ISNULL(SUM(PS.Quantity*DT.SPT) / NULLIF(SUM(ISNULL(PBC.TotalManpower*(D
     LEFT JOIN trn.ProductionBulletinTemplateMaster pbm on pbm.ProductionBulletinTemplateId = pb.Id
     LEFT JOIN DBO.ProducitonBulletinCalculation PBC ON PBC.ProductionBulletinTemplateMasterId=pbm.Id
     where DT.TargetDate between @fromDate AND @toDate
-    order by CAST(DT.TargetDate AS date) ASC, ISNULL((PS.Quantity*DT.SPT)/(PBC.NonMCtotalMP*(DT.WorkingHour*60)),0) desc
+    order by CAST(DT.TargetDate AS date) ASC, ISNULL((PS.Quantity*DT.SPT)/(PBC.TotalManpower*(DT.WorkingHour*60)),0) desc
     ";
             return _sqlRepository.GetDataTable(cmdText);
         }
