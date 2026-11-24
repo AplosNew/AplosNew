@@ -573,5 +573,9 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             templateUrl: 'Employees/EmployeeInFoReport/OperationStatus',
             controller: 'operationStatusController'
         })
+        .when('/doc-status', {
+            templateUrl: 'Employees/EmployeeDocumentAssignment/DocStatus',
+            controller: 'DocumentStatusUpdateController'
+        })
         ;
 } 

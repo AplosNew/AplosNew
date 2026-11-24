@@ -1,0 +1,239 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Employee Document Assignment
+</h3>
+<div ng-form name="preRecruitmentEmployeeForm" class="form-horizontal form-element-ctrl">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="From Date" ng-model="modalNew.FromDate" datepicker class="form-control" disabled required tabindex="4">
+
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Employee Category<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <input id="EmpCategoryDropdown" ej-dropdownlist e-multiselectmode="visualmode"
+                               e-datasource="EmpCatList" e-fields-value="Value"
+                               e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="From Date" ng-model="modalNew.ToDate" datepicker class="form-control" disabled required tabindex="4">
+
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Employee<sup>*</sup></label>
+                <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
+                    <span class="input-group-addon">{{modalNew.EmployeeCode}}</span>
+                    <input type="text" ng-model="modalNew.EmployeeName" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="getEmpPopUpData()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        @*<button ng-click="clearEmployeeInfo()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>*@
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div style="color:black;" id="GridDoc" ej-grid e-datasource="documentdataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                 e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-field="DocumentName" e-headertext="Document Name" e-headertext-color="black" e-textalign="left" e-width="75"></div>
+                    <div e-column e-field="OptionalOrMandatory" e-headertext="Optional Or Mandatory" e-width="80"></div>
+                    <div e-column e-headertext="DueDate" e-template="#DueDate" e-textalign="center" e-width="30"></div>
+                    <div e-column e-headertext="Applicable" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                </div>
+            </div>
+            <script type="text/template" id="checkboxTemplate">
+                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Applicable" />
+            </script>
+            <script type="text/template" id="DueDate">
+                <input type="text" name="Due Date" ng-model="data.DueDate" datepicker class="form-control" tabindex="4">
+            </script>
+        </div>
+        <div class="common-btn" style="margin-top:10px;">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Save </button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-repeat"></i> Clear </button></li>
+
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="popUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Employee Information<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridPopUp" ej-grid e-datasource="popUpDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                       e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="SystemId" e-headertext="EmpSystemId" e-headertext-color="black" e-textalign="left" e-width="75"></div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="Company" e-headertext="Company" e-width="80"></div>
+                            <div e-column e-field="Plant" e-headertext="Plant" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                        </div>
+                    </div>
+                    <div class="common-btn" style="padding-right: 15px;">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="closePopUp();" class="btn">Close</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!--<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="SelectionParameters.searchBy">
+                            <option ng-repeat="option in searchDataByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="SelectionParameters.search" ng-enter="LoadDataList()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="LoadDataList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="form-elements form-horizontal" ng-show="recruitmentSelections.length>0">
+    <label>Total :{{SelectionParameters.total_count}}</label>
+    <input type="hidden" ng-model="employeeInformation.Id">
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" ng-disabled="tempIdList.length==0" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+        </ul>
+    </div>
+    <div class="table-responsive modal-table">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>
+                        <div class="checkbox-site text-center">
+                            <input type="checkbox" ng-click="CheckAll($event);">
+                        </div>
+                    </th>
+                    <th>System ID</th>
+                    <th>Employee Code</th>
+                    <th>Employee Name</th>
+                    <th>EmailId</th>
+                    <th>Date of Birth</th>
+                    <th>Budget Code</th>
+                    <th>Entity</th>
+                    <th>Position</th>
+                    <th>Department</th>
+                    <th>Designation</th>
+                    <th>Given Designation</th>
+                    <th>No. Of Document</th>
+                    <th>Documents</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr dir-paginate="e in recruitmentSelections |itemsPerPage:SelectionParameters.pageSize" total-items="SelectionParameters.total_count">
+                    <td class="text-right table-td">
+                        <div class="checkbox-site">
+                            <input type="checkbox" ng-model="e.Active" ng-click="selectChValueId($event,e)">
+                        </div>
+                    </td>
+                    <td>{{e.SystemId}}</td>
+                    <td>{{e.EmployeeCode}}</td>
+                    <td>{{e.EmployeeName | uppercase}}</td>
+                    <td>{{e.EmailId}}</td>
+                    <td>{{e.DOB | dateFiltering}}</td>
+                    <td>{{e.Code}}</td>
+                    <td>{{e.EntityName}}</td>
+                    <td>{{e.PositionName}}</td>
+                    <td>{{e.Department}}</td>
+                    <td>{{e.Designation}}</td>
+                    <td>{{e.GivenDesignation}}</td>
+                    <td>{{e.TotalDoc}}</td>
+                    <td>
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="showDocumentPopUp(e,$index);" class="btn">Documents</button></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <dir-pagination-controls max-size="200"
+                                 direction-links="true"
+                                 boundary-links="true"
+                                 on-page-change="LoadDataList(newPageNumber)">
+        </dir-pagination-controls>
+    </div>
+
+</div>
+<div class="modal fade site-modal in" id="DocumentPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width: 75%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="closepopUp()">&times;</button>
+                <h4 class="modal-title"> Assign Documents</h4>
+            </div>
+            <div class="modal-body" style="width: 99%;padding-left: 3%;">
+                <div class="row">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Document Stage</th>
+                                    <th>Document Name</th>
+                                    <th>File Name</th>
+                                    <th>Optional Or Mandatory</th>
+                                    <th>Due Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="d in documentdataList">
+                                    <td>{{d.EmploymentStage}}</td>
+                                    <td>{{d.DocumentName}}</td>-->
+                                    @*<td>{{d.FileName}}</td>*@
+                                    <!--<td ng-click="DocDownload(d)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{d.FileName}}" target="_self">{{d.FileName}}</a></td>
+                                    <td>{{d.OptionalOrMandatory}}</td>
+                                    <td>{{d.DueDate | dateFiltering}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button type="submit" class="btn btn-default" ng-click="closepopUp();">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>-->

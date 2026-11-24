@@ -2025,7 +2025,7 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
 									,CD.EmpType
 									,CD.ProfileType,CD.DocNumberRequired,CD.DocDateRequired
 									,E.UserName AS EmployeeCategory
-									,CD.DependateDate
+									,CD.DependateDate,FORMAT(ED.DueDate,'dd-MMM-yyyy')DuDate,Applicable=CAST(1 as bit)
 								FROM dbo.EmployeeDocument ED
 								LEFT JOIN hkp.ComplianceDocument CD ON ED.ComplianceDocumentId = CD.Id
 								LEFT JOIN HKP.ComplianceDocumentSetDetail AS CDSD ON CD.Id = CDSD.ComplianceDocumentId
@@ -6204,7 +6204,137 @@ LEFT JOIN HKP.WorkCenterWiseGroup WG ON WG.WorkCenterMasterId = WCM.Id
 LEFT JOIN HKP.WorkCenterGroup WCG ON WCG.Id = WG.WorkCenterGroupId
 ) A
 ";
-       
+
+        #region EmpDocStatus
+        public IEnumerable<object> GetDOJFromToDate(string plantId)
+        {
+            try
+            {
+                string sql = @"Select FORMAT(MIN(DOJ),'dd-MMM-yyyy') FromDate,FORMAT(MAX(DOJ),'dd-MMM-yyyy') ToDate from dbo.EmployeeInformation Where EmployeeStatus='Active' AND EmpType<>'Guest' AND PlantId='"+ plantId + @"'
+AND SystemId IN(Select distinct EmpSystemId from dbo.EmployeeDocument)";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetDocumentEmployeeData(string companyId,List<string> EmpCategoryList, string fromDate, string toDate)
+        {
+            try
+            {
+                string EmpCategoryId = "''";
+                for (int i = 0; i < EmpCategoryList.Count; i++)
+                {
+                    EmpCategoryId += ",'" + EmpCategoryList[i].ToString() + "'";
+                }
+
+                string CmdText = @"Select * From(SELECT CAST (0 AS bit) Flag,E.SystemId
+							    	,E.PlantId
+							    	,E.GroupID
+							    	,E.CompanyId
+							    	,E.EmployeeName
+							    	,PMB.Code BudgetCode
+							    	,PR.UserName PositionName
+							    	,E.TelePhnNo
+							    	,E.EmailId
+                                    ,PR.DepartmentId
+                                    ,PR.DivisionId
+									,PR.SectionId
+							    	,E.EmpType
+							    	,E.GivenDesignationId
+							    	,EN.UserName EntityName
+							    	,D.UserName Designation
+							    	,GD.UserName GivenDesignation
+                                    ,LD.UserName LegalDesignation
+							    	,DEPT.UserName AS Department
+							    	,DV.UserName AS Division
+									,SC.UserName AS Section
+                                    ,E.EmployeeCode
+									,E.EmpPicPath
+                                    ,E.DOJ
+                                    ,P.UserName Plant
+									,SS.UserName SubSection
+                                    ,E.EmployeeCodeNumeric
+                                    ,C.UserName Company
+                                    ,DM.EmployeeCategoryId
+                                    ,EC.UserName EmployeeCategory
+							    FROM EmployeeInformation E
+							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
+							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+							    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
+							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
+							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
+							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
+                                LEFT JOIN HKP.LegalDesignation LD ON E.LegalDesignationId = LD.Id
+								LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=E.GivenDesignationId
+								LEFT JOIn HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
+                                LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
+								LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
+                                LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
+                                WHERE E.EmployeeStatus='Active' AND E.EmpType<>'Guest' AND E.CompanyId='" + companyId + @"'
+								union all
+								SELECT CAST (0 AS bit) Flag,E.SystemId
+							    	,E.PlantId
+							    	,E.GroupID
+							    	,E.CompanyId
+							    	,E.EmployeeName
+							    	,PMB.Code BudgetCode
+							    	,PR.UserName PositionName
+							    	,E.TelePhnNo
+							    	,E.EmailId
+                                    ,PR.DepartmentId
+                                    ,PR.DivisionId
+									,PR.SectionId
+							    	,E.EmpType
+							    	,E.GivenDesignationId
+							    	,EN.UserName EntityName
+							    	,D.UserName Designation
+							    	,GD.UserName GivenDesignation
+                                    ,LD.UserName LegalDesignation
+							    	,DEPT.UserName AS Department
+							    	,DV.UserName AS Division
+									,SC.UserName AS Section
+                                    ,E.EmployeeCode
+									,E.EmpPicPath
+                                    ,E.DOJ
+                                    ,P.UserName Plant
+									,SS.UserName SubSection
+                                    ,E.EmployeeCodeNumeric
+                                    ,C.UserName Company                                    
+                                    ,DM.EmployeeCategoryId
+                                    ,EC.UserName EmployeeCategory
+							    FROM EmployeeInformation E
+							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
+							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+							    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON PR.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON PR.SectionId = SC.Id
+							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
+							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
+							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
+                                LEFT JOIN HKP.LegalDesignation LD ON E.LegalDesignationId = LD.Id
+								LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=E.GivenDesignationId
+								LEFT JOIn HKP.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId
+                                LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
+								LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
+                                LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
+                                WHERE E.EmployeeStatus='Active' AND E.EmpType<>'Guest' AND E.IsGlobalEmployee=1) A Where A.SystemId IN(Select distinct EmpSystemId from dbo.EmployeeDocument)
+                                AND A.EmployeeCategoryId In(" + EmpCategoryId + @")  AND A.DOJ between '"+fromDate+ @"' AND '" + toDate + @"'";
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
     }
     public class EmployeeOperation
     {

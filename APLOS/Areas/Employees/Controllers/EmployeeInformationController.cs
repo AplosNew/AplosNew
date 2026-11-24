@@ -3719,7 +3719,7 @@ ORDER BY ISNULL(SUM(PS.Quantity*DT.SPT) / NULLIF(SUM(ISNULL(PBC.TotalManpower*(D
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT TT.*,E.EmployeeName ResponsiblePerson,SD.UserName ShiftName FROM dbo.EmployeeDailyIssue TT
+            string sql = @"select  * from (SELECT TT.*,E.EmployeeName ResponsiblePerson,SD.UserName ShiftName FROM dbo.EmployeeDailyIssue TT
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=TT.ResponsiblePersonId
 LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=TT.ShiftId) AS TEMP WHERE " + strkey + "";
 

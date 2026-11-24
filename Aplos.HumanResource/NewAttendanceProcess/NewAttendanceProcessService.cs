@@ -6454,7 +6454,7 @@ LEFT JOIN hkp.WeeklyStatus WS
                                 (
                                 select EmpSystemID from AttdnProcessData p 
 								left join EmployeeInformation e on p.EmpSystemID=e.SystemId
-                                where EmployeeCurrentStatus='LONG ABSENTEEISM' and 
+                                where e.EmployeeCurrentStatus='LONG ABSENTEEISM' and 
 								e.PlantId='" + PlantId + @"'
 								and WorkDate between '" + fdate + @"'  and '" + tdate + @"' and
 								(p.PresentValue='1' or p.LateValue='1' or p.LvValue='1' or 
