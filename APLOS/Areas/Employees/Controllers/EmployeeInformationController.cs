@@ -3441,9 +3441,9 @@ left join ORG.Entity EN on EN.Id = dte.EntityId";
             row = 4;
             int col = 1;
 
-            reportUtility.SetHeaderText(ref sheet, row, col, "Buyer", 12); int colBuyer = col; col++;
+            reportUtility.SetHeaderText(ref sheet, row, col, "Buyer", 18); int colBuyer = col; col++;
             reportUtility.SetHeaderText(ref sheet, row, col, "Style", 12); int colStyle = col; col++;
-            reportUtility.SetHeaderText(ref sheet, row, col, "PO", 12); int colPO = col; col++;
+            reportUtility.SetHeaderText(ref sheet, row, col, "PO", 8); int colPO = col; col++;
             reportUtility.SetHeaderText(ref sheet, row, col, "Output", 10); int colOutput = col; col++;
             reportUtility.SetHeaderText(ref sheet, row, col, "SMV", 10); int colSMV = col; col++;
             reportUtility.SetHeaderText(ref sheet, row, col, "TargetQty", 10); int colTargetQty = col; col++;
@@ -3451,6 +3451,11 @@ left join ORG.Entity EN on EN.Id = dte.EntityId";
             reportUtility.SetHeaderText(ref sheet, row, col, "WorkCenterName", 10); int colWorkCenterName = col; col++;
             reportUtility.SetHeaderText(ref sheet, row, col, "MO", 10); int colMO = col; col++;
             reportUtility.SetHeaderText(ref sheet, row, col, "Carder", 10); int colCarder = col; col++;
+
+            reportUtility.SetHeaderText(ref sheet, row, col, "McBreakdown", 10); int colMcBreakdown = col; col++;
+            reportUtility.SetHeaderText(ref sheet, row, col, "LostTime", 10); int colLostTime = col; col++;
+            reportUtility.SetHeaderText(ref sheet, row, col, "LostValue", 10); int colLostValue = col; col++;
+
             reportUtility.SetHeaderText(ref sheet, row, col, "WorkingHour", 10); int colWorkingHour = col; col++;
             reportUtility.SetHeaderText(ref sheet, row, col, "AvailableMinute", 12); int colAvailableMinute = col; col++;
             reportUtility.SetHeaderText(ref sheet, row, col, "OverAllEfficiency", 12); int colOverAllEfficiency = col; col++;
@@ -3493,6 +3498,7 @@ left join ORG.Entity EN on EN.Id = dte.EntityId";
                     reportUtility.SetText(ref sheet, row, colTargetQty, ToD(r["TargetQty"]));
                     reportUtility.SetText(ref sheet, row, colAvailableMinute, ToD(r["AvailableMinute"]));
 
+                    WriteLossColumns(sheet, row, colTargetQty, colOutput, colSMV, colMcBreakdown, colLostTime, colLostValue);
                     sheet.Range[row, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
                     sheet.Range[row, 1, row, colLast].BorderAround(ExcelLineStyle.Hair);
                     row++;
@@ -3503,7 +3509,14 @@ left join ORG.Entity EN on EN.Id = dte.EntityId";
                 // WorkCenter ও Efficiency গ্রুপের প্রথম রো-তে একবারই বসবে
                 reportUtility.SetText(ref sheet, groupStart, colWorkCenterName, g.Rows[0]["WorkCenterName"].ToString());
                 reportUtility.SetText(ref sheet, groupStart, colOverAllEfficiency, g.Eff);
-                reportUtility.SetText(ref sheet, groupStart, colStandardEfficiency, g.Eff);
+                // Standard Efficiency = ΣProduceMinute / (ΣAvailableMinute - ΣLostTime), গ্রুপের রো ধরে
+                string produceRng = "R" + groupStart + "C" + colProduceMinute + ":R" + groupEnd + "C" + colProduceMinute;
+                string availRng = "R" + groupStart + "C" + colAvailableMinute + ":R" + groupEnd + "C" + colAvailableMinute;
+                string lostRng = "R" + groupStart + "C" + colLostTime + ":R" + groupEnd + "C" + colLostTime;
+
+                sheet.Range[groupStart, colStandardEfficiency].FormulaR1C1 =
+                    "=IF((SUM(" + availRng + ")-SUM(" + lostRng + "))<=0,0,SUM(" + produceRng + ")/(SUM(" + availRng + ")-SUM(" + lostRng + ")))";
+                sheet.Range[groupStart, colStandardEfficiency].NumberFormat = "0.00";
 
                 // একাধিক রো থাকলে merge
                 if (groupEnd > groupStart)
@@ -3533,7 +3546,27 @@ left join ORG.Entity EN on EN.Id = dte.EntityId";
             if (v == null || v == DBNull.Value || !double.TryParse(v.ToString(), out d)) return 0;
             return d;
         }
+        private void WriteLossColumns(IWorksheet sheet, int row, int colTarget, int colOutput, int colSmv,
+                               int colMc, int colLostTime, int colLostValue)
+        {
+            // R1C1: RC<n> = এই রো-র n নম্বর কলাম
+            string target = "RC" + colTarget;
+            string output = "RC" + colOutput;
+            string smv = "RC" + colSmv;
+            string mc = "RC" + colMc;
+            string lost = "RC" + colLostTime;
 
+            // Lost Time = ((Target - Output) * SMV) / (60 - Mc Breakdown)
+            sheet.Range[row, colLostTime].FormulaR1C1 =
+                "=IF((60-" + mc + ")=0,0,((" + target + "-" + output + ")*" + smv + ")/(60-" + mc + "))";
+
+            // Lost Value = Lost Time * 2.7
+            sheet.Range[row, colLostValue].FormulaR1C1 = "=" + lost + "*2.7";
+
+            sheet.Range[row, colMc].NumberFormat = "#,##0.00";
+            sheet.Range[row, colLostTime].NumberFormat = "#,##0.00";
+            sheet.Range[row, colLostValue].NumberFormat = "#,##0.00";
+        }
         private void BuildDetailSheet(IWorksheet sheet, ReportUtility reportUtility, DataRow[] dataRows, string dateText)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -3542,9 +3575,9 @@ left join ORG.Entity EN on EN.Id = dte.EntityId";
 
             row++;
 
-            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Buyer", 12); int colBuyer = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Buyer", 18); int colBuyer = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Style", 12); int colStyle = xlsCol; xlsCol++;
-            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "PO", 12); int colPO = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "PO", 8); int colPO = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Output"); int colOutput = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "SMV", 8); int colSMV = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "ProduceMinute", 8); int colProduceMinute = xlsCol; xlsCol++;
@@ -3552,6 +3585,9 @@ left join ORG.Entity EN on EN.Id = dte.EntityId";
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "WorkCenterName", 8); int colWorkCenterName = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "MO", 8); int colMO = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Carder", 8); int colCarder = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "McBreakdown", 8); int colMcBreakdown = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "LostTime", 8); int colLostTime = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "LostValue", 8); int colLostValue = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "WorkingHour", 8); int colWorkingHour = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "TargetQty", 8); int colTargetQty = xlsCol; xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "AvailableMinute", 8); int colAvailableMinute = xlsCol; xlsCol++;
@@ -3579,8 +3615,11 @@ left join ORG.Entity EN on EN.Id = dte.EntityId";
                     reportUtility.SetText(ref sheet, row, colTargetQty, Convert.ToDouble(r["TargetQty"].ToString()));
                     reportUtility.SetText(ref sheet, row, colAvailableMinute, Convert.ToDouble(r["AvailableMinute"].ToString()));
                     reportUtility.SetText(ref sheet, row, colOverAllEfficiency, Convert.ToDouble(r["OverAllEfficiency"].ToString()));
-                    reportUtility.SetText(ref sheet, row, colStandardEfficiency, Convert.ToDouble(r["StandardEfficiency"].ToString()));
-
+                    //reportUtility.SetText(ref sheet, row, colStandardEfficiency, Convert.ToDouble(r["StandardEfficiency"].ToString()));
+                    WriteLossColumns(sheet, row, colTargetQty, colOutput, colSMV, colMcBreakdown, colLostTime, colLostValue);
+                    sheet.Range[row, colStandardEfficiency].FormulaR1C1 =
+    "=IF((RC" + colAvailableMinute + "-RC" + colLostTime + ")<=0,0,RC" + colProduceMinute + "/(RC" + colAvailableMinute + "-RC" + colLostTime + "))";
+                    sheet.Range[row, colStandardEfficiency].NumberFormat = "0.00";
                     sheet.Range[row, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
                     sheet.Range[row, 1, row, colLast].BorderAround(ExcelLineStyle.Hair);
                     row++;
@@ -3672,10 +3711,10 @@ ORDER BY ISNULL(SUM(PS.Quantity*DT.SPT) / NULLIF(SUM(ISNULL(PBC.TotalManpower*(D
     SELECT  dt.id,DT.StyleNo Style,DT.ProductionOrderId PO
     ,ISNULL(PS.Quantity,0) [Output] ,DT.SPT SMV,ProduceMinute=ISNULL(PS.Quantity*DT.SPT,0)
     ,REPLACE(CONVERT(VARCHAR(11), CAST(DT.TargetDate AS date), 106), ' ', '-') [TargetDate]
-    ,DT.WorkCenterMasterId,wcm.UserName WorkCenterName,ISNULL(PBC.MCtotalMP,0) MO,ISNULL(PBC.NonMCtotalMP,0) Carder
-    ,(DT.WorkingHour*60) WorkingHour,DT.TargetQty,AvailableMinute=ISNULL(PBC.NonMCtotalMP*(DT.WorkingHour*60),0)
-    ,OverAllEfficiency=ISNULL((PS.Quantity*DT.SPT)/(PBC.NonMCtotalMP*(DT.WorkingHour*60)),0)
-    ,StandardEfficiency=ISNULL((PS.Quantity*DT.SPT)/(PBC.NonMCtotalMP*(DT.WorkingHour*60)),0)
+    ,DT.WorkCenterMasterId,wcm.UserName WorkCenterName,ISNULL(PBC.MCtotalMP,0) MO,ISNULL(PBC.TotalManpower,0) Carder
+    ,(DT.WorkingHour*60) WorkingHour,DT.TargetQty,AvailableMinute=ISNULL(PBC.TotalManpower*(DT.WorkingHour*60),0)
+    ,OverAllEfficiency=ISNULL((PS.Quantity*DT.SPT)/(PBC.TotalManpower*(DT.WorkingHour*60)),0)
+    ,StandardEfficiency=ISNULL((PS.Quantity*DT.SPT)/(PBC.TotalManpower*(DT.WorkingHour*60)),0)
 ,PartyName = REPLACE(REPLACE(STUFF((select distinct ','+P.UserName from hkp.Party P
 																LEFT JOIN	trn.MasterOrder XMOI ON P.Id=XMOI.PartyId	 
 								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
@@ -3700,7 +3739,7 @@ ORDER BY ISNULL(SUM(PS.Quantity*DT.SPT) / NULLIF(SUM(ISNULL(PBC.TotalManpower*(D
     LEFT JOIN trn.ProductionBulletinTemplateMaster pbm on pbm.ProductionBulletinTemplateId = pb.Id
     LEFT JOIN DBO.ProducitonBulletinCalculation PBC ON PBC.ProductionBulletinTemplateMasterId=pbm.Id
     where DT.TargetDate between @fromDate AND @toDate
-    order by CAST(DT.TargetDate AS date) ASC, ISNULL((PS.Quantity*DT.SPT)/(PBC.NonMCtotalMP*(DT.WorkingHour*60)),0) desc
+    order by CAST(DT.TargetDate AS date) ASC, ISNULL((PS.Quantity*DT.SPT)/(PBC.TotalManpower*(DT.WorkingHour*60)),0) desc
     ";
             return _sqlRepository.GetDataTable(cmdText);
         }
