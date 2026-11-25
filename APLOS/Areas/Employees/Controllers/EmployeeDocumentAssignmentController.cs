@@ -99,6 +99,12 @@ namespace Aplos.Areas.Employees.Controllers
             }
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetEmpPendingDocumentDataList(string companyGroupId, string pId, string plantId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(employeeProfile.GetEmpPendingDocumentDataList(identity.CompanyGroupId, pId, plantId), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public ActionResult GetDocumentEmployeeData(List<string> EmpCategory, string fromDate, string toDate)

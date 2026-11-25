@@ -76,7 +76,7 @@ function DocumentStatusUpdateController(fileReader, cboService, commonMessage, $
 
     $scope.documentdataList = [];
     $scope.Loaddocumentdatalist = function () {
-        $http.get('employees/employeeinformation/GetEmpAllDocumentDataList?companyGroupId=' + $scope.CompanyGroupID + '&pId=' + $scope.modalNew.EmployeeId + '&plantId=' + $scope.PlantId)
+        $http.get('employees/employeedocumentassignment/GetEmpPendingDocumentDataList?companyGroupId=' + $scope.CompanyGroupID + '&pId=' + $scope.modalNew.EmployeeId + '&plantId=' + $scope.PlantId)
             .then(function (response) {
                 $scope.documentdataList = response.data;
             });

@@ -2050,6 +2050,43 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
             }
         }
 
+        public IEnumerable<object> GetEmpPendingDocumentDataList(string companyGroupId, string pId, string plantId)
+        {
+            try
+            {
+                var sql = @"SELECT  DISTINCT ED.*,
+									CD.UserName DocumentName
+									,CD.DocumentType
+									,CD.IsSkillBased
+									,CDSD.OptionalOrMandatory
+									,CD.EmpType
+									,CD.ProfileType,CD.DocNumberRequired,CD.DocDateRequired
+									,E.UserName AS EmployeeCategory
+									,CD.DependateDate,FORMAT(ED.DueDate,'dd-MMM-yyyy')DuDate,Applicable=CAST(1 as bit)
+								FROM dbo.EmployeeDocument ED
+								LEFT JOIN hkp.ComplianceDocument CD ON ED.ComplianceDocumentId = CD.Id
+								LEFT JOIN HKP.ComplianceDocumentSetDetail AS CDSD ON CD.Id = CDSD.ComplianceDocumentId
+								LEFT JOIN (SELECT  * FROM HKP.DocumentConfigurationDesignationGroup
+								Where PlantId='" + plantId + @"' and EmployeeCategoryId = (
+										SELECT D.EmployeeCategoryId
+										FROM (SELECT * FROM MST.DesignationMaster WHERE CompanyGroupId = '" + companyGroupId + @"'
+											) AS D
+										LEFT JOIN EmployeeInformation EI ON D.DesignationId = EI.GivenDesignationId
+										WHERE EI.SystemId = '" + pId + @"'
+										)
+								)DD ON CDSD.ComplianceDocumentSetId = DD.ComplianceDocumentSetId
+								LEFT JOIN HKP.EmployeeCategory AS E ON DD.EmployeeCategoryId = E.Id
+								WHERE ED.EmpSystemID = '" + pId + @"' 
+									--AND ISNULL(CD.ProfileType,'') NOT IN ('Qualification','Training','Experience','Photo')
+									AND E.UserName IS NOT NULL AND ED.[FileName] IS NULL ORDER BY CDSD.OptionalOrMandatory,DocumentName";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> GetEmployeeList(string plantId, string companyId)
         {
             try
@@ -6261,6 +6298,9 @@ AND SystemId IN(Select distinct EmpSystemId from dbo.EmployeeDocument)";
                                     ,C.UserName Company
                                     ,DM.EmployeeCategoryId
                                     ,EC.UserName EmployeeCategory
+                                    ,PendingDoc=(Select Count (Id) from dbo.EmployeeDocument Where [FileName] IS NULL AND E.SystemId=EmpSystemID)
+                                    ,MandatoryDoc=(Select Count (Id) from dbo.EmployeeDocument Where OptionalOrMandatory ='Mandatory' AND E.SystemId=EmpSystemID)
+                                    ,OptionalDoc=(Select Count (Id) from dbo.EmployeeDocument Where OptionalOrMandatory='Optional' AND E.SystemId=EmpSystemID)
 							    FROM EmployeeInformation E
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
@@ -6308,6 +6348,9 @@ AND SystemId IN(Select distinct EmpSystemId from dbo.EmployeeDocument)";
                                     ,C.UserName Company                                    
                                     ,DM.EmployeeCategoryId
                                     ,EC.UserName EmployeeCategory
+                                    ,PendingDoc=(Select Count (Id) from dbo.EmployeeDocument Where [FileName] IS NULL AND E.SystemId=EmpSystemID)
+                                    ,MandatoryDoc=(Select Count (Id) from dbo.EmployeeDocument Where OptionalOrMandatory ='Mandatory' AND E.SystemId=EmpSystemID)
+                                    ,OptionalDoc=(Select Count (Id) from dbo.EmployeeDocument Where OptionalOrMandatory='Optional' AND E.SystemId=EmpSystemID)
 							    FROM EmployeeInformation E
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
@@ -6323,7 +6366,7 @@ AND SystemId IN(Select distinct EmpSystemId from dbo.EmployeeDocument)";
                                 LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
 								LEFT JOIN ORG.SubSection SS ON SS.Id=PR.SubSectionId
                                 LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
-                                WHERE E.EmployeeStatus='Active' AND E.EmpType<>'Guest' AND E.IsGlobalEmployee=1) A Where A.SystemId IN(Select distinct EmpSystemId from dbo.EmployeeDocument)
+                                WHERE E.EmployeeStatus='Active' AND E.EmpType<>'Guest' AND E.IsGlobalEmployee=1) A Where A.SystemId IN(Select distinct EmpSystemId from dbo.EmployeeDocument  Where [FileName] IS NULL)
                                 AND A.EmployeeCategoryId In(" + EmpCategoryId + @")  AND A.DOJ between '"+fromDate+ @"' AND '" + toDate + @"'";
                 return _sqlRepository.GetDataCollection(CmdText);
             }
