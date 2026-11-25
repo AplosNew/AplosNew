@@ -1,0 +1,514 @@
+﻿<div class="form-elements form-horizontal" ng-form name="TransferForm">
+
+    <!-- ===================== HEADER ===================== -->
+    <div class="row">
+        <div class="col-xs-12"><h4>Material Transfer</h4></div>
+
+        <div class="col-xs-12 col-sm-6 col-md-3">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Purpose</label>
+                <div class="col-sm-8 select-style">
+                    <select class="form-control" ng-model="Header.Purpose"
+                            ng-options="i.Value as i.Text for i in PurposeList">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3">
+            <div class="form-group">
+                <label class="control-label col-sm-4">From Location</label>
+                <div class="col-sm-8 select-style">
+                    <select class="form-control" ng-model="Header.FromLocationId"
+                            ng-options="i.Value as i.Text for i in LocationList">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3">
+            <div class="form-group">
+                <label class="control-label col-sm-4">To Location</label>
+                <div class="col-sm-8 select-style">
+                    <select class="form-control" ng-model="Header.ToLocationId"
+                            ng-options="i.Value as i.Text for i in LocationList">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3">
+            <div class="form-group">
+                <label class="control-label col-sm-4">By Whom</label>
+                <div class="col-sm-8 select-style">
+                    <select class="form-control" ng-model="Header.ByWhomId"
+                            ng-options="i.Value as i.Text for i in EmployeeList">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3">
+            <div class="form-group">
+                <label class="control-label col-sm-4">To Whom</label>
+                <div class="col-sm-8 select-style">
+                    <select class="form-control" ng-model="Header.ToWhomId"
+                            ng-options="i.Value as i.Text for i in EmployeeList">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Remark</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" ng-model="Header.Remark" ng-maxlength="200" />
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Grade</label>
+                <div class="col-sm-8 select-style">
+                    <select class="form-control" ng-model="Header.Grade"
+                            ng-options="i.Value as i.Text for i in GradeList">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== FILTER ===================== -->
+    <div class="panel panel-default">
+        <div class="panel-heading">Filter</div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-xs-12 col-sm-6 col-md-2">
+                    <label>SO Status</label>
+                    <select class="form-control" ng-model="Filter.SOStatus"
+                            ng-options="i.Value as i.Text for i in SOStatusList">
+                        <option value="">--All--</option>
+                    </select>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-2">
+                    <label>Customer</label>
+                    <select class="form-control" ng-model="Filter.Customer"
+                            ng-options="i.Value as i.Text for i in CustomerList">
+                        <option value="">--All--</option>
+                    </select>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-2">
+                    <label>Style</label>
+                    <select class="form-control" ng-model="Filter.Style"
+                            ng-options="i.Value as i.Text for i in StyleList">
+                        <option value="">--All--</option>
+                    </select>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-2">
+                    <label>Description</label>
+                    <input type="text" class="form-control" ng-model="Filter.Description" />
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-1">
+                    <label>SO No</label>
+                    <input type="text" class="form-control" ng-model="Filter.SONo" />
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-2">
+                    <label>Line Item Ref</label>
+                    <input type="text" class="form-control" ng-model="Filter.LineItemReference" />
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-1">
+                    <label>&nbsp;</label><br />
+                    <button ng-click="GetSalesOrderItems();" class="btn" tabindex="9">
+                        <i class="glyphicon glyphicon-eye-open"></i> GO
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== SALES ORDER LINE ITEM GRID ===================== -->
+    <div class="row">
+        <div class="col-xs-12">
+            <div style="color:black;" id="SOItemGrid" ej-grid e-datasource="SalesOrderItemList" e-gridlines="vertical"
+                 e-allowscrolling="true" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-recorddoubleclick="LoadSKUMatrix">
+                <div e-columns>
+                    <div e-column e-type="string" e-template="#SelectItem" e-headertext="Actions" e-width="40"></div>
+                    <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Style" e-headertext="Style" e-width="90"></div>
+                    <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="130"></div>
+                    <div e-column e-type="string" e-field="SONo" e-headertext="SO No" e-width="80"></div>
+                    <div e-column e-type="string" e-field="LineItemReference" e-headertext="Line Item Ref" e-width="90"></div>
+                    <div e-column e-type="string" e-field="SOStatus" e-headertext="SO Status" e-width="80"></div>
+                    <div e-column e-type="number" e-format="{0:0.00}" e-field="PlannedQty" e-headertext="SO Qty" e-textalign="right" e-width="70"></div>
+                </div>
+            </div>
+            <script type="text/template" id="SelectItem">
+                <div class="text-left" style="padding: 0px 2px;">
+                    <button ng-click="$parent.LoadSKUMatrix(this);" class="btn single-small-btn" tabindex="6">
+                        <i class="cr-icon glyphicon glyphicon-th-list"></i>
+                    </button>
+                </div>
+            </script>
+        </div>
+    </div>
+
+    <!-- ===================== SKU MATRIX ===================== -->
+    <div class="row" ng-show="SKUList.length > 0">
+        <div class="col-xs-12">
+            <div ng-repeat="sku in SKUList" style="margin-top:15px;">
+                <strong>{{sku.SKUName}}</strong>
+                <span class="pull-right">Total: {{skuTotal(sku)}}</span>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-condensed">
+                        <thead>
+                            <tr>
+                                <th style="width:150px;">Color</th>
+                                <th ng-repeat="s in sku.Sizes" class="text-center">{{s.SizeName}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in sku.Colors">
+                                <td>{{c.ColorName}}</td>
+                                <td ng-repeat="s in sku.Sizes">
+                                    <input type="number" min="0" class="form-control text-right"
+                                           style="color:black;" placeholder="Qty"
+                                           ng-model="c.Qty[s.SizeId]" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li>
+                        <button ng-click="Save();" class="btn" tabindex="10">
+                            <i class="cr-icon glyphicon glyphicon-floppy-disk"></i> Save
+                        </button>
+                    </li>
+                    <li>
+                        <button ng-click="Reset();" class="btn" tabindex="11">
+                            <i class="glyphicon glyphicon-refresh"></i> Reset
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== CARTON / CHILD ===================== -->
+    <div class="row" ng-show="SKUList.length > 0">
+        <div class="col-xs-12">
+            <hr />
+            <div class="table-responsive">
+                <table class="table table-bordered table-condensed">
+                    <thead>
+                        <tr>
+                            <th style="width:110px;">No Of Carton</th>
+                            <th>Carton Ref No</th>
+                            <th>Packed By</th>
+                            <th>Remark</th>
+                            <th style="width:90px;"></th>
+                            <th style="width:200px;">Generate QR (Qty)</th>
+                            <th style="width:40px;">
+                                <button ng-click="AddCartonRow();" class="btn single-small-btn" title="Add row">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                </button>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="c in CartonList">
+                            <td><input type="number" min="1" class="form-control text-right" style="color:black;" ng-model="c.NoOfCarton" /></td>
+                            <td><input type="text" class="form-control" style="color:black;" ng-model="c.CartonRefNo" ng-maxlength="50" /></td>
+                            <td>
+                                <select class="form-control" ng-model="c.PackedById"
+                                        ng-options="i.Value as i.Text for i in EmployeeList">
+                                    <option value="">--Select--</option>
+                                </select>
+                            </td>
+                            <td><input type="text" class="form-control" style="color:black;" ng-model="c.Remark" ng-maxlength="200" /></td>
+                            <td class="text-center">
+                                <button ng-click="SaveChild(c);" class="btn single-small-btn">
+                                    <i class="cr-icon glyphicon glyphicon-floppy-disk"></i> Save Child
+                                </button>
+                            </td>
+                            <td>
+                                <div class="input-group">
+                                    <input type="number" min="1" class="form-control text-right" style="color:black;" ng-model="c.QRQty" />
+                                    <span class="input-group-btn">
+                                        <button ng-click="GenerateQR(c);" class="btn single-small-btn">
+                                            <i class="glyphicon glyphicon-qrcode"></i> Generate
+                                        </button>
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <button ng-click="RemoveCartonRow($index);" class="btn single-small-btn">
+                                    <i class="cr-icon glyphicon glyphicon-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+@*<div class="site-tab">
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);" href="" data-toggle="tab">Order Monitors</a></li>
+        <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);loadfilters();" href="" data-toggle="tab">SKU Control</a></li>
+    </ul>
+</div>
+<div class="tab-content">
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+        <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+            <input type="hidden" ng-model="ModelNew.Id">
+            <div class="row">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li><button ng-click="getEmpPopUpData()" ng-disabled="disGo" class="btn" tabindex="9"><i class="glyphicon glyphicon-search"></i> Order Monitors</button></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-xs-12">
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="GridOM" ej-grid e-datasource="OrderMonitorsList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-type="string" e-template="#Remove" e-headertext="Actions" e-width="90"></div>
+                                <div e-column e-field="EmpSystemId" e-headertext="EmpSystemId" e-headertext-color="black" e-textalign="left" e-width="75"></div>
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                                <div e-column e-template="#Process" e-headertext="Process" e-width="80" style="height: 20px;"></div>
+                                <div e-column e-template="#WorkGroupId" e-headertext="WorkGroup" e-width="80" style="height: 20px;"></div>
+                                <div e-column e-template="#RPLevel" e-headertext="RPLevel" e-width="80" style="height: 20px;"></div>
+                                <div e-column e-template="#UserCategory" e-headertext="UserCategory" e-width="80" style="height: 20px;"></div>
+                                <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                                <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                                <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <script type="text/template" id="Remove">
+                        <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
+                            <button ng-click="$parent.removeEmp(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-trash"></i></button>
+                            <button ng-click="$parent.SaveRow(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-floppy-disk"></i></button>
+                        </div>
+                    </script>
+                    <script type="text/template" id="Process">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="data.ProcessId" name="Process">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in $parent.processCboList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </script>
+                    <script type="text/template" id="WorkGroupId">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="data.WorkGroupId" name="WorkGroupId">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in $parent.WorkGroupList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </script>
+                    <script type="text/template" id="RPLevel">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="data.RPLevel" name="RPLevel">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in $parent.LevelList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </script>
+                    <script type="text/template" id="UserCategory">
+                        <div class="col-sm-10" style="padding:0px; width:70px;">
+                            <input type="text" ng-model="data.UserCategory" ng-maxlength="100" style="color:black;" class="form-control" />
+                        </div>
+                    </script>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+        <div class="row">
+            <div class="col-xs-12">
+
+                <div id="filters">
+                </div>
+                <div class="common-btn" ng-show="filters.length>0">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="GetSalesOrder();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> Go</button></li>
+                    </ul>
+                </div>
+
+                <div style="color:black;" id="SalesOrderGrid" ej-grid e-datasource="SalesOrderItemList" e-allowscrolling="true"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="selectSalesOrderItem"
+                     e-allowselection="false" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-type="string" e-template="#SKUs" e-headertext="Actions" e-width="30"></div>
+                        <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="120"></div>
+                        <div e-column e-type="string" e-field="SONo" e-headertext="Sales Order No" e-width="60"></div>
+                        <div e-column e-type="string" e-field="LineItemReference" e-headertext="LineItemReference" e-width="80"></div>
+                        <div e-column e-type="string" e-field="MOIId" e-headertext="Line Item No" e-width="60"></div>
+                        <div e-column e-field="DeliveryDate" e-headertext="Delivery Date" e-width="60"></div>
+                        <div e-column e-type="number" e-format="{0:0.00}" e-field="PlannedQty" e-headertext="SO Qty" e-textalign="right" e-width="60"></div>
+                        <div e-column e-type="string" e-field="ProductCode" e-headertext="Product Code" e-width="60"></div>
+                    </div>
+                </div>
+                <script type="text/template" id="SKUs">
+                    <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
+                        <button ng-click="$parent.GetSKUData(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>
+                    </div>
+                </script>
+            </div>
+        </div>
+    </div>
+</div>*@
+
+@*<div class="modal fade site-modal in" id="popUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Employee Information<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridPopUp" ej-grid e-datasource="popUpDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-templaterefresh="refreshTemplateemployee" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                            <div e-column e-field="SystemId" e-headertext="EmpSystemId" e-headertext-color="black" e-textalign="left" e-width="75"></div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="Company" e-headertext="Company" e-width="80"></div>
+                            <div e-column e-field="Plant" e-headertext="Plant" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplate">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                        </script>
+                        <script type="text/x-jsrender" id="headerTemplate">
+                            <input type="checkbox" id="headchk" />
+                        </script>
+                    </div>
+                    <div class="common-btn" style="padding-right: 15px;">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="closePopUp();" class="btn">Apply</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<confirm-archive-generic modalid="confirmRunDelPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteEmployee();"></confirm-archive-generic>
+
+<div class="modal fade site-modal in" id="SKUPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">SKU Information<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridSPopUp" ej-grid e-datasource="SKUItemList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="SKUColor" e-headertext="SKUColor" e-width="75"></div>
+                            <div e-column e-template="#SKUProcess" e-headertext="Process" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#ResponsiblePerson1Id" e-headertext="ResponsiblePerson1Id" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#ResponsiblePerson2Id" e-headertext="ResponsiblePerson2Id" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#ResponsiblePerson3Id" e-headertext="ResponsiblePerson3Id" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#SKUStatus" e-headertext="SKUStatus" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#TargetDate" e-headertext="TargetDate" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#ClosingDate" e-headertext="ClosingDate" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="80" style="height: 20px;"></div>
+
+                        </div>
+                        <script type="text/template" id="SKUProcess">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="data.ProcessId" name="Process">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in $parent.processCboList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </script>
+
+                        <script type="text/template" id="ResponsiblePerson1Id">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="data.ResponsiblePerson1Id" name="ResponsiblePerson1Id">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in $parent.ResponsiblePerson1CboList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </script>
+
+                        <script type="text/template" id="ResponsiblePerson2Id">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="data.ResponsiblePerson2Id" name="ResponsiblePerson1Id">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in $parent.ResponsiblePerson2CboList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </script>
+                        <script type="text/template" id="ResponsiblePerson3Id">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="data.ResponsiblePerson3Id" name="ResponsiblePerson3Id">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in $parent.ResponsiblePerson3CboList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </script>
+
+                        <script type="text/template" id="TargetDate">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.TargetDate" datepicker style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="ClosingDate">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.ClosingDate" datepicker style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="SKUStatus">
+                            <div class="select-style">
+                                <select name="Status" class="form-control" ng-model="data.SKUStatus" ng-options="item.Value as item.Text for item in $parent.StatusList">
+                                    <option value="">--Select--</option>
+                                </select>
+                            </div>
+                        </script>
+                        <script type="text/template" id="Remarks">
+                            <div class="col-sm-10" style="padding:0px; width:70px;">
+                                <input type="text" ng-model="data.Remarks" ng-maxlength="100" style="color:black;" class="form-control" />
+                            </div>
+                        </script>
+                    </div>
+                    <div class="common-btn" style="padding-right: 15px;">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="closeSkuPopUp();" class="btn">Close</button></li>
+                            <li> <button ng-click="SaveSKU();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>*@

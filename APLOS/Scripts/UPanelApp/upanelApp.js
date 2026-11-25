@@ -1363,6 +1363,8 @@ upanelApp.controller("operationStatusController", operationStatusController)
 upanelApp.controller("productionOrderType3Controller", productionOrderType3Controller)
 upanelApp.controller("DocumentStatusUpdateController", DocumentStatusUpdateController)
 upanelApp.controller("dashboardBaseController", dashboardBaseController)
+upanelApp.controller("MaterialsTransferController", MaterialsTransferController)
+upanelApp.controller("MachineandEquipmentHelpDeskController", MachineandEquipmentHelpDeskController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

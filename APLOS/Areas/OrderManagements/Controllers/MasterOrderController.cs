@@ -109,6 +109,10 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return View();
         }
 
+        public ActionResult MaterialTran()
+        {
+            return View();
+        }
 
         #endregion
 
@@ -3372,87 +3376,7 @@ WHERE PP.PartyId='" + partyId + @"' ORDER BY 2";
 
 
         }
-
-        //[HttpPost, Authorize]
-        //public JsonResult SavePackerEmployee(List<Dictionary<string, object>> data, string masterId)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    ConnectionManager.DAL.ConManager objCon;
-        //    DataSet dsEntity;
-        //    try
-        //    {
-
-        //        #region Entity 
-        //        objCon = new ConnectionManager.DAL.ConManager("1");
-        //        objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.PackerCategoryEmployee where  PackerCategoryId='" + masterId + "'", out dsEntity, false, "1");
-        //        if (data != null)
-        //        {
-        //            foreach (var item in data)
-        //            {
-        //                DataView dv = new DataView(dsEntity.Tables[0]);
-        //                dv.RowFilter = "Id='" + Convert.ToInt64(item["Id"]) + "'";
-
-        //                if (dv.Count == 0)
-        //                {
-        //                    AddNewRow(dsEntity.Tables[0], item);
-        //                }
-        //                else
-        //                {
-        //                    DataRow drmo = dv[0].Row;
-        //                    EditRow(drmo, item);
-        //                }
-        //            }
-        //        }
-
-        //        #endregion
-
-        //        clsStaticInfo obj = new clsStaticInfo();
-        //        obj.SaveDataSets(dsEntity);
-
-        //        return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new { Error = true, Message = ex.Message });
-        //    }
-        //}
-
-        //[HttpGet, Authorize]
-        //public ActionResult GetPackerEmployee(string masterId)
-        //{
-        //    Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
-        //    var jsondata = Json(order.GetPackerEmployee(masterId), JsonRequestBehavior.AllowGet);
-        //    jsondata.MaxJsonLength = int.MaxValue;
-        //    return jsondata;
-        //}
-
-        //[HttpPost]
-        //public ActionResult DeleteEmployee(string id)
-        //{
-
-        //    try
-        //    {
-
-        //        if (string.IsNullOrEmpty(id))
-        //            throw new Exception("Select entry first");
-
-        //        ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-        //        con.BeginTransaction();
-        //        con.executeQuery("delete from [dbo].[PackerCategoryEmployee] where Id='" + id + "'");
-        //        con.CommitTransaction();
-
-        //        return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-
-        //    }
-        //}
-
+                
 
         [HttpGet, Authorize]
         public ActionResult getPOFilters()
@@ -4302,6 +4226,169 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
 
             return 0;
         }
+        #endregion
+
+        #region MaterialTransfer
+
+        [HttpGet, Authorize]
+        public ActionResult GetTransferCbo()
+        {
+            //var lib = new Library.OrderManagement.Production.MaterialTransfer();
+            //var json = Json(new
+            //{
+            //    Purposes = lib.GetPurposes(),
+            //    Locations = lib.GetLocations(),
+            //    Employees = lib.GetEmployees(),
+            //    Grades = lib.GetGrades()
+            //}, JsonRequestBehavior.AllowGet);
+            JsonResult json = null;
+
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetFilterCbo()
+        {
+            //var lib = new Library.OrderManagement.Production.MaterialTransfer();
+            //var json = Json(new
+            //{
+            //    SOStatus = lib.GetSOStatus(),
+            //    Customers = lib.GetCustomers(),
+            //    Styles = lib.GetStyles()
+            //}, JsonRequestBehavior.AllowGet);
+            JsonResult json = null;
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult GetSalesOrderItems(Dictionary<string, string> parameters)
+        {
+            //var lib = new Library.OrderManagement.Production.MaterialTransfer();
+            JsonResult json = null;// Json(lib.GetSalesOrderItems(parameters), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult GetSKUMatrix(string salesOrderItemId)
+        {
+            long moiId;
+            if (!long.TryParse(salesOrderItemId, out moiId))
+                return Json(new { Error = true, Message = "Invalid line item" });
+
+            //var lib = new Library.OrderManagement.Production.MaterialTransfer();
+            JsonResult json = null;// Json(lib.GetSKUMatrix(moiId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SaveTransfer(Dictionary<string, object> header, List<Dictionary<string, object>> items)
+        {
+            try
+            {
+                if (header == null) throw new Exception("Header is missing.");
+                if (items == null || items.Count == 0) throw new Exception("No quantity entered.");
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                clsStaticInfo info = new clsStaticInfo();
+
+                // ---------- header ----------
+                DataSet dsHeader;
+                long headerId = 0;
+                long.TryParse(Convert.ToString(header["Id"]), out headerId);
+
+                con.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialTransfer WHERE Id = " + headerId, out dsHeader, false, "1");
+
+                if (dsHeader.Tables[0].Rows.Count == 0)
+                    AddNewRow(dsHeader.Tables[0], header);
+                else
+                    EditRow(dsHeader.Tables[0].Rows[0], header);
+
+                info.SaveDataSets(dsHeader);
+
+                // identity value is expected to be refreshed into the row after SaveDataSets.
+                // If your SaveDataSets does not refresh identity, re-select the row using a unique key instead.
+                headerId = Convert.ToInt64(dsHeader.Tables[0].Rows[0]["Id"]);
+
+                // ---------- items (replace the previous set for this transfer) ----------
+                DataSet dsItems;
+                con.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialTransferItem WHERE TransferId = " + headerId, out dsItems, false, "1");
+
+                foreach (DataRow r in dsItems.Tables[0].Rows) r.Delete();
+
+                foreach (var item in items)
+                {
+                    item["TransferId"] = headerId;
+                    item.Remove("Id");
+                    AddNewRow(dsItems.Tables[0], item);
+                }
+                info.SaveDataSets(dsItems);
+
+                return Json(new { Error = false, Message = AplosMessage.Success, TransferId = headerId });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SaveCarton(long transferId, Dictionary<string, object> data)
+        {
+            try
+            {
+                if (transferId <= 0) throw new Exception("Save the transfer first.");
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                DataSet dsCarton;
+                long id = Convert.ToInt64(data["Id"]);   // negative => new row from the UI
+
+                con.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialTransferCarton WHERE Id = " + id, out dsCarton, false, "1");
+
+                data["TransferId"] = transferId;
+                if (dsCarton.Tables[0].Rows.Count == 0)
+                {
+                    data.Remove("Id");
+                    AddNewRow(dsCarton.Tables[0], data);
+                }
+                else
+                {
+                    EditRow(dsCarton.Tables[0].Rows[0], data);
+                }
+
+                new clsStaticInfo().SaveDataSets(dsCarton);
+
+                long cartonId = Convert.ToInt64(dsCarton.Tables[0].Rows[0]["Id"]);
+                return Json(new { Error = false, Message = AplosMessage.Success, CartonId = cartonId });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult GenerateCartonQR(long cartonId, int qty)
+        {
+            try
+            {
+                //if (cartonId <= 0) throw new Exception("Save the carton row first.");
+                //if (qty <= 0) throw new Exception("Enter QR quantity.");
+
+                //var lib = new Library.OrderManagement.Production.MaterialTransfer();
+                //string url = lib.BuildCartonQR(cartonId, qty);
+
+                return Json(new { Error = false, Message = "QR generated.",/* Url = url*/ });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
         #endregion
     }
 

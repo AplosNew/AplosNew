@@ -362,6 +362,10 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             templateUrl: 'OrderManagements/masterOrder/ReasonMaster',
             controller: 'ReasonMasterController'
         })
+        .when('/mat-trans', {
+            templateUrl: 'OrderManagements/masterOrder/MaterialTran',
+            controller: 'MaterialsTransferController'
+        })
 
         ;
 }
