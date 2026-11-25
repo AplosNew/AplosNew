@@ -6,7 +6,7 @@ function MachineandEquipmentHelpDeskController(commonMessage, $scope, $rootScope
 
     $scope.path = 'Machines/MachineandEquipmentHelpDesk/';
     $scope.saveUrl = $scope.path + 'CreateMachineandEquipmentHelpDesk';
-    $scope.deleteUrl = $scope.path + 'DeleteMachineandEquipmentHelpDesk/';
+    $scope.deleteUrl = $scope.path + 'Delete/';
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -109,7 +109,7 @@ function MachineandEquipmentHelpDeskController(commonMessage, $scope, $rootScope
         if ($scope.ModelNewForm.$valid) {
             $http({
                 method: 'POST',
-                url: 'Machines/MachineandEquipmentHelpDesk/CreateMachineandEquipmentHelpDesk',
+                url: 'Machines/MachineandEquipmentHelpDesk/Create',
                 data: { 'data': $scope.MachineandEquipmentHelpDeskNew },
                 dataType: 'JSON'
             }).then(function successCallback(response) {

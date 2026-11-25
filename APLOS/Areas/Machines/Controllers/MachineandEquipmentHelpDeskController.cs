@@ -100,7 +100,7 @@ LEFT JOIN hkp.MachineCategory SD ON SD.Id=TT.MachineCategoryId) AS TEMP WHERE " 
         }
 
         [HttpPost]
-        public JsonResult CreateMachineandEquipmentHelpDesk(Dictionary<string, object> data)
+        public JsonResult Create(Dictionary<string, object> data)
         {
             try
             {
@@ -144,7 +144,7 @@ LEFT JOIN hkp.MachineCategory SD ON SD.Id=TT.MachineCategoryId) AS TEMP WHERE " 
             }
         }
         [HttpPost]
-        public ActionResult DeleteMachineandEquipmentHelpDesk(string id)
+        public ActionResult Delete(string id)
         {
             try
             {
