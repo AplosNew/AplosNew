@@ -562,6 +562,7 @@
     <Compile Include="Areas\IE\Controllers\IncentiveTypeController.cs" />
     <Compile Include="Areas\IE\Controllers\WorkcenterWiseDetentionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WebBasedPackingController.cs" />
+    <Compile Include="Areas\Machines\Controllers\MachineandEquipmentHelpDeskController.cs" />
     <Compile Include="Areas\Materials\Controllers\BarcodeGeneratorSettingController.cs" />
     <Compile Include="Areas\Materials\Controllers\LOTCreationController.cs" />
     <Compile Include="Areas\Materials\Controllers\QRCodeGeneratorController.cs" />
@@ -2000,6 +2001,7 @@
     <Content Include="Areas\Employees\Scripts\CasteController.js" />
     <Content Include="Areas\Employees\Scripts\employeeAttdnTrendReportController.js" />
     <Content Include="Areas\Employees\Scripts\AttendanceVerificationStatusController.js" />
+    <Content Include="Areas\Employees\Scripts\DocumentStatusUpdateController.js" />
     <Content Include="Areas\Employees\Scripts\operationStatusController.js" />
     <Content Include="Areas\Employees\Scripts\userfavouriteReportController.js" />
     <Content Include="Areas\Employees\Scripts\favouriteReportController.js" />
@@ -2012,6 +2014,8 @@
     <Content Include="Areas\HumanResource\Scripts\otApproveController.js" />
     <Content Include="Areas\HumanResource\Scripts\WeeklyStatusController.js" />
     <Content Include="Areas\IE\Scripts\IncentiveTypeController.js" />
+    <Content Include="Areas\Machines\Scripts\RPCategoryController.js" />
+    <Content Include="Areas\Machines\Scripts\MachineandEquipmentHelpDeskController.js" />
     <Content Include="Areas\Materials\Scripts\BarcodeGeneratorSettingController.js" />
     <Content Include="Areas\Materials\Scripts\machineTransferController.js" />
     <Content Include="Areas\Materials\Scripts\FabricGroupingController.js" />
@@ -2024,6 +2028,7 @@
     <Content Include="Areas\OrderManagements\Scripts\productionCalendarType3Controller.js" />
     <Content Include="Areas\OrderManagements\Scripts\productionOrderType3Controller.js" />
     <Content Include="Areas\OrderManagements\Scripts\ReasonMasterController.js" />
+    <Content Include="Areas\OrderManagements\Scripts\MaterialsTransferController.js" />
     <Content Include="Areas\OrderManagements\Scripts\SKUResponsiblePersonController.js" />
     <Content Include="Areas\OrderManagements\Scripts\CartonUpdateController.js" />
     <Content Include="Areas\OrderManagements\Scripts\DispatchController.js" />
@@ -5174,6 +5179,10 @@
     <Content Include="Areas\OrderManagements\Views\ProductionCalendar\Type3.cshtml" />
     <Content Include="Areas\OrderManagements\Views\ProductionOrder\POType3.cshtml" />
     <Content Include="Areas\OrderManagements\Views\ProductionOrder\SubPOType3.cshtml" />
+    <Content Include="Areas\Employees\Views\EmployeeDocumentAssignment\DocStatus.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\MasterOrder\MaterialTran.cshtml" />
+    <Content Include="Areas\Machines\Views\MachineandEquipmentHelpDesk\Aplos.cshtml" />
+    <Content Include="Areas\Machines\Views\MachineandEquipmentHelpDesk\RPCategory.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

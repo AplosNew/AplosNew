@@ -3,7 +3,6 @@ EmployeeDailyIssueController.$inject = ['cboService', 'commonMessage', '$scope',
 function EmployeeDailyIssueController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter,$window) {
     $rootScope.title = 'Daily Issue';
     $scope.Action = 'Save';
-    $scope.index = -1;
     $scope.DailyIssues = [];
     $scope.path = 'employees/EmployeeInformation/';
     $scope.saveUrl = $scope.path + 'CreateDailyIssue';

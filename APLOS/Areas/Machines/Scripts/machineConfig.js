@@ -161,7 +161,10 @@ function MachineConfig($routeProvider, $locationProvider) {
             templateUrl: 'Machines/MachineMas/aplos',
             controller: 'machineMasterControllers'
         })
-
+        .when('/machine-equipment-helpdesk', {
+            templateUrl: 'Machines/MachineandEquipmentHelpDesk/aplos',
+            controller: 'MachineandEquipmentHelpDeskController'
+        })
 
         ;
 
