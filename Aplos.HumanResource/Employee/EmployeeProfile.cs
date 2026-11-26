@@ -3173,6 +3173,186 @@ Where EmpSystemId='" + empId + "'";
             return 0;
         }
 
+        // (2) ড্রপডাউন: Master-এর জন্য যে যে UserName-এর কলাম সেটআপ আছে
+        public List<string> GetDataDisplayUsers(string tabName)
+        {
+            DataSet ds;
+            var con = new ConnectionManager.DAL.ConManager("1");
+            con.OpenDataSetThroughAdapter(
+                @"select distinct UserName from dbo.OperationstatusColumnDisplay
+          where DataName='"+ tabName + @"' and UserName is not null and LTRIM(RTRIM(UserName))<>''
+          order by UserName", out ds, false, "1");
+
+            return ds.Tables[0].AsEnumerable().Select(r => r["UserName"].ToString()).ToList();
+        }
+
+        // সাধারণ ফিল্টার বিল্ডার: getTypes শুধু তখনই চলে যখন সত্যিই ফিল্টার বানাতে হয়
+        private string BuildFilter(List<DataRow> rows, Func<Dictionary<string, Type>> getTypes)
+        {
+            if (rows == null || rows.Count == 0) return "";
+
+            Dictionary<string, Type> types = getTypes();
+            var parts = new List<string>();
+
+            foreach (DataRow r in rows)
+            {
+                string col = r["ColumnName"].ToString().Trim();
+                string op = NormalizeOperator(r["Operator"].ToString());
+                string raw = Convert.ToString(r["OperatorValue"]).Trim();
+
+                Type t;
+                if (op == null || raw.Length == 0 || !types.TryGetValue(col, out t))
+                {
+                    System.Diagnostics.Trace.WriteLine("Filter skipped: " + col + " " + r["Operator"] + " " + raw);
+                    continue;
+                }
+
+                string colRef = "A.[" + col.Replace("]", "]]") + "]";
+                string cond = BuildCondition(colRef, t, op, raw);
+                if (cond == null)
+                {
+                    System.Diagnostics.Trace.WriteLine("Filter skipped (bad value): " + col + " " + op + " " + raw);
+                    continue;
+                }
+
+                if (string.Equals(r["Type"].ToString().Trim(), "Excluded", StringComparison.OrdinalIgnoreCase))
+                    cond = "CASE WHEN (" + cond + ") THEN 1 ELSE 0 END = 0";
+
+                parts.Add("(" + cond + ")");
+            }
+
+            return parts.Count == 0 ? "" : "WHERE " + string.Join(" AND ", parts);
+        }
+        private string BuildCondition(string colRef, Type t, string op, string raw)
+        {
+            string left, right;
+
+            if (op == "LIKE")
+            {
+                left = (t == typeof(string)) ? colRef : "CONVERT(nvarchar(4000), " + colRef + ")";
+                return left + " LIKE " + SqlText(raw);
+            }
+
+            if (op == "IN")
+            {
+                var items = raw.Split(',').Select(x => x.Trim()).Where(x => x.Length > 0).ToList();
+                if (items.Count == 0) return null;
+
+                var rights = new List<string>();
+                left = null;
+                foreach (string it in items)
+                {
+                    string l, rr;
+                    if (!TryOperand(colRef, t, it, out l, out rr)) return null;
+                    left = l;
+                    rights.Add(rr);
+                }
+                return left + " IN (" + string.Join(", ", rights) + ")";
+            }
+
+            if (!TryOperand(colRef, t, raw, out left, out right)) return null;
+            return left + " " + op + " " + right;
+        }
+
+        // কলামের আসল টাইপ দেখে তুলনার ধরন ঠিক হয়:
+        //  - সংখ্যার কলাম      -> সংখ্যা তুলনা
+        //  - DateTime কলাম      -> তারিখ তুলনা
+        //  - টেক্সট কলামে dd-MMM-yyyy টেক্সট (FORMAT দিয়ে বানানো) + মান তারিখ হলে -> তারিখে কনভার্ট করে তুলনা
+        //  - বাকি সব টেক্সট    -> টেক্সট তুলনা ('012345' আর 12345 আর মিলবে না)
+        private bool TryOperand(string colRef, Type t, string v, out string left, out string right)
+        {
+            left = null; right = null;
+            DateTime d; decimal n;
+
+            if (IsNumericType(t))
+            {
+                if (!decimal.TryParse(v, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint,
+                        CultureInfo.InvariantCulture, out n)) return false;
+                left = colRef;
+                right = n.ToString(CultureInfo.InvariantCulture);
+                return true;
+            }
+
+            bool isDateVal = DateTime.TryParseExact(v, MasterDateFormats, CultureInfo.InvariantCulture,
+                                                    DateTimeStyles.None, out d);
+
+            if (t == typeof(DateTime))
+            {
+                if (!isDateVal) return false;
+                left = "CAST(" + colRef + " AS date)";
+                right = "CAST('" + d.ToString("yyyyMMdd", CultureInfo.InvariantCulture) + "' AS date)";
+                return true;
+            }
+
+            if (t == typeof(string))
+            {
+                if (isDateVal)
+                {
+                    left = "TRY_CONVERT(date, REPLACE(" + colRef + ", '-', ' '), 106)";
+                    right = "CAST('" + d.ToString("yyyyMMdd", CultureInfo.InvariantCulture) + "' AS date)";
+                    return true;
+                }
+                left = colRef;
+                right = SqlText(v);
+                return true;
+            }
+
+            // bit, guid ইত্যাদি অন্য টাইপ: টেক্সট করে তুলনা
+            left = "CONVERT(nvarchar(4000), " + colRef + ")";
+            right = SqlText(v);
+            return true;
+        }
+        // ---------------------------------------------------------------------
+        // 2) Settings পড়া ও কার্যকর রো বাছাই
+        // ---------------------------------------------------------------------
+        private DataTable GetOperationStatusTabSettings(string tabName)
+        {
+            DataSet ds;
+            var con = new ConnectionManager.DAL.ConManager("1");
+            con.OpenDataSetThroughAdapter(
+                @"select Id, ColumnName, Operator, OperatorValue, [Type],
+                 isnull(RepeatValue,0) RepeatValue,
+                 cast(StartDate as datetime) + isnull(cast(StartTime as datetime),0) StartDateTime
+          from operationstatusSetting
+          where DataName='" + tabName + @"' and Filter=1 and StartDate is not null", out ds, false, "1");
+            return ds.Tables[0];
+        }
+        private List<DataRow> GetEffectiveSettings(DataTable dt, DateTime now)
+        {
+            return dt.AsEnumerable()
+                .Where(r => Convert.ToDateTime(r["StartDateTime"]) <= now)
+                .GroupBy(r => r["ColumnName"].ToString().Trim().ToLowerInvariant() + "|" +
+                              (NormalizeOperator(r["Operator"].ToString()) ?? r["Operator"].ToString().Trim()) + "|" +
+                              r["Type"].ToString().Trim().ToLowerInvariant())
+                .Select(g => g.OrderByDescending(r => Convert.ToDateTime(r["StartDateTime"]))
+                              .ThenByDescending(r => Convert.ToInt32(r["Id"]))
+                              .First())
+                .ToList();
+        }
+
+        private object ToGridResult(DataTable dt)
+        {
+            var columns = new List<object>();
+            var names = new List<string>();
+            for (int i = 0; i < dt.Columns.Count; i++)
+            {
+                names.Add("C" + i);
+                columns.Add(new { field = "C" + i, headerText = dt.Columns[i].ColumnName });
+            }
+
+            var rows = new List<Dictionary<string, object>>();
+            foreach (DataRow r in dt.Rows)
+            {
+                var d = new Dictionary<string, object>();
+                for (int i = 0; i < dt.Columns.Count; i++)
+                    d[names[i]] = r[i] == DBNull.Value ? null : r[i];
+                rows.Add(d);
+            }
+            return new { columns = columns, data = rows };
+        }
+
+        #region Operation status Master
+
         public List<string> GetOSMasterColumnList()
         {
             string strSql = @"select A.SalesOrderId,A.UserName ,A.Value,A.MasterOrderNo,A.ExpectedCompletionDate,A.SODistributedQty,A.PlantId,A.Plant,A.MasterOrderEntityId,A.MasterOrderEntity,
@@ -3467,62 +3647,25 @@ Where SA.LineItemId<>''
         //  OS1 Master Data: ডায়নামিক ফিল্টার (operationstatusSetting) + অটো-রিফ্রেশ তথ্য
         //  নিচের সবকিছু আপনার সার্ভিস ক্লাসের ভেতরে বসান।
         //  আগের GetOS1MasterData, BuildMasterFilter, AllowedColumns, DateColumns মুছে দিন।
-        //
-        //  লাগবে:
-        //  using System; using System.Collections.Generic; using System.Data;
-        //  using System.Globalization; using System.Linq;
-        //  (AsEnumerable() এর জন্য System.Data.DataSetExtensions রেফারেন্স)
-        // =====================================================================
+        // ---------------------------------------------------------------------
 
-        // ---------------------------------------------------------------------
-        // 1) মূল মেথড
-        // ---------------------------------------------------------------------
-        public DataTable GetOS1MasterData(string column, string value)
+        public DataTable GetOS1MasterData(string userName)
         {
-            // সব রো থেকে ফিল্টার ডায়নামিকভাবে তৈরি হয়
-            string masterFilter = BuildMasterFilter(GetEffectiveMasterSettings(GetMasterSettings(), DateTime.Now));
 
-            string strSql = OS1MasterOuterPrefix + OS1MasterCoreSql + "\n)A  " + masterFilter + "\n)B\n" + OS1MasterPivotSuffix;
+            string masterFilter = BuildFilter(GetEffectiveSettings(GetOperationStatusTabSettings("Master"), DateTime.Now), GetMasterColumnTypes);
+
+            string suffix = OS1MasterPivotSuffix.Replace("@@USERNAME@@", SqlText((userName ?? "").Trim()));
+
+            string strSql = OS1MasterOuterPrefix + OS1MasterCoreSql + "\n)A  " + masterFilter + "\n)B\n" + suffix;
 
             return _sqlRepository.GetDataTable(strSql);
         }
 
-        // ---------------------------------------------------------------------
-        // 2) Settings পড়া ও কার্যকর রো বাছাই
-        // ---------------------------------------------------------------------
-        private DataTable GetMasterSettings()
+        public object GetOS1MasterGrid(string userName)
         {
-            DataSet ds;
-            var con = new ConnectionManager.DAL.ConManager("1");
-            con.OpenDataSetThroughAdapter(
-                @"select Id, ColumnName, Operator, OperatorValue, [Type],
-                 isnull(RepeatValue,0) RepeatValue,
-                 cast(StartDate as datetime) + isnull(cast(StartTime as datetime),0) StartDateTime
-          from operationstatusSetting
-          where DataName='Master' and Filter=1 and StartDate is not null", out ds, false, "1");
-            return ds.Tables[0];
+            return ToGridResult(GetOS1MasterData(userName));
         }
-
-        // একই (ColumnName + Operator + Type) এর মধ্যে সর্বশেষ StartDateTime-এর রো (যেটা এখন পর্যন্ত শুরু হয়েছে)।
-        // ফলে একই কলামে ">= X" আর "<= Y" দুইটাই থাকতে পারবে (রেঞ্জ),
-        // আর "=>" ও ">=" একই অপারেটর ধরা হয় বলে তাদের মধ্যে নতুনটা জিতবে।
-        private List<DataRow> GetEffectiveMasterSettings(DataTable dt, DateTime now)
-        {
-            return dt.AsEnumerable()
-                .Where(r => Convert.ToDateTime(r["StartDateTime"]) <= now)
-                .GroupBy(r => r["ColumnName"].ToString().Trim().ToLowerInvariant() + "|" +
-                              (NormalizeOperator(r["Operator"].ToString()) ?? r["Operator"].ToString().Trim()) + "|" +
-                              r["Type"].ToString().Trim().ToLowerInvariant())
-                .Select(g => g.OrderByDescending(r => Convert.ToDateTime(r["StartDateTime"]))
-                              .ThenByDescending(r => Convert.ToInt32(r["Id"]))
-                              .First())
-                .ToList();
-        }
-
-        // ---------------------------------------------------------------------
-        // 3) A সাবকোয়েরির কলামের নাম ও টাইপ (ডাটাবেস থেকে, ৬০ মিনিট ক্যাশ)
-        //    কোডে কোনো কলামের নাম হার্ডকোড নেই।
-        // ---------------------------------------------------------------------
+       
         private static Dictionary<string, Type> _masterColTypes;
         private static DateTime _masterColTypesAt = DateTime.MinValue;
         private static readonly object _masterColLock = new object();
@@ -3547,49 +3690,7 @@ Where SA.LineItemId<>''
             }
         }
 
-        // ---------------------------------------------------------------------
-        // 4) ফিল্টার বানানো (সম্পূর্ণ ডায়নামিক)
-        //    Operator: =  >  >=  =>  <  <=  =<  <>  !=  LIKE  IN
-        //    IN এর মান কমা দিয়ে লিখবেন, যেমন: Active,Draft  (সংখ্যায় হাজারের কমা দেবেন না)
-        //    Type = 'Excluded' হলে শর্তটা উল্টে যায়।
-        // ---------------------------------------------------------------------
-        private string BuildMasterFilter(List<DataRow> rows)
-        {
-            if (rows == null || rows.Count == 0) return "";
-
-            Dictionary<string, Type> types = GetMasterColumnTypes();
-            var parts = new List<string>();
-
-            foreach (DataRow r in rows)
-            {
-                string col = r["ColumnName"].ToString().Trim();
-                string op = NormalizeOperator(r["Operator"].ToString());
-                string raw = Convert.ToString(r["OperatorValue"]).Trim();
-
-                Type t;
-                // কলাম A-তে না থাকলে (ভুল নাম) বা অপারেটর/মান ভুল হলে বাদ; এতে injection ও SQL error দুইটাই বন্ধ
-                if (op == null || raw.Length == 0 || !types.TryGetValue(col, out t))
-                {
-                    System.Diagnostics.Trace.WriteLine("OS1 Master filter skipped: " + col + " " + r["Operator"] + " " + raw);
-                    continue;
-                }
-
-                string colRef = "A.[" + col.Replace("]", "]]") + "]";
-                string cond = BuildCondition(colRef, t, op, raw);
-                if (cond == null)
-                {
-                    System.Diagnostics.Trace.WriteLine("OS1 Master filter skipped (bad value): " + col + " " + op + " " + raw);
-                    continue;
-                }
-
-                if (string.Equals(r["Type"].ToString().Trim(), "Excluded", StringComparison.OrdinalIgnoreCase))
-                    cond = "CASE WHEN (" + cond + ") THEN 1 ELSE 0 END = 0";   // NULL রো-ও এতে ঠিকমতো ধরা পড়ে
-
-                parts.Add("(" + cond + ")");
-            }
-
-            return parts.Count == 0 ? "" : "WHERE " + string.Join(" AND ", parts);
-        }
+       
 
         private string NormalizeOperator(string op)
         {
@@ -3609,85 +3710,7 @@ Where SA.LineItemId<>''
 
         private static readonly string[] MasterDateFormats = { "dd-MMM-yyyy", "d-MMM-yyyy", "yyyy-MM-dd", "dd/MM/yyyy" };
 
-        private string BuildCondition(string colRef, Type t, string op, string raw)
-        {
-            string left, right;
-
-            if (op == "LIKE")
-            {
-                left = (t == typeof(string)) ? colRef : "CONVERT(nvarchar(4000), " + colRef + ")";
-                return left + " LIKE " + SqlText(raw);
-            }
-
-            if (op == "IN")
-            {
-                var items = raw.Split(',').Select(x => x.Trim()).Where(x => x.Length > 0).ToList();
-                if (items.Count == 0) return null;
-
-                var rights = new List<string>();
-                left = null;
-                foreach (string it in items)
-                {
-                    string l, rr;
-                    if (!TryOperand(colRef, t, it, out l, out rr)) return null;
-                    left = l;
-                    rights.Add(rr);
-                }
-                return left + " IN (" + string.Join(", ", rights) + ")";
-            }
-
-            if (!TryOperand(colRef, t, raw, out left, out right)) return null;
-            return left + " " + op + " " + right;
-        }
-
-        // কলামের আসল টাইপ দেখে তুলনার ধরন ঠিক হয়:
-        //  - সংখ্যার কলাম      -> সংখ্যা তুলনা
-        //  - DateTime কলাম      -> তারিখ তুলনা
-        //  - টেক্সট কলামে dd-MMM-yyyy টেক্সট (FORMAT দিয়ে বানানো) + মান তারিখ হলে -> তারিখে কনভার্ট করে তুলনা
-        //  - বাকি সব টেক্সট    -> টেক্সট তুলনা ('012345' আর 12345 আর মিলবে না)
-        private bool TryOperand(string colRef, Type t, string v, out string left, out string right)
-        {
-            left = null; right = null;
-            DateTime d; decimal n;
-
-            if (IsNumericType(t))
-            {
-                if (!decimal.TryParse(v, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint,
-                        CultureInfo.InvariantCulture, out n)) return false;
-                left = colRef;
-                right = n.ToString(CultureInfo.InvariantCulture);
-                return true;
-            }
-
-            bool isDateVal = DateTime.TryParseExact(v, MasterDateFormats, CultureInfo.InvariantCulture,
-                                                    DateTimeStyles.None, out d);
-
-            if (t == typeof(DateTime))
-            {
-                if (!isDateVal) return false;
-                left = "CAST(" + colRef + " AS date)";
-                right = "CAST('" + d.ToString("yyyyMMdd", CultureInfo.InvariantCulture) + "' AS date)";
-                return true;
-            }
-
-            if (t == typeof(string))
-            {
-                if (isDateVal)
-                {
-                    left = "TRY_CONVERT(date, REPLACE(" + colRef + ", '-', ' '), 106)";
-                    right = "CAST('" + d.ToString("yyyyMMdd", CultureInfo.InvariantCulture) + "' AS date)";
-                    return true;
-                }
-                left = colRef;
-                right = SqlText(v);
-                return true;
-            }
-
-            // bit, guid ইত্যাদি অন্য টাইপ: টেক্সট করে তুলনা
-            left = "CONVERT(nvarchar(4000), " + colRef + ")";
-            right = SqlText(v);
-            return true;
-        }
+      
 
         private static bool IsNumericType(Type t)
         {
@@ -3701,19 +3724,14 @@ Where SA.LineItemId<>''
             return "N'" + s.Replace("'", "''") + "'";
         }
 
-        // ---------------------------------------------------------------------
-        // 5) অটো-রিফ্রেশ: পরের রান কখন হবে (RepeatValue = মিনিট)
-        //    - চালু settings: StartDateTime থেকে প্রতি RepeatValue মিনিটে একটা tick
-        //    - ভবিষ্যতে শুরু হবে এমন settings: স্টার্ট টাইমে একবার রিফ্রেশ (তখন ফিল্টার বদলে যায়)
-        //    সবগুলোর মধ্যে সবচেয়ে কাছের সময়টা ফেরত যায়।
-        // ---------------------------------------------------------------------
+         
         public object GetOS1MasterRefreshInfo()
         {
             DateTime now = DateTime.Now;
-            DataTable dt = GetMasterSettings();
+            DataTable dt = GetOperationStatusTabSettings("Master");
             var candidates = new List<DateTime>();
 
-            foreach (DataRow r in GetEffectiveMasterSettings(dt, now))
+            foreach (DataRow r in GetEffectiveSettings(dt, now))
             {
                 double rep = Convert.ToDouble(r["RepeatValue"]);
                 if (rep <= 0) continue;
@@ -3738,17 +3756,6 @@ Where SA.LineItemId<>''
                 delayMs = (double?)(next - now).TotalMilliseconds
             };
         }
-
-        /* ---- MVC Controller-এ এই অ্যাকশনটা যোগ করুন ----
-        public JsonResult GetOS1RefreshInfo()
-        {
-            return Json(_service.GetOS1MasterRefreshInfo(), JsonRequestBehavior.AllowGet);
-        }
-        */
-
-        // =====================================================================
-        // 6) SQL অংশ (আপনার আগের query হুবহু; শুধু তিন ভাগে ভাগ করা)
-        // =====================================================================
 
         // বাইরের SELECT (B ও A এর কলাম লিস্ট) + "from ("
         private const string OS1MasterOuterPrefix = @"SELECT B.ScheduleId,B.ProductionOrderID,B.MasterOrderNo,B.ExpectedCompletionDate,B.SODistributedQty,B.PlantId,B.Plant,B.MasterOrderEntityId,B.MasterOrderEntity,
@@ -4061,92 +4068,44 @@ Where SA.LineItemId<>''
 ";
 
         // পিভট অংশ
-        private const string OS1MasterPivotSuffix = @"DECLARE @sql nvarchar(max), @col nvarchar(max)
-                            SELECT @col = (
-                                SELECT DISTINCT ','+QUOTENAME(REPLACE(CONVERT(VARCHAR(40), UserName, 113), '', ''))    
-                                FROM #tempOT
-                                FOR XML PATH ('')
-                            )   SELECT @sql = N'
-                            (SELECT *
-                            FROM #tempOT
-                            PIVOT (
-                                MAX([Value]) FOR [UserName] IN ('+STUFF(@col,1,1,'')+')
-                            ) as pvt)' 
-                            EXEC sp_executesql @sql
-                            drop table #tempOT
+        private const string OS1MasterPivotSuffix = @"DECLARE @UserName nvarchar(200) = @@USERNAME@@;
+DECLARE @sql nvarchar(max), @col nvarchar(max), @sel nvarchar(max);
+
+SELECT @col = (
+    SELECT DISTINCT ','+QUOTENAME(REPLACE(CONVERT(VARCHAR(40), UserName, 113), '', ''))
+    FROM #tempOT
+    FOR XML PATH ('')
+);
+
+SELECT @sel = STUFF((
+    SELECT ',' + QUOTENAME(d.ColumnName) + ' AS '
+         + QUOTENAME(ISNULL(NULLIF(LTRIM(RTRIM(d.DisplayName)), ''), d.ColumnName))
+    FROM dbo.OperationstatusColumnDisplay d
+    WHERE d.DataName = 'Master'
+      AND d.UserName = @UserName
+      AND ( EXISTS (SELECT 1 FROM tempdb.sys.columns c
+                    WHERE c.object_id = OBJECT_ID('tempdb..#tempOT')
+                      AND c.name COLLATE DATABASE_DEFAULT = d.ColumnName COLLATE DATABASE_DEFAULT
+                      AND c.name NOT IN ('UserName', 'Value'))
+         OR EXISTS (SELECT 1 FROM #tempOT t
+                    WHERE LEFT(t.UserName, 40) COLLATE DATABASE_DEFAULT = d.ColumnName COLLATE DATABASE_DEFAULT) )
+    ORDER BY d.Id
+    FOR XML PATH(''), TYPE).value('.', 'nvarchar(max)'), 1, 1, '');
+
+IF @col IS NULL
+    SET @sql = N'SELECT ' + ISNULL(@sel, N'*') + N' FROM #tempOT';
+ELSE
+    SET @sql = N'SELECT ' + ISNULL(@sel, N'*') + N' FROM (SELECT * FROM #tempOT PIVOT (MAX([Value]) FOR [UserName] IN ('
+             + STUFF(@col, 1, 1, '') + N')) AS pvt) X';
+
+EXEC sp_executesql @sql;
+DROP TABLE #tempOT
 ";
 
-        private string BuildMasterFilter(DataSet ds)
-        {
-            if (ds == null || ds.Tables.Count == 0 || ds.Tables[0].Rows.Count == 0)
-                return "";
+        #endregion
 
-            var conditions = new List<string>();
 
-            foreach (DataRow r in ds.Tables[0].Rows)
-            {
-                string col = Convert.ToString(r["ColumnName"]).Trim();
-                string op = Convert.ToString(r["Operator"]).Trim();
-                string val = Convert.ToString(r["OperatorValue"]).Trim();
-                if (col == "" || op == "" || val == "") continue;
-
-                switch (op)
-                {
-                    case "=>": case ">=": op = ">="; break;
-                    case "=<": case "<=": op = "<="; break;
-                    case ">": case "<": case "=": case "<>": break;
-                    default: throw new Exception("Invalid operator: " + op);
-                }
-
-                string colSql = "A.[" + col.Replace("]", "]]") + "]";
-                DateTime dt; decimal num;
-
-                if (decimal.TryParse(val, NumberStyles.Any, CultureInfo.InvariantCulture, out num))
-                    conditions.Add("TRY_CONVERT(decimal(38,6), " + colSql + ") " + op + " " + num.ToString(CultureInfo.InvariantCulture));
-                else if (DateTime.TryParse(val, CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
-                    conditions.Add("TRY_CONVERT(date, " + colSql + ") " + op + " '" + dt.ToString("yyyy-MM-dd") + "'");
-                else
-                    conditions.Add(colSql + " " + op + " N'" + val.Replace("'", "''") + "'");
-            }
-
-            return conditions.Count == 0 ? "" : " WHERE " + string.Join(" AND ", conditions) + " ";
-        }
-
-        private string BuildMasterFilterBlank(DataSet ds)
-        {
-            if (ds == null || ds.Tables.Count == 0 || ds.Tables[0].Rows.Count == 0)
-                return "";
-
-            var conditions = new List<string>();
-
-            foreach (DataRow r in ds.Tables[0].Rows)
-            {
-                string col = Convert.ToString(r["ColumnName"]).Trim();
-                string op = Convert.ToString(r["Operator"]).Trim();
-                string val = Convert.ToString(r["OperatorValue"]).Trim();
-                if (col == "" || op == "" || val == "") continue;
-
-                switch (op)
-                {
-                    case "=>": case ">=": op = ">="; break;
-                    case "=<": case "<=": op = "<="; break;
-                    case ">": case "<": case "=": case "<>": break;
-                    default: throw new Exception("Invalid operator: " + op);
-                }
-
-                string colSql = "[" + col.Replace("]", "]]") + "]";
-                DateTime dt; decimal num;
-
-                if (decimal.TryParse(val, NumberStyles.Any, CultureInfo.InvariantCulture, out num))
-                    conditions.Add("TRY_CONVERT(decimal(38,6), " + colSql + ") " + op + " " + num.ToString(CultureInfo.InvariantCulture));
-                else if (DateTime.TryParse(val, CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
-                    conditions.Add("TRY_CONVERT(date, " + colSql + ") " + op + " '" + dt.ToString("yyyy-MM-dd") + "'");
-                else
-                    conditions.Add(colSql + " " + op + " N'" + val.Replace("'", "''") + "'");
-            }
-
-            return conditions.Count == 0 ? "" : " WHERE " + string.Join(" AND ", conditions) + " ";
-        }
+        #region Operation Status OS2.1
 
         public List<string> GetOS2ColumnList()
         {
@@ -4403,91 +4362,49 @@ WHERE 1=2 ";
             }
             return columns;
         }
-        // =====================================================================
-        //  OS2.1 Data: ডায়নামিক ফিল্টার + অটো-রিফ্রেশ তথ্য
-        //
-        //  আগের OS1 কোড থেকে এগুলো আবার ব্যবহার হচ্ছে (নতুন করে বসাতে হবে না):
-        //    GetEffectiveMasterSettings, NormalizeOperator, BuildCondition, TryOperand,
-        //    IsNumericType, SqlText, MasterDateFormats
-        //  আপনার দেওয়া GetOS2Settings() মেথডটা আছে ধরে নিয়েছি।
-        //
-        //  ধাপ ১: আগের BuildMasterFilter মেথডটা নিচের ২টা মেথড দিয়ে বদলান (ধাপ ১ দেখুন)।
-        //  ধাপ ২: পুরোনো GetOS2Data মুছে নিচের অংশগুলো বসান।
-        // =====================================================================
 
-        // ---------------------------------------------------------------------
-        // ধাপ ১: BuildMasterFilter বদলানো (OS1 ও OS2 দুইটাই এখন এটা ব্যবহার করবে)
-        //        কারণ: OS2-এর কলামের তালিকা OS1 থেকে আলাদা, তাই types বাইরে থেকে আসবে।
-        // ---------------------------------------------------------------------
-
-        
-
-        // সাধারণ ফিল্টার বিল্ডার: getTypes শুধু তখনই চলে যখন সত্যিই ফিল্টার বানাতে হয়
-        private string BuildFilter(List<DataRow> rows, Func<Dictionary<string, Type>> getTypes)
-        {
-            if (rows == null || rows.Count == 0) return "";
-
-            Dictionary<string, Type> types = getTypes();
-            var parts = new List<string>();
-
-            foreach (DataRow r in rows)
-            {
-                string col = r["ColumnName"].ToString().Trim();
-                string op = NormalizeOperator(r["Operator"].ToString());
-                string raw = Convert.ToString(r["OperatorValue"]).Trim();
-
-                Type t;
-                if (op == null || raw.Length == 0 || !types.TryGetValue(col, out t))
-                {
-                    System.Diagnostics.Trace.WriteLine("Filter skipped: " + col + " " + r["Operator"] + " " + raw);
-                    continue;
-                }
-
-                string colRef = "A.[" + col.Replace("]", "]]") + "]";
-                string cond = BuildCondition(colRef, t, op, raw);
-                if (cond == null)
-                {
-                    System.Diagnostics.Trace.WriteLine("Filter skipped (bad value): " + col + " " + op + " " + raw);
-                    continue;
-                }
-
-                if (string.Equals(r["Type"].ToString().Trim(), "Excluded", StringComparison.OrdinalIgnoreCase))
-                    cond = "CASE WHEN (" + cond + ") THEN 1 ELSE 0 END = 0";
-
-                parts.Add("(" + cond + ")");
-            }
-
-            return parts.Count == 0 ? "" : "WHERE " + string.Join(" AND ", parts);
-        }
-        private DataTable GetOS2Settings()
-        {
-            DataSet ds;
-            var con = new ConnectionManager.DAL.ConManager("1");
-            con.OpenDataSetThroughAdapter(
-                @"select Id, ColumnName, Operator, OperatorValue, [Type],
-                 isnull(RepeatValue,0) RepeatValue,
-                 cast(StartDate as datetime) + isnull(cast(StartTime as datetime),0) StartDateTime
-          from operationstatusSetting
-          where DataName='OS2.1' and Filter=1 and StartDate is not null", out ds, false, "1");
-            return ds.Tables[0];
-        }
-        // ---------------------------------------------------------------------
-        // ধাপ ২-ক: OS2 মূল মেথড (DataName = 'OS2.1')
-        // ---------------------------------------------------------------------
-        public DataTable GetOS2Data(string column, string value)
+        private const string OS2DataName = "OS2.1";
+        public DataTable GetOS2Data(string userName)
         {
             string masterFilter = BuildFilter(
-                GetEffectiveMasterSettings(GetOS2Settings(), DateTime.Now),
+                GetEffectiveSettings(GetOperationStatusTabSettings("OS2.1"), DateTime.Now),
                 GetOS2ColumnTypes);
 
-            string strSql = "SELECT A.* FROM (\n" + OS2CoreSql + "\n) A\n " + masterFilter + " ";
+            // ফিল্টার আগের মতো সব কলামের ওপর চলে; তারপর শুধু বাছাই করা কলাম দেখানো হয়
+            string suffix = OS2DisplaySuffix
+                .Replace("@@USERNAME@@", SqlText((userName ?? "").Trim()))
+                .Replace("@@DATANAME@@", SqlText(OS2DataName));
+
+            string strSql = "SELECT A.* INTO #tempOS2 FROM (\n" + OS2CoreSql + "\n) A\n " + masterFilter + " ;\n" + suffix;
 
             return _sqlRepository.GetDataTable(strSql);
         }
+        public object GetOS2Grid(string userName)
+        {
+            return ToGridResult(GetOS2Data(userName));
+        }
+         
+        private const string OS2DisplaySuffix = @"DECLARE @UserName nvarchar(200) = @@USERNAME@@;
+DECLARE @DataName nvarchar(100) = @@DATANAME@@;
+DECLARE @sql nvarchar(max), @sel nvarchar(max);
 
-        // ---------------------------------------------------------------------
-        // ধাপ ২-খ: OS2-এর কলামের নাম ও টাইপ (ক্যাশ ৬০ মিনিট)
-        // ---------------------------------------------------------------------
+SELECT @sel = STUFF((
+    SELECT ',' + QUOTENAME(d.ColumnName) + ' AS '
+         + QUOTENAME(ISNULL(NULLIF(LTRIM(RTRIM(d.DisplayName)), ''), d.ColumnName))
+    FROM dbo.OperationstatusColumnDisplay d
+    WHERE d.DataName = @DataName
+      AND d.UserName = @UserName
+      AND EXISTS (SELECT 1 FROM tempdb.sys.columns c
+                  WHERE c.object_id = OBJECT_ID('tempdb..#tempOS2')
+                    AND c.name COLLATE DATABASE_DEFAULT = d.ColumnName COLLATE DATABASE_DEFAULT)
+    ORDER BY ISNULL(d.Sequence, 2147483647), d.Id
+    FOR XML PATH(''), TYPE).value('.', 'nvarchar(max)'), 1, 1, '');
+
+SET @sql = N'SELECT ' + ISNULL(@sel, N'*') + N' FROM #tempOS2';
+EXEC sp_executesql @sql;
+DROP TABLE #tempOS2
+";
+        
         private static Dictionary<string, Type> _os2ColTypes;
         private static DateTime _os2ColTypesAt = DateTime.MinValue;
         private static readonly object _os2ColLock = new object();
@@ -4512,16 +4429,13 @@ WHERE 1=2 ";
             }
         }
 
-        // ---------------------------------------------------------------------
-        // ধাপ ২-গ: OS2 অটো-রিফ্রেশ তথ্য (RepeatValue = মিনিট)
-        // ---------------------------------------------------------------------
         public object GetOS2RefreshInfo()
         {
             DateTime now = DateTime.Now;
-            DataTable dt = GetOS2Settings();
+            DataTable dt = GetOperationStatusTabSettings("OS2.1");
             var candidates = new List<DateTime>();
 
-            foreach (DataRow r in GetEffectiveMasterSettings(dt, now))
+            foreach (DataRow r in GetEffectiveSettings(dt, now))
             {
                 double rep = Convert.ToDouble(r["RepeatValue"]);
                 if (rep <= 0) continue;
@@ -4547,16 +4461,6 @@ WHERE 1=2 ";
             };
         }
 
-        /* ---- MVC Controller-এ এই অ্যাকশন যোগ করুন ----
-        public JsonResult GetOS2RefreshInfo()
-        {
-            return Json(_service.GetOS2RefreshInfo(), JsonRequestBehavior.AllowGet);
-        }
-        */
-
-        // ---------------------------------------------------------------------
-        // ধাপ ২-ঘ: OS2 query (আপনার আগের query হুবহু; বাইরের "SELECT A.* FROM ( ... ) A" বাদে ভেতরের অংশ)
-        // ---------------------------------------------------------------------
         private const string OS2CoreSql = @"select
 isnull(WC.GroupingData, 'Internal') AS GroupingData, WC.Id as WC_Id,WC.Code, WC.UserName as WorkCenter,p1.ProductionDate AS TargetDate,pp.UserName PlanningProcess, po.Id AS ProductionOrderID,
 p1.Quantity AS PlannedQtyForTheDay,t1.SPT,t1.ProductionPriority,pm.UserName AS Product,
@@ -4798,6 +4702,9 @@ group by POD.ProductionOrderId, ma.StandardName, cur.Code, uom.UserName--, MO.Ma
 ) AS ORD on ord.ProductionOrderID = PO.Id";
 
 
+        #endregion
+
+        #region Operation Status OS2.2
         public List<string> GetOS2SecondColumnList()
         {
             string strSql = @"select
@@ -5014,54 +4921,52 @@ WHERE 1=2";
             }
             return columns;
         }
-        // =====================================================================
-        //  OS2.2 Data (GetOS2SecondData): ডায়নামিক ফিল্টার + অটো-রিফ্রেশ তথ্য
-        //
-        //  আগের কোড থেকে এগুলো আবার ব্যবহার হচ্ছে (নতুন করে বসাতে হবে না):
-        //    BuildFilter, GetEffectiveMasterSettings, NormalizeOperator, BuildCondition,
-        //    TryOperand, IsNumericType, SqlText, MasterDateFormats
-        //  পুরোনো GetOS2SecondData মুছে নিচের সবকিছু বসান।
-        //  BuildMasterFilterBlank আর লাগবে না।
-        // =====================================================================
 
-        // ---------------------------------------------------------------------
-        // 1) Settings (DataName = 'OS2.2')
-        // ---------------------------------------------------------------------
-        private DataTable GetOS2SecondSettings()
-        {
-            DataSet ds;
-            var con = new ConnectionManager.DAL.ConManager("1");
-            con.OpenDataSetThroughAdapter(
-                @"select Id, ColumnName, Operator, OperatorValue, [Type],
-                 isnull(RepeatValue,0) RepeatValue,
-                 cast(StartDate as datetime) + isnull(cast(StartTime as datetime),0) StartDateTime
-          from operationstatusSetting
-          where DataName='OS2.2' and Filter=1 and StartDate is not null", out ds, false, "1");
-            return ds.Tables[0];
-        }
-
-        // ---------------------------------------------------------------------
-        // 2) মূল মেথড
-        //    আপনার query-তে ফিল্টার সরাসরি শেষে বসত, কিন্তু ফিল্টারের কলামগুলো SELECT-এর alias,
-        //    তাই WHERE-এ চলে না। এজন্য query-টা "SELECT A.* FROM ( ... ) A" এর ভেতরে রাখা হয়েছে।
-        // ---------------------------------------------------------------------
-        public DataTable GetOS2SecondData(string column, string value)
+        private const string OS2SecondDataName = "OS2.2";
+        public DataTable GetOS2SecondData(string userName)
         {
             string masterFilter = BuildFilter(
-                GetEffectiveMasterSettings(GetOS2SecondSettings(), DateTime.Now),
+                GetEffectiveSettings(GetOperationStatusTabSettings("OS2.2"), DateTime.Now),
                 GetOS2SecondColumnTypes);
+            string suffix = OS2SecondDisplaySuffix
+                .Replace("@@USERNAME@@", SqlText((userName ?? "").Trim()))
+                .Replace("@@DATANAME@@", SqlText(OS2SecondDataName));
 
-            string strSql = "SELECT A.* FROM (\n" + OS2SecondCoreSql + "\n) A\n " + masterFilter + " ";
+            string strSql = "SELECT A.* INTO #tempOS2 FROM (\n" + OS2SecondCoreSql + "\n) A\n " + masterFilter + " ;\n" + suffix;
 
             return _sqlRepository.GetDataTable(strSql);
         }
+        public object GetOS2SecondGrid(string userName)
+        {
+            return ToGridResult(GetOS2SecondData(userName));
+        }
 
-        // ---------------------------------------------------------------------
-        // 3) কলামের নাম ও টাইপ (ক্যাশ ৬০ মিনিট)
-        // ---------------------------------------------------------------------
+        private const string OS2SecondDisplaySuffix = @"DECLARE @UserName nvarchar(200) = @@USERNAME@@;
+DECLARE @DataName nvarchar(100) = @@DATANAME@@;
+DECLARE @sql nvarchar(max), @sel nvarchar(max);
+
+SELECT @sel = STUFF((
+    SELECT ',' + QUOTENAME(d.ColumnName) + ' AS '
+         + QUOTENAME(ISNULL(NULLIF(LTRIM(RTRIM(d.DisplayName)), ''), d.ColumnName))
+    FROM dbo.OperationstatusColumnDisplay d
+    WHERE d.DataName = @DataName
+      AND d.UserName = @UserName
+      AND EXISTS (SELECT 1 FROM tempdb.sys.columns c
+                  WHERE c.object_id = OBJECT_ID('tempdb..#tempOS2')
+                    AND c.name COLLATE DATABASE_DEFAULT = d.ColumnName COLLATE DATABASE_DEFAULT)
+    ORDER BY ISNULL(d.Sequence, 2147483647), d.Id
+    FOR XML PATH(''), TYPE).value('.', 'nvarchar(max)'), 1, 1, '');
+
+SET @sql = N'SELECT ' + ISNULL(@sel, N'*') + N' FROM #tempOS2';
+EXEC sp_executesql @sql;
+DROP TABLE #tempOS2
+";
+
         private static Dictionary<string, Type> _os2SecondColTypes;
         private static DateTime _os2SecondColTypesAt = DateTime.MinValue;
         private static readonly object _os2SecondColLock = new object();
+
+
 
         private Dictionary<string, Type> GetOS2SecondColumnTypes()
         {
@@ -5089,10 +4994,10 @@ WHERE 1=2";
         public object GetOS2SecondRefreshInfo()
         {
             DateTime now = DateTime.Now;
-            DataTable dt = GetOS2SecondSettings();
+            DataTable dt = GetOperationStatusTabSettings("OS2.2");
             var candidates = new List<DateTime>();
 
-            foreach (DataRow r in GetEffectiveMasterSettings(dt, now))
+            foreach (DataRow r in GetEffectiveSettings(dt, now))
             {
                 double rep = Convert.ToDouble(r["RepeatValue"]);
                 if (rep <= 0) continue;
@@ -5118,16 +5023,7 @@ WHERE 1=2";
             };
         }
 
-        /* ---- MVC Controller-এ এই অ্যাকশন যোগ করুন ----
-        public JsonResult GetOS2SecondRefreshInfo()
-        {
-            return Json(_service.GetOS2SecondRefreshInfo(), JsonRequestBehavior.AllowGet);
-        }
-        */
 
-        // ---------------------------------------------------------------------
-        // 5) আপনার query (হুবহু; ফিল্টারের অংশ বাদে)
-        // ---------------------------------------------------------------------
         private const string OS2SecondCoreSql = @"select isnull(WC.GroupingData, 'Internal') AS GroupingData,wc.Code, WC.Id as WC_Id, WC.UserName as WorkCenter,
 WorkCenterGroup = STUFF((select distinct ',' + WCG.UserName
 from HKP.WorkCenterGroup WCG
@@ -5329,8 +5225,11 @@ group by POD.ProductionOrderId, ma.StandardName, cur.Code, uom.UserName--, MO.Ma
 ) AS ORD on ord.ProductionOrderID = PO.Id
 --order by wc.Code,p1.ProductionDate
 ";
+        #endregion
 
 
+
+        #region Operation Status Production
         public List<string> GetProductionColumnList()
         {
             string strSql = @"SELECT distinct PP.Id, trkp.UserName AS Plant, trke.UserName AS Entity, pp.EntityID, pp.WorkCenterMasterId, PP.ProductionOrderID, wcm.UserName AS WorkCenter, FORMAT(PP.ProductionDate, 'dd-MMM-yyyy') AS ActualDate, pp.Quantity AS ActualQty
@@ -5625,53 +5524,26 @@ WHERE 1=2";
             return columns;
         }
 
-        // =====================================================================
-        //  Production Data (GetProductionData): ডায়নামিক ফিল্টার + অটো-রিফ্রেশ তথ্য
-        //  DataName = 'Production'
-        //
-        //  আগের কোড থেকে এগুলো আবার ব্যবহার হচ্ছে (নতুন করে বসাতে হবে না):
-        //    BuildFilter, GetEffectiveMasterSettings, NormalizeOperator, BuildCondition,
-        //    TryOperand, IsNumericType, SqlText, MasterDateFormats
-        //  পুরোনো GetProductionData মুছে নিচের সবকিছু বসান।
-        //
-        //  সতর্কতা: আপনার query-তে @FromDate ও @ToDate আছে, যা এই মেথডের ভেতরে কোথাও declare করা নেই।
-        //  মূল query আমি আগের মতোই রেখেছি (আপনার _sqlRepository যেভাবে মান দেয় সেভাবেই চলবে)।
-        //  শুধু কলামের টাইপ জানার কোয়েরিতে (GetProductionColumnTypes) ডামি মান declare করেছি।
-        // =====================================================================
-
-        // ---------------------------------------------------------------------
-        // 1) Settings (DataName = 'Production')
-        // ---------------------------------------------------------------------
-        private DataTable GetProductionSettings()
-        {
-            DataSet ds;
-            var con = new ConnectionManager.DAL.ConManager("1");
-            con.OpenDataSetThroughAdapter(
-                @"select Id, ColumnName, Operator, OperatorValue, [Type],
-                 isnull(RepeatValue,0) RepeatValue,
-                 cast(StartDate as datetime) + isnull(cast(StartTime as datetime),0) StartDateTime
-          from operationstatusSetting
-          where DataName='Production' and Filter=1 and StartDate is not null", out ds, false, "1");
-            return ds.Tables[0];
-        }
-
-        // ---------------------------------------------------------------------
-        // 2) মূল মেথড
-        // ---------------------------------------------------------------------
-        public DataTable GetProductionData(string column, string value)
+        private const string ProductionDataName = "Production";
+        public DataTable GetProductionData(string userName)
         {
             string masterFilter = BuildFilter(
-                GetEffectiveMasterSettings(GetProductionSettings(), DateTime.Now),
+                GetEffectiveSettings(GetOperationStatusTabSettings("Production"), DateTime.Now),
                 GetProductionColumnTypes);
+            string suffix = OS2SecondDisplaySuffix
+                .Replace("@@USERNAME@@", SqlText((userName ?? "").Trim()))
+                .Replace("@@DATANAME@@", SqlText(ProductionDataName));
 
-            string strSql = "SELECT A.* FROM (\n" + ProductionCoreSql + "\n)A  " + masterFilter + " ";
+            string strSql = "SELECT A.* INTO #tempOS2 FROM (\n" + ProductionCoreSql + "\n) A\n " + masterFilter + " ;\n" + suffix;
 
             return _sqlRepository.GetDataTable(strSql);
         }
+        public object GetProductionGrid(string userName)
+        {
+            return ToGridResult(GetProductionData(userName));
+        }
+        
 
-        // ---------------------------------------------------------------------
-        // 3) কলামের নাম ও টাইপ (ক্যাশ ৬০ মিনিট)
-        // ---------------------------------------------------------------------
         private static Dictionary<string, Type> _productionColTypes;
         private static DateTime _productionColTypesAt = DateTime.MinValue;
         private static readonly object _productionColLock = new object();
@@ -5685,7 +5557,6 @@ WHERE 1=2";
 
                 DataSet ds;
                 var con = new ConnectionManager.DAL.ConManager("1");
-                // TOP 0 তাই কোনো ডেটা আসে না; @FromDate/@ToDate শুধু query চালানোর জন্য declare
                 con.OpenDataSetThroughAdapter(
                     "DECLARE @FromDate datetime = '19000101', @ToDate datetime = '19000101';\n" +
                     "SELECT TOP 0 * FROM (\n" + ProductionCoreSql + "\n) A", out ds, false, "1");
@@ -5699,16 +5570,14 @@ WHERE 1=2";
             }
         }
 
-        // ---------------------------------------------------------------------
-        // 4) অটো-রিফ্রেশ তথ্য (RepeatValue = মিনিট)
-        // ---------------------------------------------------------------------
+
         public object GetProductionRefreshInfo()
         {
             DateTime now = DateTime.Now;
-            DataTable dt = GetProductionSettings();
+            DataTable dt = GetOperationStatusTabSettings("Production");
             var candidates = new List<DateTime>();
 
-            foreach (DataRow r in GetEffectiveMasterSettings(dt, now))
+            foreach (DataRow r in GetEffectiveSettings(dt, now))
             {
                 double rep = Convert.ToDouble(r["RepeatValue"]);
                 if (rep <= 0) continue;
@@ -5734,16 +5603,6 @@ WHERE 1=2";
             };
         }
 
-        /* ---- MVC Controller-এ এই অ্যাকশন যোগ করুন ----
-        public JsonResult GetProductionRefreshInfo()
-        {
-            return Json(_service.GetProductionRefreshInfo(), JsonRequestBehavior.AllowGet);
-        }
-        */
-
-        // ---------------------------------------------------------------------
-        // 5) আপনার query (হুবহু; বাইরের "SELECT A.* from ( ... ) A" ও ফিল্টার বাদে)
-        // ---------------------------------------------------------------------
         private const string ProductionCoreSql = @"SELECT distinct PP.Id, trkp.UserName AS Plant, trke.UserName AS Entity, pp.EntityID, pp.WorkCenterMasterId, PP.ProductionOrderID, wcm.UserName AS WorkCenter, FORMAT(PP.ProductionDate, 'dd-MMM-yyyy') AS ActualDate, pp.Quantity AS ActualQty
                                         , RP.EmployeeName ResponsiblePerson, MN.EmployeeName Mentor, AH.EmployeeName AccountHolder, AC.EmployeeName AccountInCharge
                                         , (select SUM(xp.Qty * xp.CM) / sum(xp.Qty)
@@ -6012,6 +5871,10 @@ WHERE 1=2";
                             LEFT OUTER JOIN ORg.Entity AS TRKE ON trke.Id = PP.EntityId
                             LEFT OUTER JOIN org.Plant AS TRKP ON  trkp.Id = TRKE.PlantId
 ";
+        #endregion
+
+
+        #region Operation status WorkCenter
 
         public List<string> GetWorkCenterColumnList()
         {
@@ -6058,49 +5921,25 @@ WHERE 1=2";
             }
             return columns;
         }
-
-        // =====================================================================
-        //  WorkCenter Data (GetWorkCenterData): ডায়নামিক ফিল্টার + অটো-রিফ্রেশ তথ্য
-        //  DataName = 'WorkCenter'
-        //
-        //  আগের কোড থেকে এগুলো আবার ব্যবহার হচ্ছে (নতুন করে বসাতে হবে না):
-        //    BuildFilter, GetEffectiveMasterSettings, NormalizeOperator, BuildCondition,
-        //    TryOperand, IsNumericType, SqlText, MasterDateFormats
-        //  পুরোনো GetWorkCenterData মুছে নিচের সবকিছু বসান।
-        // =====================================================================
-
-        // ---------------------------------------------------------------------
-        // 1) Settings (DataName = 'WorkCenter')
-        // ---------------------------------------------------------------------
-        private DataTable GetWorkCenterSettings()
-        {
-            DataSet ds;
-            var con = new ConnectionManager.DAL.ConManager("1");
-            con.OpenDataSetThroughAdapter(
-                @"select Id, ColumnName, Operator, OperatorValue, [Type],
-                 isnull(RepeatValue,0) RepeatValue,
-                 cast(StartDate as datetime) + isnull(cast(StartTime as datetime),0) StartDateTime
-          from operationstatusSetting
-          where DataName='WorkCenter' and Filter=1 and StartDate is not null", out ds, false, "1");
-            return ds.Tables[0];
-        }
-
-        // ---------------------------------------------------------------------
-        // 2) মূল মেথড
-        //    আপনার query-তে ফিল্টার সরাসরি শেষে বসত; ফিল্টারের কলামগুলো SELECT-এর নাম/alias
-        //    (যেমন LineName, Plant, WCMCode), তাই query-টা "SELECT A.* FROM ( ... ) A" এর ভেতরে রাখা হয়েছে।
-        // ---------------------------------------------------------------------
-        public DataTable GetWorkCenterData(string column, string value)
+        private const string WorkCenterDataName = "WorkCenter";
+        public DataTable GetWorkCenterData(string userName)
         {
             string masterFilter = BuildFilter(
-                GetEffectiveMasterSettings(GetWorkCenterSettings(), DateTime.Now),
+                GetEffectiveSettings(GetOperationStatusTabSettings("WorkCenter"), DateTime.Now),
                 GetWorkCenterColumnTypes);
+            string suffix = OS2SecondDisplaySuffix
+                .Replace("@@USERNAME@@", SqlText((userName ?? "").Trim()))
+                .Replace("@@DATANAME@@", SqlText(WorkCenterDataName));
 
-            string sql = "SELECT A.* FROM (\n" + WorkCenterCoreSql + "\n) A\n " + masterFilter + " ";
+            string strSql = "SELECT A.* INTO #tempOS2 FROM (\n" + WorkCenterCoreSql + "\n) A\n " + masterFilter + " ;\n" + suffix;
 
-            return _sqlRepository.GetDataTable(sql);
+            return _sqlRepository.GetDataTable(strSql);
         }
-
+        public object GetWorkCenterGrid(string userName)
+        {
+            return ToGridResult(GetWorkCenterData(userName));
+        }
+        
         // ---------------------------------------------------------------------
         // 3) কলামের নাম ও টাইপ (ক্যাশ ৬০ মিনিট)
         // ---------------------------------------------------------------------
@@ -6128,16 +5967,13 @@ WHERE 1=2";
             }
         }
 
-        // ---------------------------------------------------------------------
-        // 4) অটো-রিফ্রেশ তথ্য (RepeatValue = মিনিট)
-        // ---------------------------------------------------------------------
         public object GetWorkCenterRefreshInfo()
         {
             DateTime now = DateTime.Now;
-            DataTable dt = GetWorkCenterSettings();
+            DataTable dt = GetOperationStatusTabSettings("WorkCenter");
             var candidates = new List<DateTime>();
 
-            foreach (DataRow r in GetEffectiveMasterSettings(dt, now))
+            foreach (DataRow r in GetEffectiveSettings(dt, now))
             {
                 double rep = Convert.ToDouble(r["RepeatValue"]);
                 if (rep <= 0) continue;
@@ -6163,16 +5999,6 @@ WHERE 1=2";
             };
         }
 
-        /* ---- MVC Controller-এ এই অ্যাকশন যোগ করুন ----
-        public JsonResult GetWorkCenterRefreshInfo()
-        {
-            return Json(_service.GetWorkCenterRefreshInfo(), JsonRequestBehavior.AllowGet);
-        }
-        */
-
-        // ---------------------------------------------------------------------
-        // 5) আপনার query (হুবহু; ফিল্টার বাদে)
-        // ---------------------------------------------------------------------
         private const string WorkCenterCoreSql = @"select * from (select WCM.Id WCMId, WCM.CompanyId,WCM.PlantId,
 WCM.EntityId,WCM.WorkCenterCategoryId,WCM.WorkCenterSubcategoryId,WCM.ProcessId,WCM.Code WCMCode, WCM.UserName LineName,
  WCM.Description WCMDescription, WCM.CapacityProcessUoMId, WCM.UoMId, WCM.LineId,WCM.Capacity,
@@ -6204,7 +6030,10 @@ LEFT JOIN HKP.WorkCenterWiseGroup WG ON WG.WorkCenterMasterId = WCM.Id
 LEFT JOIN HKP.WorkCenterGroup WCG ON WCG.Id = WG.WorkCenterGroupId
 ) A
 ";
-       
+
+        #endregion
+
+
     }
     public class EmployeeOperation
     {

@@ -3,6 +3,7 @@ operationStatusController.$inject = ['commonMessage', '$scope', '$rootScope', 'b
 function operationStatusController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, toaster, cboService, $controller, $window) {
     $rootScope.title = "Operation Status ";
     $scope.Action = "Save";
+    $scope.ActionControl = "Save";
     $controller('dashboardBaseController', { $scope: $scope, $http: $http });
 
     $scope.activeTab = 1;
@@ -22,12 +23,16 @@ function operationStatusController(commonMessage, $scope, $rootScope, baseServic
     $scope.saveUrl = $scope.path + "CreateOperationStatusSetting";
     $scope.updateUrl = $scope.path + "CreateOperationStatusSetting";
     $scope.deleteUrl = $scope.path + "DeleteOperationStatusSetting/";
+    $scope.deleteColumnControlUrl = $scope.path + "DeleteOperationStatusColumnControl/";
     $scope.getListUrl = $scope.path + "getdatalist";
+    $scope.getColumnControlListUrl = $scope.path + "GetColumnControlDataList";
     $scope.getMasterListUrl = $scope.path + "GetOSMasterDataList";
     $scope.getOS2ListUrl = $scope.path + "GetOS2DataList";
     $scope.getOS2SecondListUrl = $scope.path + "GetOS2SecondDataList";
     $scope.getProductionListUrl = $scope.path + "GetProductionDataList";
     $scope.getWorkCenterListUrl = $scope.path + "GetWorkCenterDataList";
+    $scope.saveColumnControlUrl = $scope.path + "CreateOperationStatusColumnControl";
+
 
 
     $scope.searchMasterByList = [
@@ -40,81 +45,349 @@ function operationStatusController(commonMessage, $scope, $rootScope, baseServic
     $rootScope.parameters = { searchMasterBy: "SalesOrderId", searchMaster: "" };
 
     $scope.masterDataList = [];
-    $scope.master = {};
+    $scope.master = { userName: "", users: [] };
+
+    // ড্রপডাউনের ইউজার লিস্ট
+    $scope.loadMasterUsers = function (data) {
+        $http.get('Employees/EmployeeInFoReport/GetDataDisplayUserNames?tabName='+data).then(function (res) {
+            $scope.master.users = res.data || [];
+            if ($scope.master.users.length && !$scope.master.userName) {
+                $scope.master.userName = $scope.master.users[0];
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, "failure");
+        });
+    };
+    $scope.loadMasterUsers('Master');
+
     $scope.getMasterData = function () {
+        if (!$scope.master.userName) { ShowResult("Select a user first", "failure"); return; }
+
         $http({
             method: "POST",
             url: $scope.getMasterListUrl,
-            data: { column: $rootScope.parameters.searchMasterBy, value: $rootScope.parameters.searchMaster },
+            data: { userName: $scope.master.userName },
             dataType: "JSON"
         }).then(function (response) {
-            $scope.masterDataList = response.data;
+            $scope.masterDataList = response.data.data || [];
+            $scope.masterColumns = response.data.columns || [];
+            $scope.buildMasterGrid();
         }, function () {
             ShowResult(commonMessage.NetworkError, "failure");
         });
     };
-   // $scope.getMasterData();
 
+    $scope.buildMasterGrid = function () {
+        var cols = $scope.masterColumns.map(function (c) {
+            return { field: c.field, headerText: c.headerText, width: 120, textAlign: "left" };
+        });
 
+        // আগের গ্রিড মুছে নতুন করে বানানো হচ্ছে, কারণ কলাম প্রতিবার বদলাতে পারে
+        var host = $("#masterGridHost");
+        var old = host.find("#masterGrid");
+        if (old.data("ejGrid")) { old.ejGrid("destroy"); }
+        host.html('<div id="masterGrid"></div>');
+
+        $("#masterGrid").ejGrid({
+            dataSource: $scope.masterDataList,
+            columns: cols,
+            allowFiltering: true,
+            allowPaging: true,
+            allowSorting: true,
+            allowSelection: true,
+            allowTextWrap: true,
+            enableTouch: false,
+            isResponsive: true,
+            filterSettings: { filterType: "excel" },
+            queryCellInfo: $scope.PeriodValidation,   // আপনার $scope-এ যদি এই নামে ফাংশন থাকে
+            actionComplete: $scope.refreshPage        // একইভাবে
+        });
+    };
+
+    // C0, C1... কে DisplayName-কীতে রূপান্তর করে। Export ও Dashboard এটাই ব্যবহার করবে।
+    $scope.getMasterDisplayRows = function () {
+        var cols = $scope.masterColumns || [];
+        return ($scope.masterDataList || []).map(function (r) {
+            var o = {};
+            cols.forEach(function (c) { o[c.headerText] = r[c.field]; });
+            return o;
+        });
+    };
+
+    // কলামের হেডার-তালিকা, গ্রিডের ক্রম অনুযায়ী
+    $scope.getMasterHeaders = function () {
+        return ($scope.masterColumns || []).map(function (c) { return c.headerText; });
+    };
+
+    function buildDynamicGrid(hostId, gridId, columns, rows) {
+        if (!columns || !columns.length) {
+            $("#" + hostId).html('');
+            ShowResult("No Data found।", "failure");
+            return;
+        }
+
+        var cols = (columns || []).map(function (c) {
+            return { field: c.field, headerText: c.headerText, width: 120, textAlign: "left" };
+        });
+
+        var host = $("#" + hostId);
+        var old = host.find("#" + gridId);
+        var oldGrid = old.data("ejGrid");
+        if (oldGrid) {
+            try { oldGrid.clearFiltering(); } catch (e) { }
+            try { oldGrid.clearSorting(); } catch (e) { }
+            try { old.ejGrid("destroy"); } catch (e) { }
+        }
+        host.html('<div id="' + gridId + '"></div>');
+
+        $("#" + gridId).ejGrid({
+            dataSource: rows || [],
+            columns: cols,
+            allowFiltering: true,
+            allowPaging: true,
+            allowSorting: true,
+            allowSelection: true,
+            allowTextWrap: true,
+            enableTouch: false,
+            isResponsive: true,
+            filterSettings: { filterType: "excel" }
+        });
+    }
+    // C0, C1... -> DisplayName কী
+    function toDisplayRows(columns, rows) {
+        return (rows || []).map(function (r) {
+            var o = {};
+            (columns || []).forEach(function (c) { o[c.headerText] = r[c.field]; });
+            return o;
+        });
+    }
+
+    // ---------- OS2.1 ----------
+    $scope.os2One = { userName: "", users: [] };
     $scope.OS2OneDataList = [];
+    $scope.OS2OneColumns = [];
     $scope.OS2OneDate = null;
+
+     
+    $scope.loadOS2Users = function (data) {
+        $http.get('Employees/EmployeeInFoReport/GetDataDisplayUserNames?tabName=' + data).then(function (res) {
+            $scope.os2One.users = res.data || [];
+            if ($scope.os2One.users.length && !$scope.os2One.userName) {
+                $scope.os2One.userName = $scope.os2One.users[0];
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, "failure");
+        });
+    };
+
+    // $scope.getOS2ListUrl এখন অবশ্যই GetOS2Grid অ্যাকশনের url হতে হবে
     $scope.getOS2OneData = function () {
+        if (!$scope.os2One.userName) { ShowResult("Select a user first", "failure"); return; }
+
         $http({
             method: "POST",
             url: $scope.getOS2ListUrl,
-            data: { column: $rootScope.parameters.searchMasterBy, value: $rootScope.parameters.searchMaster },
+            data: { userName: $scope.os2One.userName },
             dataType: "JSON"
         }).then(function (response) {
-            $scope.OS2OneDataList = response.data;
+            $scope.OS2OneDataList = response.data.data || [];
+            $scope.OS2OneColumns = response.data.columns || [];
+            buildDynamicGrid("os2OneGridHost", "os2OneGrid", $scope.OS2OneColumns, $scope.OS2OneDataList);
         }, function () {
             ShowResult(commonMessage.NetworkError, "failure");
         });
     };
 
+    // Export (Excel)
+    $scope.exportOS21 = function () {
+        download('OS2.1', $scope.OS2OneDataList, toExportColumns($scope.OS2OneColumns));
+    };
 
+    // Dashboard
+    $scope.openOS21Dashboard = function () {
+        var fieldOf = {};
+        ($scope.OS2OneColumns || []).forEach(function (c) { fieldOf[c.headerText] = c.field; });
+
+        $scope.openDashboard('OS2.1', toDisplayRows($scope.OS2OneColumns, $scope.OS2OneDataList), function (header, value) {
+            var field = fieldOf[header];
+            var grid = $('#os2OneGrid').data('ejGrid');
+            if (!field || !grid) return;
+            grid.clearFiltering();
+            grid.filterColumn(field, 'equal', value);
+        });
+    };
+
+
+
+    // ---------- OS2.2 ----------
+    $scope.os2Second = { userName: "", users: [] };
     $scope.OS2SecondDataList = [];
+    $scope.OS2SecondColumns = [];
     $scope.OS2SecondDate = null;
+
+
+    $scope.loadOS2SecondUsers = function (data) {
+        $http.get('Employees/EmployeeInFoReport/GetDataDisplayUserNames?tabName=' + data).then(function (res) {
+            $scope.os2Second.users = res.data || [];
+            if ($scope.os2Second.users.length && !$scope.os2Second.userName) {
+                $scope.os2Second.userName = $scope.os2Second.users[0];
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, "failure");
+        });
+    };
+
+    // $scope.getOS2ListUrl এখন অবশ্যই GetOS2Grid অ্যাকশনের url হতে হবে
     $scope.getOS2SecondData = function () {
+        if (!$scope.os2Second.userName) { ShowResult("Select a user first", "failure"); return; }
+
         $http({
             method: "POST",
             url: $scope.getOS2SecondListUrl,
-            data: { column: $rootScope.parameters.searchMasterBy, value: $rootScope.parameters.searchMaster},
+            data: { userName: $scope.os2Second.userName },
             dataType: "JSON"
         }).then(function (response) {
-            $scope.OS2SecondDataList = response.data;
+            $scope.OS2SecondDataList = response.data.data || [];
+            $scope.OS2SecondColumns = response.data.columns || [];
+            buildDynamicGrid("os2SecondGridHost", "os2SecondGrid", $scope.OS2SecondColumns, $scope.OS2SecondDataList);
         }, function () {
             ShowResult(commonMessage.NetworkError, "failure");
         });
     };
 
-    $scope.ProductionDataList = [];
-    $scope.ProductionDate = null;
+    // Export (Excel)
+    $scope.exportOS2Second = function () {
+        download('OS2.2', $scope.OS2SecondDataList, toExportColumns($scope.OS2SecondColumns));
+    };
+
+    // Dashboard
+    $scope.openOS2SecondDashboard = function () {
+        var fieldOf = {};
+        ($scope.OS2SecondColumns || []).forEach(function (c) { fieldOf[c.headerText] = c.field; });
+
+        $scope.openDashboard('OS2.2', toDisplayRows($scope.OS2SecondColumns, $scope.OS2SecondDataList), function (header, value) {
+            var field = fieldOf[header];
+            var grid = $('#os2SecondGrid').data('ejGrid');
+            if (!field || !grid) return;
+            grid.clearFiltering();
+            grid.filterColumn(field, 'equal', value);
+        });
+    };
+    //--------End OS2.2----------------------
+
+
+    // ---------- Production ----------
+    $scope.production = { userName: "", users: [] };
+    $scope.productionDataList = [];
+    $scope.productionColumns = [];
+    $scope.productionDate = null;
+
+
+    $scope.loadProductionUsers = function (data) {
+        $http.get('Employees/EmployeeInFoReport/GetDataDisplayUserNames?tabName=' + data).then(function (res) {
+            $scope.production.users = res.data || [];
+            if ($scope.production.users.length && !$scope.production.userName) {
+                $scope.production.userName = $scope.production.users[0];
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, "failure");
+        });
+    };
+
     $scope.getProductionData = function () {
+        if (!$scope.production.userName) { ShowResult("Select a user first", "failure"); return; }
+
         $http({
             method: "POST",
             url: $scope.getProductionListUrl,
-            data: { column: $rootScope.parameters.searchMasterBy, value: $rootScope.parameters.searchMaster},
+            data: { userName: $scope.production.userName },
             dataType: "JSON"
         }).then(function (response) {
-            $scope.ProductionDataList = response.data;
+            $scope.productionDataList = response.data.data || [];
+            $scope.productionColumns = response.data.columns || [];
+            buildDynamicGrid("productionGridHost", "productionGrid", $scope.productionColumns, $scope.productionDataList);
         }, function () {
             ShowResult(commonMessage.NetworkError, "failure");
         });
     };
 
-    $scope.WorkCenterDataList = [];
-    $scope.getWorkCenterData = function () {
-        $http({
-            method: "POST",
-            url: $scope.getWorkCenterListUrl,
-            data: { column: $rootScope.parameters.searchMasterBy, value: $rootScope.parameters.searchMaster },
-            dataType: "JSON"
-        }).then(function (response) {
-            $scope.WorkCenterDataList = response.data;
+    // Export (Excel)
+    $scope.exportproduction = function () {
+        download('Production', $scope.productionDataList, toExportColumns($scope.productionColumns));
+    };
+
+    // Dashboard
+    $scope.openproductionDashboard = function () {
+        var fieldOf = {};
+        ($scope.productionColumns || []).forEach(function (c) { fieldOf[c.headerText] = c.field; });
+
+        $scope.openDashboard('Production', toDisplayRows($scope.productionColumns, $scope.productionDataList), function (header, value) {
+            var field = fieldOf[header];
+            var grid = $('#productionGrid').data('ejGrid');
+            if (!field || !grid) return;
+            grid.clearFiltering();
+            grid.filterColumn(field, 'equal', value);
+        });
+    };
+    //--------End production----------------------
+   
+
+
+    // ---------- WorkCenter ----------
+    $scope.workCenter = { userName: "", users: [] };
+    $scope.workCenterDataList = [];
+    $scope.workCenterColumns = [];
+    $scope.workCenterDate = null;
+
+
+    $scope.loadWorkCenterUsers = function (data) {
+        $http.get('Employees/EmployeeInFoReport/GetDataDisplayUserNames?tabName=' + data).then(function (res) {
+            $scope.workCenter.users = res.data || [];
+            if ($scope.workCenter.users.length && !$scope.workCenter.userName) {
+                $scope.workCenter.userName = $scope.workCenter.users[0];
+            }
         }, function () {
             ShowResult(commonMessage.NetworkError, "failure");
         });
     };
+
+    $scope.getWorkCenterData = function () {
+        if (!$scope.workCenter.userName) { ShowResult("Select a user first", "failure"); return; }
+
+        $http({
+            method: "POST",
+            url: $scope.getWorkCenterListUrl,
+            data: { userName: $scope.workCenter.userName },
+            dataType: "JSON"
+        }).then(function (response) {
+            $scope.workCenterDataList = response.data.data || [];
+            $scope.workCenterColumns = response.data.columns || [];
+            buildDynamicGrid("workCenterGridHost", "workCenterGrid", $scope.workCenterColumns, $scope.workCenterDataList);
+        }, function () {
+            ShowResult(commonMessage.NetworkError, "failure");
+        });
+    };
+
+    // Export (Excel)
+    $scope.exportworkCenter = function () {
+        download('WorkCenter', $scope.workCenterDataList, toExportColumns($scope.workCenterColumns));
+    };
+
+    // Dashboard
+    $scope.openproductionDashboard = function () {
+        var fieldOf = {};
+        ($scope.workCenterColumns || []).forEach(function (c) { fieldOf[c.headerText] = c.field; });
+
+        $scope.openDashboard('WorkCenter', toDisplayRows($scope.workCenterColumns, $scope.workCenterDataList), function (header, value) {
+            var field = fieldOf[header];
+            var grid = $('#workCenterGrid').data('ejGrid');
+            if (!field || !grid) return;
+            grid.clearFiltering();
+            grid.filterColumn(field, 'equal', value);
+        });
+    };
+    //--------End WorkCenter----------------------
+    
     $scope.columnList = [];
     $scope.getMasterCbo = function (data) {
         $scope.cboUrl = null;
@@ -262,6 +535,108 @@ function operationStatusController(commonMessage, $scope, $rootScope, baseServic
         $scope.operationStatusSetting = newItem();
     }
 
+    $scope.operationStatusColumnControlList = [];
+    $scope.getColumnControlData = function () {
+        $http({
+            method: "POST",
+            url: $scope.getColumnControlListUrl,
+            data: { column: $rootScope.parameters.searchBy, value: $rootScope.parameters.search },
+            dataType: "JSON"
+        }).then(function (response) {
+            $scope.operationStatusColumnControlList = response.data;
+        }, function () {
+            ShowResult(commonMessage.NetworkError, "failure");
+        });
+    };
+    $scope.getColumnControlData();
+
+    function newControlItem() {
+        return {
+            Id: null,
+            DataName: null,
+            ColumnName: null,
+            DisplayName: null,
+            UserName: null,
+            Sequence: null,
+        };
+    }
+    $scope.operationStatusColumnControl = newControlItem();
+    $scope.GetColumnControl = function (id, index) {
+        $scope.index = index;
+        $scope.operationStatusColumnControl = angular.copy($scope.operationStatusColumnControlList[index]);
+        $scope.operationStatusColumnControl.AddedDate = $filter("dateFilter")($scope.operationStatusColumnControlList.AddedDate);
+        $scope.operationStatusColumnControl.UpdatedDate = $filter("dateFilter")($scope.operationStatusColumnControlList.UpdatedDate);
+        $scope.ActionControl = "Update";
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+    $scope.SaveColumnControl = function () {
+        $scope.$broadcast("show-errors-check-validity");
+        // if ($scope.operationStatusSetting.$valid) {
+        var url = $scope.ActionControl === "Save" ? $scope.saveColumnControlUrl : $scope.saveColumnControlUrl;
+        $http({
+            method: "POST",
+            url: url,
+            data: {
+                'data': $scope.operationStatusColumnControl
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getColumnControlData();
+                ClearColumnControlFields(response.data.Sequence);
+            }
+        }, function errorCallback() {
+            ShowResult(commonMessage.NetworkError, "failure");
+        });
+        //}
+        return true;
+    };
+
+
+    $scope.DeleteColumnControl = function () {
+        if (!baseService.isUndefinedOrNull($scope.operationStatusColumnControl.Id)) {
+            $http({
+                method: "POST",
+                url: $scope.deleteColumnControlUrl + $scope.operationStatusColumnControl.Id,
+                dataType: "JSON"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    $scope.getData();
+                    ClearColumnControlFields(response.data.Sequence);
+
+                }
+            }, function errorCallback() {
+                ShowResult(commonMessage.NetworkError, "failure");
+            });
+        }
+        else {
+            ShowResult(commonMessage.primaryKeyNullMessage, "failure");
+        }
+        return true;
+    };
+
+    $scope.ClearColumnControl = function () {
+        ClearColumnControlFields();
+        return true;
+    };
+
+    function ClearColumnControlFields(seq) {
+        $scope.Action = "SaveColumnControl";
+        $scope.index = -1;
+        $scope.operationStatusColumnControl = newControlItem();
+    }
+
+
     $scope.hourList = [];
     $scope.minuteList = [];
     for (var i = 0; i < 24; i++) $scope.hourList.push(('0' + i).slice(-2));
@@ -360,11 +735,12 @@ function operationStatusController(commonMessage, $scope, $rootScope, baseServic
         });
     }
 
-    $scope.exportMaster = function () { download('Master', $scope.masterDataList); };
-    $scope.exportOS21 = function () { download('OS2.1', $scope.OS2OneDataList); };
-    $scope.exportOS2Second = function () { download('OS2.2', $scope.OS2SecondDataList); };
-    $scope.exportProduction = function () { download('Production', $scope.ProductionDataList); };
-    $scope.exportWorkCenter = function () { download('WorkCenter', $scope.WorkCenterDataList); };
+    $scope.exportMaster = function () {
+        var cols = ($scope.masterColumns || []).map(function (c) {
+            return { field: c.field, title: c.headerText };
+        });
+        download('Master', $scope.masterDataList, cols);
+    };
 
 
     // ej-grid ফিল্টার (গ্রিডের id বদলান, যেমন #masterGrid)
@@ -377,10 +753,27 @@ function operationStatusController(commonMessage, $scope, $rootScope, baseServic
         };
     }
 
-    $scope.openMasterDashboard = function () { $scope.openDashboard('Master', $scope.masterDataList, filterGrid('#masterGrid')); };
-    $scope.openOS21Dashboard = function () { $scope.openDashboard('OS2.1', $scope.OS2OneDataList, filterGrid('#oS2OneGrid')); };
-    $scope.openOS2SecondDashboard = function () { $scope.openDashboard('OS2.2', $scope.OS2SecondDataList, filterGrid('#OS2SecondGrid')); };
-    $scope.openProductionDashboard = function () { $scope.openDashboard('Production', $scope.ProductionDataList, filterGrid('#productionGrid')); };
+    $scope.getMasterDisplayRows = function () {
+        var cols = $scope.masterColumns || [];
+        return ($scope.masterDataList || []).map(function (r) {
+            var o = {};
+            cols.forEach(function (c) { o[c.headerText] = r[c.field]; });
+            return o;
+        });
+    };
+
+    $scope.openMasterDashboard = function () {
+        var fieldOf = {};   // DisplayName -> C0, C1 ...
+        ($scope.masterColumns || []).forEach(function (c) { fieldOf[c.headerText] = c.field; });
+
+        $scope.openDashboard('Master', $scope.getMasterDisplayRows(), function (header, value, type) {
+            var field = fieldOf[header];
+            var grid = $('#masterGrid').data('ejGrid');
+            if (!field || !grid) return;
+            grid.clearFiltering();
+            grid.filterColumn(field, 'equal', value);
+        });
+    };
     $scope.openWorkCenterDashboard = function () { $scope.openDashboard('WorkCenter', $scope.WorkCenterDataList, filterGrid('#workCenterGrid')); };
 
 
