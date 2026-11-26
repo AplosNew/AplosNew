@@ -1365,6 +1365,7 @@ upanelApp.controller("DocumentStatusUpdateController", DocumentStatusUpdateContr
 upanelApp.controller("dashboardBaseController", dashboardBaseController)
 upanelApp.controller("MaterialsTransferController", MaterialsTransferController)
 upanelApp.controller("MachineandEquipmentHelpDeskController", MachineandEquipmentHelpDeskController)
+upanelApp.controller("RPCategoryController", RPCategoryController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

@@ -2,11 +2,23 @@
 MaterialsTransferController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$window'];
 function MaterialsTransferController(commonMessage, $scope, $rootScope, baseService, $http, $window) {
     $rootScope.title = "Material Transfer";
+    $scope.ModelList = [];
+    $scope.searchBy = "Purpose"; $scope.search = "";
+    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Purpose', name: "Purpose" }, { value: 'Grade', name: "Grade" }, { value: 'Remarks', name: "Remarks" }];
 
-    // ------------------------------------------------------------------
-    // 1. HEADER  (Purpose, From Location, To Location, By Whom, To Whom, Remark, Grade)
-    // ------------------------------------------------------------------
-    $scope.HeaderTemp = {
+    $scope.getData = function () {
+        $http({
+            method: 'POST',
+            url: "OrderManagements/MasterOrder/GetMatTransferList",
+            data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelList = response.data;
+        });
+    }
+    $scope.getData();
+
+    $scope.Model = {
         Id: null,
         Purpose: null,
         FromLocationId: null,
@@ -16,57 +28,134 @@ function MaterialsTransferController(commonMessage, $scope, $rootScope, baseServ
         Remark: '',
         Grade: null
     };
-    $scope.Header = angular.copy($scope.HeaderTemp);
+    $scope.ModelNew = angular.copy($scope.Model);
 
-    $scope.PurposeList = [];
-    $scope.LocationList = [];
-    $scope.EmployeeList = [];
-    $scope.GradeList = [];
 
-    $scope.loadHeaderCbo = function () {
-        $http({
-            method: 'GET',
-            url: 'OrderManagements/MasterOrder/GetTransferCbo'
-        }).then(function (response) {
-            $scope.PurposeList = response.data.Purposes;
-            $scope.LocationList = response.data.Locations;
-            $scope.EmployeeList = response.data.Employees;
-            $scope.GradeList = response.data.Grades;
-        }, function () {
-            ShowResult(commonMessage.NetworkError, 'failure');
-        });
-    };
-    $scope.loadHeaderCbo();
-
-    // ------------------------------------------------------------------
-    // 2. FILTER  (SOStatus, Customer, Style, Description, SONo, LineItemRef, GO)
-    // ------------------------------------------------------------------
-    $scope.Filter = {
-        SOStatus: null,
-        Customer: null,
-        Style: null,
-        Description: '',
-        SONo: '',
-        LineItemReference: ''
+    $scope.Get = function (args) {
+        $scope.ModelNew = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
     };
 
-    $scope.SOStatusList = [];
-    $scope.CustomerList = [];
-    $scope.StyleList = [];
 
-    $scope.loadFilterCbo = function () {
-        $http({
-            method: 'GET',
-            url: 'OrderManagements/MasterOrder/GetFilterCbo'
-        }).then(function (response) {
-            $scope.SOStatusList = response.data.SOStatus;
-            $scope.CustomerList = response.data.Customers;
-            $scope.StyleList = response.data.Styles;
-        }, function () {
-            ShowResult(commonMessage.NetworkError, 'failure');
-        });
+    $scope.purposeList = [];
+    $http({
+        method: 'GET',
+        url: "Productions/MovementMaterialMaster/getPurposeCbo",
+        dataType: 'JSON'
+    }).then(function successCallback(response) {
+        $scope.purposeList = response.data;
+    });
+
+    $scope.getLocation = function () {
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.PurposeId)) {
+            var paymentTerm = $.grep($scope.purposeList, function (item) { return item.Value === $scope.ModelNew.PurposeId; })[0];
+            $scope.ModelNew.Location = paymentTerm.FromToLocation;
+            $scope.ModelNew.MaterialMovementMasterId = paymentTerm.MaterialMovementMasterId;
+            $scope.ModelNew.ProcessId = paymentTerm.ProcessId;
+
+        }
     };
-    $scope.loadFilterCbo();
+
+    $scope.name = null;
+    $scope.popUpDataList = [];
+    $scope.getEmpPopUpData = function (name) {
+        try {
+            $scope.name = name;
+
+            $scope.popUpDataList = [];
+            $http({
+                method: 'GET',
+                url: 'employees/authorizationconfig/getallemployeedata'
+
+            }).then(function successCallback(response) {
+                $scope.popUpDataList = response.data;
+            });
+            angular.element(document.querySelector('#popUp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.selectEmployee = function (obj) {
+        if ($scope.name == 'By') {
+            $scope.ModelNew.ByWhomId = obj.data.SystemId;
+            $scope.ModelNew.ByWhom = obj.data.EmployeeName;
+        }
+        else {
+            $scope.ModelNew.ToWhomId = obj.data.SystemId;
+            $scope.ModelNew.ToWhom = obj.data.EmployeeName;
+        }
+        angular.element(document.querySelector('#popUp')).modal('hide');
+    };
+
+
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#popUp')).modal('hide');
+    };
+
+    $scope.Save = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.GeneralForm.$valid) {
+            $http({
+                method: 'POST',
+                url: "OrderManagements/MasterOrder/CreateMatTransfer",
+                data: { 'data': $scope.ModelNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ModelNew.Id = response.data.Data.Id;
+                    $scope.getData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+    $scope.Delete = function () {
+        if (!baseService.isUndefinedOrNull($scope.modalNew.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.deleteUrl + $scope.modalNew.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.Clear();
+                    $scope.getData();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
+    $scope.Clear = function () {
+        $scope.Model = {
+            Id: null,
+            Purpose: null,
+            FromLocationId: null,
+            ToLocationId: null,
+            ByWhomId: null,
+            ToWhomId: null,
+            Remark: '',
+            Grade: null
+        };
+        $scope.ModelNew = angular.copy($scope.Model);
+    };
 
     // ------------------------------------------------------------------
     // 3. SALES ORDER LINE ITEM GRID  (result of GO)
@@ -162,7 +251,7 @@ function MaterialsTransferController(commonMessage, $scope, $rootScope, baseServ
     // ------------------------------------------------------------------
     // 5. SAVE  (header + matrix)
     // ------------------------------------------------------------------
-    $scope.Save = function () {
+    $scope.Save_ = function () {
         try {
             if (baseService.isUndefinedOrNull($scope.Header.FromLocationId)) throw "Select From Location.";
             if (baseService.isUndefinedOrNull($scope.Header.ToLocationId)) throw "Select To Location.";

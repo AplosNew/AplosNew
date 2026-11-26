@@ -198,13 +198,14 @@ function MovementMaterialMasterController(cboService, commonMessage, $scope, $ro
 
     $scope.editdoubleclick = function (args) {
         $scope.selectedValues = Object.assign({}, args.data);
-     
+       
         $scope.Action = "Update";
 
         $scope.getPlant();
         $scope.getEntityWithChange();
         $scope.GetStorageLoc();
         $scope.loadAll();
+         
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
@@ -228,6 +229,7 @@ function MovementMaterialMasterController(cboService, commonMessage, $scope, $ro
                 $scope.selectedValues = {};
                 $scope.selectedValues = response.data.master[0];
                 $scope.getSavedEmpData();
+                $scope.getLocation();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');

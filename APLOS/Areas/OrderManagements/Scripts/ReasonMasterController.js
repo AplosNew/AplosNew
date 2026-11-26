@@ -4,8 +4,8 @@ function ReasonMasterController(commonMessage, $scope, $rootScope, baseService, 
     $rootScope.title = "Reason Master";
     $scope.Action = 'Save';
     $scope.ModelList = [];
-    $scope.searchBy = "UserName"; $scope.search = "";
-    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Process', name: "Process" }, { value: 'ResponsiblrPersonName', name: "ResponsiblrPersonName" }, { value: 'Category', name: "Category" }, { value: 'Remarks', name: "Remarks" }];
+    $scope.searchBy = "Process"; $scope.search = "";
+    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Process', name: "Process" }, { value: 'ResponsiblePersonName', name: "ResponsiblePersonName" }, { value: 'Category', name: "Category" }, { value: 'Remarks', name: "Remarks" }];
 
 
     $scope.getData = function () {

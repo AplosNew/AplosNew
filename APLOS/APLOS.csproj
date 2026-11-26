@@ -2014,6 +2014,7 @@
     <Content Include="Areas\HumanResource\Scripts\otApproveController.js" />
     <Content Include="Areas\HumanResource\Scripts\WeeklyStatusController.js" />
     <Content Include="Areas\IE\Scripts\IncentiveTypeController.js" />
+    <Content Include="Areas\Machines\Scripts\RPCategoryController.js" />
     <Content Include="Areas\Machines\Scripts\MachineandEquipmentHelpDeskController.js" />
     <Content Include="Areas\Materials\Scripts\BarcodeGeneratorSettingController.js" />
     <Content Include="Areas\Materials\Scripts\machineTransferController.js" />
@@ -5181,6 +5182,7 @@
     <Content Include="Areas\Employees\Views\EmployeeDocumentAssignment\DocStatus.cshtml" />
     <Content Include="Areas\OrderManagements\Views\MasterOrder\MaterialTran.cshtml" />
     <Content Include="Areas\Machines\Views\MachineandEquipmentHelpDesk\Aplos.cshtml" />
+    <Content Include="Areas\Machines\Views\MachineandEquipmentHelpDesk\RPCategory.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

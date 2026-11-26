@@ -1,12 +1,13 @@
 ﻿'use strict';
-MachineandEquipmentHelpDeskController.$inject = ["commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter","$window"];
-function MachineandEquipmentHelpDeskController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
+MachineandEquipmentHelpDeskController.$inject = ["commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter", "$window","$controller"];
+function MachineandEquipmentHelpDeskController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, $controller) {
     $rootScope.title = "Machine and Equipment HelpDesk";
     $scope.Action = 'Save';
 
     $scope.path = 'Machines/MachineandEquipmentHelpDesk/';
     $scope.saveUrl = $scope.path + 'CreateMachineandEquipmentHelpDesk';
     $scope.deleteUrl = $scope.path + 'Delete/';
+    $controller('RPCategoryController', { $scope: $scope, $http: $http });
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -43,9 +44,9 @@ function MachineandEquipmentHelpDeskController(commonMessage, $scope, $rootScope
         IssueType: null,
         HandleTime: null,
         Remarks: null,
-        ShiftId: null
+        MachineCategoryId: null,
+        Active: true
     };
-
     $scope.MachineandEquipmentHelpDeskNew = Object.assign({}, $scope.MachineandEquipmentHelpDesk);
 
     $scope.searchBy = "EmployeeCode"; $scope.search = "";
@@ -167,7 +168,7 @@ function MachineandEquipmentHelpDeskController(commonMessage, $scope, $rootScope
             IssueType: null,
             HandleTime: null,
             Remarks: null,
-            ShiftId: null
+            MachineCategoryId: null
         };
 
         $scope.MachineandEquipmentHelpDeskNew = Object.assign({}, $scope.MachineandEquipmentHelpDesk);

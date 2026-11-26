@@ -4230,36 +4230,92 @@ WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId
 
         #region MaterialTransfer
 
-        [HttpGet, Authorize]
-        public ActionResult GetTransferCbo()
+        [HttpPost, Authorize]
+        public ActionResult GetMatTransferList(string column, string value)
         {
-            //var lib = new Library.OrderManagement.Production.MaterialTransfer();
-            //var json = Json(new
-            //{
-            //    Purposes = lib.GetPurposes(),
-            //    Locations = lib.GetLocations(),
-            //    Employees = lib.GetEmployees(),
-            //    Grades = lib.GetGrades()
-            //}, JsonRequestBehavior.AllowGet);
-            JsonResult json = null;
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
 
-            json.MaxJsonLength = int.MaxValue;
-            return json;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select  * from (SELECT S.*,E.EmployeeName ByWhom,ET.EmployeeName ToWhom,P.UserName Purpose,Location =M.FromLocation+'-'+M.ToLocation
+FROM dbo.MaterialTransfer S
+LEFT JOIN HKP.MaterialMovementPurpose P ON P.Id=S.PurposeId
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=S.ByWhomId
+LEFT JOIN dbo.EmployeeInformation ET ON ET.SystemId=S.ToWhomId
+LEFT JOIN mst.MaterialMovementMaster M ON M.PurposeId=P.Id) AS TEMP WHERE " + strkey + "";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet, Authorize]
-        public ActionResult GetFilterCbo()
+
+        [HttpPost]
+        public JsonResult CreateMatTransfer(Dictionary<string, object> data)
         {
-            //var lib = new Library.OrderManagement.Production.MaterialTransfer();
-            //var json = Json(new
-            //{
-            //    SOStatus = lib.GetSOStatus(),
-            //    Customers = lib.GetCustomers(),
-            //    Styles = lib.GetStyles()
-            //}, JsonRequestBehavior.AllowGet);
-            JsonResult json = null;
-            json.MaxJsonLength = int.MaxValue;
-            return json;
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from dbo.MaterialTransfer where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("MatTransfer", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        public ActionResult DeleteMatTransfer(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from dbo.ReasonMaster where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
         }
 
         [Authorize, HttpPost]
