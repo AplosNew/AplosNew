@@ -1,0 +1,59 @@
+﻿<togglable name="Tool Item Master"></togglable>
+<div class="form-elements" ng-form id="ToolMasterItemNew" name="ToolItemMasterNewForm">
+    <input type="hidden" ng-model="ToolMasterItemNew.Id">
+    <input type="hidden" ng-model="ToolMasterItemNew.AddedBy">
+    <input type="hidden" ng-model="ToolMasterItemNew.AddedDate">
+    <input type="hidden" ng-model="ToolMasterItemNew.AddedFromIP">
+    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Tool Master<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="ToolItemMasterNew.ToolMasterId" name="Tool Master"
+                            ng-options="item.Value as item.Text for item in ToolMasterCboList" required tabindex="6">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Is Available</label>
+            <div class="col-sm-8">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="ToolItemMasterNew.IsAvailable" tabindex="8">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="4" ng-model="ToolItemMasterNew.Remarks" maxlength="250" tabindex="7"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="SaveTIM();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{TIMAction}}</button></li>
+            <li> <button ng-click="removeTIM();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="ClearTIM();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ej-grid e-datasource="TIMModelList" e-recorddoubleclick="GetTIM" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+            <div e-column e-field="ToolMaster" e-headertext="Tool Master" e-width="5"></div>
+            <div e-column e-field="IsAvailable" e-headertext="IsAvailable" e-width="2"></div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="confirmRunDelPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteTIM();"></confirm-archive-generic>
