@@ -233,6 +233,154 @@ function ToolMasterController(commonMessage, $scope, $rootScope, baseService, $r
 
     // #region HandToolIssue
 
+
+    $scope.HTIModelList = [];
+    $scope.getHTIData = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetHandToolIssueList",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.HTIModelList = response.data;
+        });
+    }
+    $scope.getHTIData();
+
+    $scope.HandToolIssue = {
+        Id: null,
+        ToolMasterId: null,
+        Remarks: null,
+        IsAvailable: true
+    };
+    $scope.HandToolIssueNew = Object.assign({}, $scope.HandToolIssue);
+    $scope.HTIAction = 'Save';
+
+    $scope.GetHTI = function (data) {
+        $scope.HandToolIssueNew = Object.assign({}, data.data);
+        $scope.HTIAction = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    //$scope.ToolItemMasterList = [];
+    //$scope.GetToolItemMasterCbo = function () {
+    //    $scope.ToolItemMasterList = [];
+    //    $http.get('Machines/MachineandEquipmentHelpDesk/GetToolItemMasterCbo')
+    //        .then(function (response) {
+    //            $scope.ToolItemMasterList = response.data;
+    //        });
+    //};
+    //$scope.GetToolItemMasterCbo();
+
+    $scope.name = null;
+    $scope.popUpDataList = [];
+    $scope.getEmpPopUpData = function (name) {
+        try {
+            $scope.name = name;
+
+            $scope.popUpDataList = [];
+            $http({
+                method: 'GET',
+                url: 'employees/authorizationconfig/getallemployeedata'
+
+            }).then(function successCallback(response) {
+                $scope.popUpDataList = response.data;
+            });
+            angular.element(document.querySelector('#popUp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.selectEmployee = function (obj) {
+        if ($scope.name == 'By') {
+            $scope.HandToolIssueNew.ByIssueId = obj.data.SystemId;
+            $scope.HandToolIssueNew.ByIssue = obj.data.EmployeeName;
+        }
+        else {
+            $scope.HandToolIssueNew.ToIssueId = obj.data.SystemId;
+            $scope.HandToolIssueNew.ToIssue = obj.data.EmployeeName;
+        }
+        angular.element(document.querySelector('#popUp')).modal('hide');
+    };
+
+
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#popUp')).modal('hide');
+    };
+
+
+    $scope.SaveHTI = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.HandToolIssueNewForm.$valid) {
+            $http({
+                method: 'POST',
+                url: 'Machines/MachineandEquipmentHelpDesk/CreateHandToolIssue',
+                data: { 'data': $scope.HandToolIssueNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    HTIClearFields();
+                    $scope.getHTIData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+    $scope.message_confirmation = "";
+    $scope.removeHTI = function () {
+
+        if (!baseService.isUndefinedOrNull($scope.HandToolIssueNew.Id)) {
+            $scope.message_confirmation = 'Are you sure want to delete [ ' + $scope.HandToolIssueNew.Id + ' ]';
+            angular.element(document.querySelector('#confirmRunHTIDelPopUp')).modal('show');
+        }
+    };
+    $scope.DeleteHTI = function () {
+        if (!baseService.isUndefinedOrNull($scope.HandToolIssueNew.Id)) {
+            $http({
+                method: 'POST',
+                url: 'Machines/MachineandEquipmentHelpDesk/DeleteHandToolIssue?id=' + $scope.HandToolIssueNew.Id
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getHTIData();
+                    HTIClearFields();
+                }
+            }, function () {
+                ShowResult(commonMessage.NetworkError, 'failure');
+            }).finally(function () {
+            });
+        }
+
+    };
+
+    $scope.ClearHTI = function () {
+        HTIClearFields();
+        return true;
+    };
+
+    function HTIClearFields() {
+        $scope.HandToolIssue = {
+            Id: null,
+            ToolMasterId: null,
+            Remarks: null,
+            IsAvailable: true
+        };
+        $scope.HandToolIssueNew = Object.assign({}, $scope.HandToolIssue);
+        $scope.TIMAction = 'Save';
+    }
+
     // #endregion
 
 };

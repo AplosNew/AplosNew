@@ -45,14 +45,17 @@ namespace Aplos.Areas.Machines.Controllers
         {
             return View();
         }
+        [Authorize]
         public ActionResult ToolMaster()
         {
             return View();
         }
+        [Authorize]
         public ActionResult ToolItemMaster()
         {
             return View();
         }
+        [Authorize]
         public ActionResult HandToolIssue()
         {
             return View();
@@ -445,7 +448,7 @@ LEFT JOIN hkp.MachineCategory SD ON SD.Id=TT.MachineCategoryId) AS TEMP WHERE " 
             return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName1 + ""), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
+        [HttpPost,Authorize]
         public ActionResult GetToolMasterList(string column, string value)
         {
             string strkey = "1=1";
@@ -544,7 +547,7 @@ LEFT JOIN hkp.MachineCategory SD ON SD.Id=TT.MachineCategoryId) AS TEMP WHERE " 
 
         string TableName2 = "dbo.ToolItemMaster";
 
-        [HttpGet]
+        [HttpGet,Authorize]
         public ActionResult GetToolItemMasterList()
         {
             string sql = @"SELECT IM.*,M.UserName ToolMaster FROM dbo.ToolItemMaster IM
@@ -623,6 +626,89 @@ LEFT JOIN hkp.MachineCategory SD ON SD.Id=TT.MachineCategoryId) AS TEMP WHERE " 
         }
         #endregion
 
+        #region HandToolIssue
+
+        string TableName3 = "dbo.HandToolIssue";
+
+        [HttpGet, Authorize]
+        public ActionResult GetHandToolIssueList()
+        {
+            string sql = @"SELECT IM.*  FROM dbo.HandToolIssue IM";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult CreateHandToolIssue(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1"); 
+                //con.OpenDataSetThroughAdapter("select * from " + TableName3 + " where ToolMasterId='" + data["ToolMasterId"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                //if (dsMaster.Tables[0].Rows.Count > 0)
+                //    throw new Exception("Same Tool Master already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName3 + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName2, out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        public ActionResult DeleteHandToolIssue(string id)
+        {
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName3 + " where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+        #endregion
 
     }
 }
