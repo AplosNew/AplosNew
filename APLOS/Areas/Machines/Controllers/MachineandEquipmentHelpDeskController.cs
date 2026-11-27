@@ -240,6 +240,42 @@ LEFT JOIN hkp.MachineCategory SD ON SD.Id=TT.MachineCategoryId) AS TEMP WHERE " 
             }
         }
 
+        [HttpPost]
+        public JsonResult UpdateResPerson(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from dbo.MachineandEquipmentHelpDeskResponsiblePerson where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+
         [HttpGet, Authorize]
         public ActionResult GetResPersonList()
         {

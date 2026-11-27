@@ -96,6 +96,16 @@ function MachineandEquipmentHelpDeskController(commonMessage, $scope, $rootScope
     };
     $scope.GetMachineCategoryCbo();
 
+    $scope.RPCategoryCboList = [];
+    $scope.GetRPCategoryCbo = function () {
+        $scope.RPCategoryCboList = [];
+        $http.get('Machines/MachineandEquipmentHelpDesk/GetRPCategoryCbo')
+            .then(function (response) {
+                $scope.RPCategoryCboList = response.data;
+            });
+    };
+  //  $scope.GetRPCategoryCbo();
+
 
     $scope.Get = function (data) {
         $scope.MachineandEquipmentHelpDeskNew = Object.assign({}, data.data);
@@ -327,6 +337,27 @@ function MachineandEquipmentHelpDeskController(commonMessage, $scope, $rootScope
         }
 
     };
+
+    $scope.SaveRow = function (data) {
+        $http({
+            method: 'POST',
+            url: "Machines/MachineandEquipmentHelpDesk/UpdateResPerson",
+            data: { 'data': data.data },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getSavedEmpData();
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
 
 };
 
