@@ -3933,15 +3933,21 @@ OPTION (MAXRECURSION 0);";
             return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,DataName AS Text FROM [dbo].[operationstatusSetting]"), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost, Authorize]
-        public ActionResult GetOSMasterDataList(string column, string value)
+        public JsonResult GetDataDisplayUserNames(string tabName)
         {
             EmployeeProfile employeeProfile = new EmployeeProfile();
-
-            var data = employeeProfile.GetOS1MasterData(column, value);
-            string jsonData = JsonConvert.SerializeObject(data);
-            return Content(jsonData, "application/json");
+            return Json(employeeProfile.GetDataDisplayUsers(tabName), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost, Authorize]
+        public ContentResult GetOSMasterDataList(string userName)
+        {
+            EmployeeProfile employeeProfile = new EmployeeProfile();
+            var ser = new System.Web.Script.Serialization.JavaScriptSerializer { MaxJsonLength = int.MaxValue };
+            return Content(ser.Serialize(employeeProfile.GetOS1MasterGrid(userName)), "application/json");
+        }
+
+         
 
         [HttpGet, Authorize]
         public ActionResult GetOSMasterCboList()
@@ -3951,13 +3957,15 @@ OPTION (MAXRECURSION 0);";
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
+       
+
         [HttpPost, Authorize]
-        public ActionResult GetOS2DataList(string column, string value)
+        public ContentResult GetOS2DataList(string userName)
         {
             EmployeeProfile employeeProfile = new EmployeeProfile();
-            var data = employeeProfile.GetOS2Data(column, value);
-            string jsonData = JsonConvert.SerializeObject(data);
-            return Content(jsonData, "application/json");
+
+            var ser = new System.Web.Script.Serialization.JavaScriptSerializer { MaxJsonLength = int.MaxValue };
+            return Content(ser.Serialize(employeeProfile.GetOS2Grid(userName)), "application/json");
         }
 
         [HttpGet, Authorize]
@@ -3969,13 +3977,17 @@ OPTION (MAXRECURSION 0);";
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetOS2SecondDataList(string column, string value)
+        public ContentResult GetOS2SecondDataList(string userName)
         {
             EmployeeProfile employeeProfile = new EmployeeProfile();
-            var data = employeeProfile.GetOS2SecondData(column, value);
+
+            var data = employeeProfile.GetOS2SecondGrid(userName);
             string jsonData = JsonConvert.SerializeObject(data);
             return Content(jsonData, "application/json");
         }
+
+       
+
 
         [HttpGet, Authorize]
         public ActionResult GetOS2SecondCboList()
@@ -3985,11 +3997,16 @@ OPTION (MAXRECURSION 0);";
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
+         
         [HttpPost, Authorize]
-        public ActionResult GetProductionDataList(string column, string value)
+        public ContentResult GetProductionDataList(string userName)
         {
             EmployeeProfile employeeProfile = new EmployeeProfile();
-            var data = employeeProfile.GetProductionData(column, value);
+
+            //var ser = new System.Web.Script.Serialization.JavaScriptSerializer { MaxJsonLength = int.MaxValue };
+            //return Content(ser.Serialize(employeeProfile.GetProductionData(userName)), "application/json");
+
+            var data = employeeProfile.GetProductionGrid(userName);
             string jsonData = JsonConvert.SerializeObject(data);
             return Content(jsonData, "application/json");
         }
@@ -4003,14 +4020,17 @@ OPTION (MAXRECURSION 0);";
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
+
         [HttpPost, Authorize]
-        public ActionResult GetWorkCenterDataList(string column, string value)
+        public ContentResult GetWorkCenterDataList(string userName)
         {
             EmployeeProfile employeeProfile = new EmployeeProfile();
-            var data = employeeProfile.GetWorkCenterData(column, value);
-            string jsonData = JsonConvert.SerializeObject(data);
-            return Content(jsonData, "application/json");
+
+            var ser = new System.Web.Script.Serialization.JavaScriptSerializer { MaxJsonLength = int.MaxValue };
+            return Content(ser.Serialize(employeeProfile.GetWorkCenterGrid(userName)), "application/json");
         }
+
+        
 
         [HttpGet, Authorize]
         public ActionResult GetWorkCenterCboList()
@@ -4088,6 +4108,81 @@ OPTION (MAXRECURSION 0);";
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
                 con.executeQuery("delete from [dbo].[operationstatusSetting] where Id='" + SqlEsc(id) + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetColumnControlDataList(string column, string value, string entryType)
+        {
+            string strkey = "1=1";
+            // column comes from the browser, so only known column names are allowed into the SQL text
+            string[] allowedColumns = new string[] { "Id", "DataName", "ColumnName", "UserName"};
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false && Array.IndexOf(allowedColumns, column) >= 0)
+                strkey = column + " like '%" + SqlEsc(value) + "%'";
+
+            string sql = @"select top 100 * from (SELECT TT.* FROM [dbo].[OperationstatusColumnDisplay] TT) AS TEMP WHERE " + strkey + " order by Id";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateOperationStatusColumnControl(Dictionary<string, object> data)
+        {
+            try
+            {
+                string smg = "";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from [dbo].[OperationstatusColumnDisplay] where Id='" + SqlEsc(data["Id"]) + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    data.Remove("Id");
+                    AddNewRow(dsMaster.Tables[0], data);
+                    smg = AplosMessage.Insert;
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                    smg = AplosMessage.Updated;
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Message = smg });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult DeleteOperationStatusColumnControl(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from [dbo].[OperationstatusColumnDisplay] where Id='" + SqlEsc(id) + "'");
                 con.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
