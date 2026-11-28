@@ -2122,7 +2122,7 @@ WHERE S.InspectionTypeId='" + imageInspectionTypeId + "'";
 
         #region DefectMaster
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public ActionResult GetDefectMasterList(string column, string value)
         {
             string strkey = "1=1";

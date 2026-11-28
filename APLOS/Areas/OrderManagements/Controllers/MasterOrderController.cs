@@ -36,6 +36,7 @@ using Library.Service.Systems;
 using Library.Service.TaskScheduler;
 using Library.Data;
 using System.Reflection;
+using Newtonsoft.Json;
 #endregion
 
 namespace Aplos.Areas.OrderManagements.Controllers
@@ -3694,7 +3695,9 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=S.ResponsiblePersonId) AS TEMP
 
 WHERE " + strkey + "  and MO.PlantId='" + identity.PlantId + @"' AND MO.EntityId IN (" + Entity + @")  ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEMP.ArticleId";
 
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            var data = _sqlRepository.GetDataCollection(sql, null);
+            string jsonData = JsonConvert.SerializeObject(data);
+            return Content(jsonData, "application/json");
         }
 
         [HttpGet]
