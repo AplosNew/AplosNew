@@ -165,7 +165,10 @@ function MachineConfig($routeProvider, $locationProvider) {
             templateUrl: 'Machines/MachineandEquipmentHelpDesk/aplos',
             controller: 'MachineandEquipmentHelpDeskController'
         })
-
+        .when('/tool-master', {
+            templateUrl: 'Machines/MachineandEquipmentHelpDesk/ToolMasterSetup',
+            controller: 'ToolMasterController'
+        })
         ;
 
 

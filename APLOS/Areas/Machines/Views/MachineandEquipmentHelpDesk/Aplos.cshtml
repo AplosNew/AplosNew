@@ -2,7 +2,7 @@
     <div class="site-tab">
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="Issue" role="tab" data-toggle="tab">Issue</a></li>
-            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);" href="" aria-controls="GLpload" role="tab" data-toggle="tab">Responsible Person</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);getSavedEmpData();GetRPCategoryCbo();" href="" aria-controls="GLpload" role="tab" data-toggle="tab">Responsible Person</a></li>
             <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);" href="" aria-controls="GLpload" role="tab" data-toggle="tab">RP Category</a></li>
         </ul>
     </div>
@@ -173,13 +173,14 @@
                     <script type="text/template" id="Remove">
                         <div class="col-sm-2 text-left" style="padding: 0px; padding-left: 2px; width: 20px;">
                             <button ng-click="$parent.removeEmp(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-trash"></i></button>
+                            <button ng-click="$parent.SaveRow(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-floppy-disk"></i></button>
                         </div>
                     </script>
                     <script type="text/template" id="RPCategoryId">
                         <div class="select-style">
                             <select class="form-control" ng-model="data.RPCategoryId" name="RPCategoryId">
                                 <option value="">--Select--</option>
-                                <option ng-repeat="option in $parent.RPCategoryIdList" value="{{option.Value}}">{{option.Text}}</option>
+                                <option ng-repeat="option in $parent.RPCategoryCboList" value="{{option.Value}}">{{option.Text}}</option>
                             </select>
                         </div>
                     </script>
