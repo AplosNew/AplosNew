@@ -3737,6 +3737,114 @@ Where EI.[Status] <> 'Closed' "));
             }
         }
 
+
+
+
+        #region Machine System
+        public IHttpActionResult GetMachineCategory()
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select Id Value , UserName Name from [HKP].[MachineCategory] where Active = 1"));
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+
+
+        public IHttpActionResult GetMachineIssue(string MachineCategoryId)
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select Id Value , IssueType Name from [dbo].[MachineandEquipmentHelpDesk] where  MachineCategoryId = '" + MachineCategoryId + "'"));
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+
+
+        public IHttpActionResult GetToolMaster()
+        {
+            /* clsDataContext clsData = new clsDataContext();
+             clsData.GetTNAReport(out List<TNAGetSet> activelists);
+             return activelists;*/
+
+            try
+            {
+                return Json(_sqlRepository.GetDataTable(@"Select TTD.Id Value , CONCAT(TTD.Id , ' - ' ,TM.UserName ) Name  from [dbo].[ToolItemDetail] TTD
+                                                            left join [dbo].[ToolMaster] TM on TM.Id = TTD.ToolMasterId
+                                                            where TTD.IsAvailable = 1
+                                                            order by Convert(numeric(18),TTD.Id) Asc"));
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+
+        }
+
+
+        [HttpPost]
+        public string SaveToolIssueControl([FromBody] IEnumerable<ToolIssueControl> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.SaveToolIssueControl(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+
+        [HttpPost]
+        public string PostUpdateToolIssueControl([FromBody] IEnumerable<ToolIssueControl> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostUpdateToolIssueControl(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+
+        #endregion Machine System
+
+
         #endregion
     }
 }

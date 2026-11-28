@@ -15193,6 +15193,186 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
 
 
 
+
+
+
+        public string SaveToolIssueControl(IEnumerable<ToolIssueControl> DataToSave)
+        {
+            try
+            {
+                if (DataToSave == null)
+                    throw new ArgumentNullException(
+                        nameof(DataToSave), "Tool data is null.");
+
+                List<ToolIssueControl> items = DataToSave.ToList();
+
+                if (items.Count == 0)
+                    return "";
+
+                DataSet dsMaster;
+
+                string TableName = "[dbo].[ToolIssueControl]";
+
+                ConnectionManager.DAL.ConManager con =
+                    new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter(
+                    "select * from " + TableName + " where 1=2",
+                    out dsMaster,
+                    false,
+                    "1");
+
+                string _Id = "";
+
+                foreach (ToolIssueControl item in items)
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+
+                    clsGenID genid = new clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    dr["Id"] = _Id;
+                    dr["ToolItemDetailId"] = item.ToolItemDetailId ?? "";
+                    dr["IssueDateTime"] = System.DateTime.Now.ToString();
+                    dr["ByIssueId"] = item.ByIssueId ?? "";
+                    dr["ToIssueId"] = item.ToIssueId ?? "";
+                    dr["Addedby"] = item.AddedBy ?? "";
+                    dr["Remarks"] = item.Remarks ?? "";
+                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedFromIP"] = ":01";
+
+                    dsMaster.Tables[0].Rows.Add(dr);
+                }
+
+                // 1. Save ToolIssueControl records
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                // 2. Update ToolItemDetail IsAvalable = 0
+                foreach (ToolIssueControl item in items)
+                {
+                    if (string.IsNullOrWhiteSpace(item.ToolItemDetailId))
+                        continue;
+
+                    DataSet dsTool;
+
+                    string toolId = item.ToolItemDetailId.Replace("'", "''");
+
+                    string toolQuery = @"
+                SELECT *
+                FROM dbo.ToolItemDetail
+                WHERE Id = N'" + toolId + @"'";
+
+                    con.OpenDataSetThroughAdapter(
+                        toolQuery,
+                        out dsTool,
+                        false,
+                        "1");
+
+                    if (dsTool.Tables.Count > 0 &&
+                        dsTool.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow toolRow = dsTool.Tables[0].Rows[0];
+
+                        toolRow["IsAvalable"] = 0;
+
+                        clsStaticInfo toolInfo = new clsStaticInfo();
+                        toolInfo.SaveDataSets(dsTool);
+                    }
+                }
+
+                return _Id;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
+
+
+        public string PostUpdateToolIssueControl(IEnumerable<ToolIssueControl> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<ToolIssueControl> items = DataToSave.ToList();
+
+                var itemss = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from [dbo].[ToolIssueControl] where UpdatedBy is null and ToolItemDetailId='" + itemss[0].ToolItemDetailId + "'", out dsMaster, false, "1");
+
+                foreach (ToolIssueControl item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                        // DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+
+                        dr.EndEdit();
+
+                    }
+                }
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                foreach (ToolIssueControl item in items)
+                {
+                    if (string.IsNullOrWhiteSpace(item.ToolItemDetailId))
+                        continue;
+
+                    DataSet dsTool;
+
+                    string toolId = item.ToolItemDetailId.Replace("'", "''");
+
+                    string toolQuery = @"
+                SELECT *
+                FROM dbo.ToolItemDetail
+                WHERE Id = N'" + toolId + @"'";
+
+                    con.OpenDataSetThroughAdapter(
+                        toolQuery,
+                        out dsTool,
+                        false,
+                        "1");
+
+                    if (dsTool.Tables.Count > 0 &&
+                        dsTool.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow toolRow = dsTool.Tables[0].Rows[0];
+
+                        toolRow["IsAvalable"] = 1;
+
+                        clsStaticInfo toolInfo = new clsStaticInfo();
+                        toolInfo.SaveDataSets(dsTool);
+                    }
+                }
+
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+
+
         #endregion
 
     }
@@ -17374,6 +17554,23 @@ LEFT OUTER JOIN org.Department AS DTO ON dto.Id=pr.DepartmentId
         public string Remarks { get; set; }
         public string AddedBy { get; set; }
         public string AddedDate { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+
+    }
+
+    public class ToolIssueControl
+    {
+        public string Id { get; set; }
+        public string ToolItemDetailId { get; set; }
+        public string IssueDateTime { get; set; }
+        public string ByIssueId { get; set; }
+        public string ToIssueId { get; set; }
+        public string ReturnDateTime { get; set; }
+        public string Remarks { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
         public string UpdatedBy { get; set; }
         public string UpdatedDate { get; set; }
 
